@@ -88,6 +88,8 @@ export const translations = {
     privacy: 'Privacy Policy',
     version: 'Version',
     app_tagline: 'Your spiritual companion',
+    app_name: 'Sajdah',
+    app_name_arabic: 'سجدة',
 
     // Onboarding
     welcome_title: 'Welcome to your',
@@ -324,6 +326,8 @@ export const translations = {
     privacy: 'سياسة الخصوصية',
     version: 'الإصدار',
     app_tagline: 'رفيقك الروحي',
+    app_name: 'سجدة',
+    app_name_arabic: 'سجدة',
 
     // Onboarding
     welcome_title: 'مرحباً بك في',

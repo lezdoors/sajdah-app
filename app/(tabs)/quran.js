@@ -16,6 +16,7 @@ import {
 import { useApp } from '../../constants/AppContext';
 import { SURAHS } from '../../data/surahs';
 import { loadSurahAyahs } from '../../utils/quranLoader';
+import { setLastRead } from '../../utils/storage';
 import {
   getReciters, getSelectedReciter, setSelectedReciter,
   playSurah, togglePlayPause, stopPlayback,
@@ -155,7 +156,14 @@ function ReadingView({ surahNumber, onBack }) {
   useEffect(() => {
     let mounted = true;
     loadSurahAyahs(surahNumber)
-      .then(({ ayahs: data }) => { if (mounted) { setAyahs(data); setLoading(false); } })
+      .then(({ ayahs: data }) => {
+        if (mounted) {
+          setAyahs(data);
+          setLoading(false);
+          // Track reading progress for "Continue Reading" on home screen
+          setLastRead(surahNumber, 1);
+        }
+      })
       .catch(() => { if (mounted) { setError(t('load_error')); setLoading(false); } });
     return () => { mounted = false; };
   }, [surahNumber]);

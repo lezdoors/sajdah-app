@@ -4,11 +4,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Images } from '../constants/theme';
+import { useApp } from '../constants/AppContext';
 
 const ONBOARDING_KEY = 'sajdah_onboarded';
 
 export default function Index() {
   const router = useRouter();
+  const { t } = useApp();
 
   // Animation values
   const titleOpacity = useRef(new Animated.Value(0)).current;
@@ -88,17 +90,17 @@ export default function Index() {
         >
           {/* App name */}
           <Animated.Text style={[styles.title, { opacity: titleOpacity }]}>
-            Sajdah
+            {t('app_name')}
           </Animated.Text>
 
           {/* Arabic subtitle */}
           <Animated.Text style={[styles.arabic, { opacity: arabicOpacity }]}>
-            سجدة
+            {t('app_name_arabic')}
           </Animated.Text>
 
           {/* Tagline */}
           <Animated.Text style={[styles.tagline, { opacity: taglineOpacity }]}>
-            Your spiritual companion
+            {t('app_tagline')}
           </Animated.Text>
         </Animated.View>
       </ImageBackground>

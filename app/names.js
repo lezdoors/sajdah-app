@@ -332,8 +332,8 @@ export default function NamesScreen() {
 
             {/* Title at bottom of hero */}
             <View style={[styles.heroTitleContainer, isRTL && styles.heroTitleContainerRTL]}>
-              <Text style={styles.heroTitle}>99 Names of Allah</Text>
-              <Text style={styles.heroSubtitle}>Al-Asma ul-Husna</Text>
+              <Text style={styles.heroTitle}>{t('names_of_allah')}</Text>
+              <Text style={styles.heroSubtitle}>{t('names_subtitle')}</Text>
             </View>
           </LinearGradient>
         </ImageBackground>
