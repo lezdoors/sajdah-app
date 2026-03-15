@@ -21,7 +21,7 @@ import { getPrayerTimes, getNextPrayer, getCurrentPrayer, formatTime, getCountdo
 import { formatHijriDate } from '../../utils/hijri';
 import { getDailyAyah } from '../../data/ayahs';
 import { getDailyHadith } from '../../data/hadith';
-import { DUA_CATEGORIES } from '../../data/duas';
+import { DUA_CATEGORIES, getDailyDua } from '../../data/duas';
 import { getDailyGoals, toggleGoal, getStreak, recordDay, getLastRead, getPrayerLog, togglePrayerCompleted, toggleBookmark, isBookmarked } from '../../utils/storage';
 import { SURAHS } from '../../data/surahs';
 
@@ -60,6 +60,7 @@ export default function HomeScreen() {
   const [currentPrayer, setCurrentPrayer] = useState(null);
   const [dailyAyah] = useState(() => getDailyAyah());
   const [dailyHadith] = useState(() => getDailyHadith());
+  const [dailyDua] = useState(() => getDailyDua());
   const [hijriDate, setHijriDate] = useState('');
   const [loading, setLoading] = useState(true);
   const [goals, setGoals] = useState({});
@@ -506,6 +507,25 @@ export default function HomeScreen() {
                   <Text style={[styles.arabicTextSmall, { color: colors.textPrimary }]}>{dailyHadith.arabic}</Text>
                   <Text style={[styles.translationText, { color: colors.textSecondary }]}>{dailyHadith.english}</Text>
                   <Text style={[styles.sourceText, { color: colors.textTertiary }]}>{dailyHadith.narrator} -- {dailyHadith.source}</Text>
+                </View>
+              </View>
+            </Animated.View>
+          )}
+
+          {/* ── Daily Dua ── */}
+          {dailyDua && (
+            <Animated.View style={contentStyle}>
+              <View style={styles.section}>
+                <View style={[styles.sectionHeader, { flexDirection: rowDir }]}>
+                  <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('daily_dua')}</Text>
+                  <Pressable onPress={() => router.push({ pathname: '/dua-reader', params: { categoryId: dailyDua.categoryId } })} hitSlop={8}>
+                    <Text style={[styles.viewAll, { color: colors.textTertiary }]}>{t('view_all')}</Text>
+                  </Pressable>
+                </View>
+                <View style={[styles.contentCard, { backgroundColor: colors.surfaceElevated }]}>
+                  <Text style={[styles.arabicTextSmall, { color: colors.textPrimary }]}>{dailyDua.arabic}</Text>
+                  <Text style={[styles.translationText, { color: colors.textSecondary }]}>{dailyDua.english}</Text>
+                  <Text style={[styles.sourceText, { color: colors.accent }]}>{dailyDua.categoryName}</Text>
                 </View>
               </View>
             </Animated.View>

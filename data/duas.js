@@ -218,3 +218,14 @@ export const DUA_CATEGORIES = [
 export function getCategoryById(id) {
   return DUA_CATEGORIES.find(c => c.id === id);
 }
+
+// Returns a different dua each day, cycling through all duas across all categories
+export function getDailyDua() {
+  const allDuas = DUA_CATEGORIES.flatMap(cat =>
+    cat.duas.map(d => ({ ...d, categoryName: cat.name, categoryId: cat.id }))
+  );
+  const dayOfYear = Math.floor(
+    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
+  );
+  return allDuas[dayOfYear % allDuas.length];
+}
