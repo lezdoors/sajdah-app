@@ -43,14 +43,6 @@ const GOAL_ITEMS = [
   { id: 'isha', labelKey: 'goal_isha' },
 ];
 
-const BOOKMARK_TYPE_LABELS = {
-  ayah: 'Ayah',
-  surah: 'Surah',
-  dua: 'Dua',
-  hadith: 'Hadith',
-  name: 'Name',
-};
-
 // Number of animated sections
 const SECTION_COUNT = 6;
 
@@ -367,7 +359,7 @@ export default function YouScreen() {
                   <View style={[styles.bookmarkRow, { flexDirection: rowDir }]}>
                     <View style={[styles.bookmarkBadge, { backgroundColor: colors.accentLight }]}>
                       <Text style={[styles.bookmarkBadgeText, { color: colors.accent }]}>
-                        {BOOKMARK_TYPE_LABELS[bm.type] || bm.type}
+                        {t(`bookmark_${bm.type}`) || bm.type}
                       </Text>
                     </View>
                     <Text

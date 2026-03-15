@@ -1,14 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, Dimensions,
-  ActivityIndicator, Pressable, ImageBackground, AppState, Animated,
+  ActivityIndicator, Pressable, ImageBackground, AppState, Animated, TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
 import {
-  MapPin, Sun, Sunrise, Sunset, Moon, Cloud, Clock, Check,
+  MapPin, Sun, Sunrise, Sunset, Moon, Cloud, Clock, Check, ChevronLeft,
 } from 'lucide-react-native';
 
 import { Spacing, FontSize, FontWeight, BorderRadius, Gradients, Images } from '../constants/theme';
@@ -37,6 +38,7 @@ const PRAYER_ORDER = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Qiy
 
 export default function PrayerScreen() {
   const { colors, shadows, isDark, t, isRTL } = useApp();
+  const router = useRouter();
 
   const [location, setLocation] = useState(null);
   const [cityName, setCityName] = useState('--');
@@ -128,6 +130,13 @@ export default function PrayerScreen() {
         <ImageBackground source={Images.mosqueSilhouette} style={styles.heroHeader} resizeMode="cover">
           <LinearGradient colors={Gradients.heroMaskDark} style={styles.heroGradient}>
             <SafeAreaView edges={['top']} style={styles.heroInner}>
+              <TouchableOpacity
+                onPress={() => router.back()}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                style={{ position: 'absolute', top: Spacing.sm, left: Spacing.sm, zIndex: 10, width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <ChevronLeft size={24} color="#FFFFFF" strokeWidth={2} />
+              </TouchableOpacity>
               <View style={styles.heroTextBlock}>
                 <Text style={styles.heroTitle}>{t('prayer_times')}</Text>
                 <View style={[styles.locationRow, { flexDirection: rowDir }]}>
@@ -242,8 +251,14 @@ export default function PrayerScreen() {
           })}
         </View>
 
-        {/* Prayer Completion Summary */}
-        <View style={styles.completionSummary}>
+        {/* Prayer Completion Progress */}
+        <View style={styles.completionSection}>
+          <View style={[styles.progressBarBg, { backgroundColor: colors.surfaceBorder }]}>
+            <View style={[styles.progressBarFill, {
+              width: `${(Object.values(prayerLog).filter(Boolean).length / 5) * 100}%`,
+              backgroundColor: Object.values(prayerLog).filter(Boolean).length === 5 ? '#22C55E' : colors.accent,
+            }]} />
+          </View>
           <Text style={[styles.completionText, { color: colors.textTertiary }]}>
             {Object.values(prayerLog).filter(Boolean).length}/5 {t('prayers_today')}
           </Text>
@@ -322,10 +337,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  completionSummary: {
+  completionSection: {
     paddingHorizontal: GRID_PADDING,
-    paddingTop: Spacing.sm,
+    paddingTop: Spacing.md,
     alignItems: 'center',
+    gap: 8,
+  },
+  progressBarBg: {
+    width: '100%',
+    height: 6,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 3,
   },
   completionText: {
     fontSize: FontSize.bodySmall,

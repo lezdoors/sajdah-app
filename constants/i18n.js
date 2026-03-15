@@ -180,6 +180,14 @@ export const translations = {
     subhanallah: 'SubhanAllah',
     alhamdulillah: 'Alhamdulillah',
     allahu_akbar: 'Allahu Akbar',
+    la_ilaha_illallah: 'La ilaha illallah',
+
+    // Bookmark Types
+    bookmark_ayah: 'Ayah',
+    bookmark_surah: 'Surah',
+    bookmark_dua: 'Dua',
+    bookmark_hadith: 'Hadith',
+    bookmark_name: 'Name',
 
     // 99 Names
     names_title: '99 Names of Allah',
@@ -418,6 +426,14 @@ export const translations = {
     subhanallah: 'سبحان الله',
     alhamdulillah: 'الحمد لله',
     allahu_akbar: 'الله أكبر',
+    la_ilaha_illallah: 'لا إله إلا الله',
+
+    // Bookmark Types
+    bookmark_ayah: 'آية',
+    bookmark_surah: 'سورة',
+    bookmark_dua: 'دعاء',
+    bookmark_hadith: 'حديث',
+    bookmark_name: 'اسم',
 
     // 99 Names
     names_title: 'أسماء الله الحسنى',
