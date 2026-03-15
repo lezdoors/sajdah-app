@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Star, Circle, Compass, CalendarDays, ChevronRight } from 'lucide-react-native';
+import { Star, Circle, Compass, CalendarDays } from 'lucide-react-native';
 import { useApp } from '../../constants/AppContext';
 import {
   Spacing,
@@ -209,11 +209,6 @@ export default function DiscoverScreen() {
               >
                 {t('topics')}
               </Text>
-              <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <Text style={[styles.viewAll, { color: colors.textTertiary }]}>
-                  {t('view_all')}
-                </Text>
-              </Pressable>
             </View>
             <View
               style={[
@@ -274,11 +269,6 @@ export default function DiscoverScreen() {
               >
                 {t('features')}
               </Text>
-              <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <Text style={[styles.viewAll, { color: colors.textTertiary }]}>
-                  {t('view_all')}
-                </Text>
-              </Pressable>
             </View>
             <View
               style={[

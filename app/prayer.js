@@ -245,7 +245,7 @@ export default function PrayerScreen() {
         {/* Prayer Completion Summary */}
         <View style={styles.completionSummary}>
           <Text style={[styles.completionText, { color: colors.textTertiary }]}>
-            {Object.values(prayerLog).filter(Boolean).length}/5 prayers completed today
+            {Object.values(prayerLog).filter(Boolean).length}/5 {t('prayers_today')}
           </Text>
         </View>
 

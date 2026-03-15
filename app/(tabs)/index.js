@@ -274,7 +274,7 @@ export default function HomeScreen() {
                     <Text style={[styles.streakBadgeText, { color: colors.gold }]}>{streak.count}</Text>
                   </View>
                 )}
-                <Pressable style={[styles.bellBtn, { backgroundColor: colors.surfaceElevated }]}>
+                <Pressable style={[styles.bellBtn, { backgroundColor: colors.surfaceElevated }]} onPress={() => router.push('/(tabs)/you')}>
                   <Bell size={20} color={colors.textPrimary} strokeWidth={1.5} />
                 </Pressable>
               </View>
@@ -399,7 +399,7 @@ export default function HomeScreen() {
             <View style={styles.section}>
               <View style={[styles.sectionHeader, { flexDirection: rowDir }]}>
                 <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('services')}</Text>
-                <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }} onPress={() => router.push('/(tabs)/discover')}>
                   <Text style={[styles.viewAll, { color: colors.textTertiary }]}>{t('view_all')}</Text>
                 </Pressable>
               </View>

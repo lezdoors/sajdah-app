@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
-  View, Text, FlatList, ScrollView, StyleSheet, Dimensions,
+  View, Text, FlatList, SectionList, ScrollView, StyleSheet, Dimensions,
   ActivityIndicator, Pressable, TextInput, ImageBackground, StatusBar, Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -26,6 +26,19 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const HEADER_HEIGHT = SCREEN_HEIGHT * 0.28;
 const reciters = getReciters();
 
+const JUZ_STARTS = [
+  { juz: 1, surah: 1 }, { juz: 2, surah: 2 }, { juz: 3, surah: 2 },
+  { juz: 4, surah: 3 }, { juz: 5, surah: 4 }, { juz: 6, surah: 4 },
+  { juz: 7, surah: 5 }, { juz: 8, surah: 6 }, { juz: 9, surah: 7 },
+  { juz: 10, surah: 8 }, { juz: 11, surah: 9 }, { juz: 12, surah: 11 },
+  { juz: 13, surah: 12 }, { juz: 14, surah: 15 }, { juz: 15, surah: 17 },
+  { juz: 16, surah: 18 }, { juz: 17, surah: 21 }, { juz: 18, surah: 23 },
+  { juz: 19, surah: 25 }, { juz: 20, surah: 27 }, { juz: 21, surah: 29 },
+  { juz: 22, surah: 33 }, { juz: 23, surah: 36 }, { juz: 24, surah: 39 },
+  { juz: 25, surah: 41 }, { juz: 26, surah: 46 }, { juz: 27, surah: 51 },
+  { juz: 28, surah: 58 }, { juz: 29, surah: 67 }, { juz: 30, surah: 78 },
+];
+
 // -- Surah List View --
 
 function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, onSelectSurah }) {
@@ -46,6 +59,30 @@ function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, o
     );
   });
 
+  const juzSections = useMemo(() => {
+    return JUZ_STARTS.map((js, i) => {
+      const startSurah = js.surah;
+      const endSurah = i < 29 ? JUZ_STARTS[i + 1].surah : 115;
+      const surahs = SURAHS.filter(s => s.number >= startSurah && s.number < endSurah);
+      return { juz: js.juz, title: `Juz ${js.juz}`, data: surahs };
+    });
+  }, []);
+
+  const filteredJuzSections = useMemo(() => {
+    if (!searchQuery) return juzSections.filter(s => s.data.length > 0);
+    const q = searchQuery.toLowerCase();
+    return juzSections
+      .map(section => ({
+        ...section,
+        data: section.data.filter(s =>
+          s.name.toLowerCase().includes(q) ||
+          s.meaning.toLowerCase().includes(q) ||
+          String(s.number).includes(q)
+        ),
+      }))
+      .filter(s => s.data.length > 0);
+  }, [searchQuery, juzSections]);
+
   const rowDir = isRTL ? 'row-reverse' : 'row';
 
   function renderSurahRow({ item }) {
@@ -57,7 +94,7 @@ function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, o
           </View>
           <View style={[styles.surahInfo, isRTL ? { marginLeft: Spacing.sm } : { marginRight: Spacing.sm }]}>
             <Text style={[styles.surahEnglish, { color: colors.textPrimary }]}>{item.name}</Text>
-            <Text style={[styles.surahMetaText, { color: colors.textTertiary }]}>{item.meaning} - {item.ayahCount} {t('ayahs')}</Text>
+            <Text style={[styles.surahMetaText, { color: colors.textTertiary }]}>{item.meaning} · {item.type} · {item.ayahCount} {t('ayahs')}</Text>
           </View>
           <Text style={[styles.surahArabic, { color: colors.gold }]}>{item.arabic}</Text>
         </View>
@@ -117,19 +154,42 @@ function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, o
         </Pressable>
       </View>
 
-      {/* Surah List */}
-      <FlatList
-        data={filtered}
-        renderItem={renderSurahRow}
-        keyExtractor={(item) => String(item.number)}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Text style={[styles.emptyText, { color: colors.textTertiary }]}>{t('no_surahs')}</Text>
-          </View>
-        }
-      />
+      {/* Surah / Juz List */}
+      {activeTab === 'juz' ? (
+        <SectionList
+          sections={filteredJuzSections}
+          renderItem={renderSurahRow}
+          renderSectionHeader={({ section }) => (
+            <View style={[styles.juzHeader, { backgroundColor: colors.backgroundSecondary }]}>
+              <Text style={[styles.juzHeaderText, { color: colors.textSecondary }]}>
+                {section.title}
+              </Text>
+            </View>
+          )}
+          keyExtractor={(item) => String(item.number)}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          stickySectionHeadersEnabled={true}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Text style={[styles.emptyText, { color: colors.textTertiary }]}>{t('no_surahs')}</Text>
+            </View>
+          }
+        />
+      ) : (
+        <FlatList
+          data={filtered}
+          renderItem={renderSurahRow}
+          keyExtractor={(item) => String(item.number)}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Text style={[styles.emptyText, { color: colors.textTertiary }]}>{t('no_surahs')}</Text>
+            </View>
+          }
+        />
+      )}
     </View>
   );
 }
@@ -390,6 +450,10 @@ const styles = StyleSheet.create({
   surahMetaText: { fontSize: FontSize.caption },
   surahArabic: { fontSize: FontSize.h3, fontWeight: FontWeight.bold, textAlign: 'right', letterSpacing: 1 },
   divider: { height: 1, marginLeft: Spacing.md + 40 + Spacing.sm, marginRight: Spacing.md },
+
+  // Juz section header
+  juzHeader: { paddingHorizontal: Spacing.md, paddingVertical: 8 },
+  juzHeaderText: { fontSize: FontSize.caption, fontWeight: FontWeight.semibold, letterSpacing: 1, textTransform: 'uppercase' },
 
   // Empty
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: Spacing.xxl },

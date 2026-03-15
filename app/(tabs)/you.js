@@ -254,7 +254,7 @@ export default function YouScreen() {
               style={styles.heroGradient}
             >
               <View style={styles.heroContent}>
-                <Text style={styles.heroAppName}>Sajdah</Text>
+                <Text style={styles.heroAppName}>{t('app_name')}</Text>
                 <Text style={styles.heroTagline}>{t('app_tagline')}</Text>
               </View>
             </LinearGradient>
