@@ -1,11 +1,11 @@
 import { useState, useRef, useCallback } from 'react';
 import {
   View, Text, FlatList, StyleSheet, Pressable,
-  Dimensions, StatusBar, Platform,
+  Dimensions, StatusBar, Platform, Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ChevronLeft, Minus, Plus, Check } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Minus, Plus, Check } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 
 import { useApp } from '../constants/AppContext';
@@ -28,6 +28,26 @@ export default function DuaReaderScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [counts, setCounts] = useState(() => duas.map(() => 0));
   const flatListRef = useRef(null);
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const allCompleted = totalDuas > 0 && counts.every(
+    (c, i) => c >= (duas[i]?.count || 1)
+  );
+
+  const animateTap = useCallback(() => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.98,
+        duration: 75,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 75,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [scaleAnim]);
 
   const rowDir = isRTL ? 'row-reverse' : 'row';
 
@@ -83,51 +103,61 @@ export default function DuaReaderScreen() {
 
     return (
       <View style={[styles.duaPage, { width: SCREEN_WIDTH }]}>
-        <View
+        <Animated.View
           style={[
             styles.duaCard,
             {
               backgroundColor: colors.surface,
               borderColor: colors.surfaceBorder,
+              transform: [{ scale: scaleAnim }],
             },
           ]}
         >
-          {/* Arabic Text */}
-          <View style={styles.arabicSection}>
+          {/* Tap-anywhere area for counting */}
+          <Pressable
+            onPress={() => {
+              animateTap();
+              handleIncrement(index);
+            }}
+            style={styles.tapArea}
+          >
+            {/* Arabic Text */}
+            <View style={styles.arabicSection}>
+              <Text
+                style={[
+                  styles.arabicText,
+                  { color: colors.textPrimary },
+                ]}
+              >
+                {item.arabic}
+              </Text>
+            </View>
+
+            {/* Transliteration */}
             <Text
               style={[
-                styles.arabicText,
-                { color: colors.textPrimary },
+                styles.transliterationText,
+                { color: colors.sage },
               ]}
             >
-              {item.arabic}
+              {item.transliteration}
             </Text>
-          </View>
 
-          {/* Transliteration */}
-          <Text
-            style={[
-              styles.transliterationText,
-              { color: colors.sage },
-            ]}
-          >
-            {item.transliteration}
-          </Text>
+            {/* Divider */}
+            <View style={[styles.cardDivider, { backgroundColor: colors.divider }]} />
 
-          {/* Divider */}
-          <View style={[styles.cardDivider, { backgroundColor: colors.divider }]} />
+            {/* English Translation */}
+            <Text
+              style={[
+                styles.englishText,
+                { color: colors.textSecondary },
+              ]}
+            >
+              {item.english}
+            </Text>
+          </Pressable>
 
-          {/* English Translation */}
-          <Text
-            style={[
-              styles.englishText,
-              { color: colors.textSecondary },
-            ]}
-          >
-            {item.english}
-          </Text>
-
-          {/* Counter Section */}
+          {/* Counter Section (outside tap area to keep +/- buttons independent) */}
           <View style={styles.counterSection}>
             {/* Counter Label */}
             <Text style={[styles.counterLabel, { color: colors.textTertiary }]}>
@@ -193,7 +223,17 @@ export default function DuaReaderScreen() {
               </Pressable>
             </View>
           </View>
-        </View>
+
+          {/* Swipe hint — first card only, when multiple duas */}
+          {index === 0 && totalDuas > 1 && (
+            <View style={[styles.swipeHint, { flexDirection: rowDir }]}>
+              <Text style={[styles.swipeHintText, { color: colors.textTertiary }]}>
+                Swipe for next
+              </Text>
+              <ChevronRight size={14} color={colors.textTertiary} strokeWidth={1.5} />
+            </View>
+          )}
+        </Animated.View>
       </View>
     );
   }
@@ -300,6 +340,16 @@ export default function DuaReaderScreen() {
                 );
               })}
             </View>
+
+            {/* All completed label */}
+            {allCompleted && (
+              <View style={styles.completedRow}>
+                <Check size={16} color={colors.success} strokeWidth={2.5} />
+                <Text style={[styles.completedLabel, { color: colors.success }]}>
+                  Completed
+                </Text>
+              </View>
+            )}
           </View>
         )}
       </SafeAreaView>
@@ -459,6 +509,37 @@ const styles = StyleSheet.create({
   dot: {
     height: 8,
     borderRadius: 4,
+  },
+
+  // Tap area (pressable content zone)
+  tapArea: {
+    // No extra padding — inherits from duaCard
+  },
+
+  // Swipe hint
+  swipeHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: Spacing.xs,
+    gap: 2,
+  },
+  swipeHintText: {
+    fontSize: FontSize.caption,
+    fontWeight: FontWeight.regular,
+  },
+
+  // Completed label
+  completedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: Spacing.xs,
+    gap: 4,
+  },
+  completedLabel: {
+    fontSize: FontSize.bodySmall,
+    fontWeight: FontWeight.semibold,
   },
 
   // Fallback

@@ -14,7 +14,7 @@ import {
 import { Spacing, FontSize, FontWeight, BorderRadius, Images } from '../../constants/theme';
 import { useApp } from '../../constants/AppContext';
 import { getAvailableMethods } from '../../utils/prayer';
-import { getStreak, getDailyGoals, toggleGoal, getBookmarks } from '../../utils/storage';
+import { getStreak, getDailyGoals, toggleGoal, getBookmarks, getPrayerStats } from '../../utils/storage';
 
 const CALC_METHOD_KEY = 'sajdah_calc_method';
 const NOTIF_KEY = 'sajdah_notifications';
@@ -62,6 +62,7 @@ export default function YouScreen() {
   const [bookmarks, setBookmarksList] = useState([]);
   const [calcMethod, setCalcMethod] = useState('ISNA');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [prayerStats, setPrayerStats] = useState({ totalPrayed: 0, daysTracked: 0, completeDays: 0 });
   const [showMethodPicker, setShowMethodPicker] = useState(false);
   const methods = getAvailableMethods();
 
@@ -96,14 +97,16 @@ export default function YouScreen() {
   }, []);
 
   async function loadData() {
-    const [streakData, goalsData, bookmarksData] = await Promise.all([
+    const [streakData, goalsData, bookmarksData, statsData] = await Promise.all([
       getStreak(),
       getDailyGoals(),
       getBookmarks(),
+      getPrayerStats(),
     ]);
     setStreak(streakData);
     setGoals(goalsData);
     setBookmarksList(bookmarksData);
+    setPrayerStats(statsData);
 
     const savedMethod = await AsyncStorage.getItem(CALC_METHOD_KEY);
     if (savedMethod) setCalcMethod(savedMethod);
@@ -293,6 +296,22 @@ export default function YouScreen() {
                     </View>
                   );
                 })}
+              </View>
+            </View>
+            {/* Prayer Stats Row */}
+            <View style={[styles.statsDivider, { backgroundColor: colors.divider }]} />
+            <View style={styles.statsRow}>
+              <View style={styles.statItem}>
+                <Text style={[styles.statNumber, { color: colors.textPrimary }]}>{prayerStats.totalPrayed}</Text>
+                <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Total Prayers</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={[styles.statNumber, { color: colors.textPrimary }]}>{prayerStats.daysTracked}</Text>
+                <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Days Tracked</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={[styles.statNumber, { color: colors.textPrimary }]}>{prayerStats.completeDays}</Text>
+                <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Complete Days</Text>
               </View>
             </View>
           </View>
@@ -536,6 +555,10 @@ export default function YouScreen() {
         <View style={styles.footer}>
           <Text style={[styles.footerAppName, { color: colors.accent }]}>Sajdah</Text>
           <Text style={[styles.footerTagline, { color: colors.textTertiary }]}>{t('app_tagline')}</Text>
+          <View style={styles.footerPrivacyRow}>
+            <Shield size={12} color={colors.textTertiary} strokeWidth={1.5} />
+            <Text style={[styles.footerPrivacy, { color: colors.textTertiary }]}>Ad-free. Privacy-first. Always.</Text>
+          </View>
         </View>
 
         <View style={{ height: 32 }} />
@@ -650,6 +673,30 @@ const styles = StyleSheet.create({
   streakDayLabel: {
     fontSize: FontSize.micro,
     fontWeight: FontWeight.medium,
+  },
+
+  // -- Prayer Stats --
+  statsDivider: {
+    height: 1,
+    marginHorizontal: Spacing.md,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: FontSize.h3,
+    fontWeight: FontWeight.bold,
+  },
+  statLabel: {
+    fontSize: FontSize.caption,
+    marginTop: 2,
   },
 
   // -- Goals --
@@ -823,5 +870,14 @@ const styles = StyleSheet.create({
   footerTagline: {
     fontSize: FontSize.caption,
     marginTop: 4,
+  },
+  footerPrivacyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: Spacing.xs,
+  },
+  footerPrivacy: {
+    fontSize: FontSize.caption,
   },
 });
