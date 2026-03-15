@@ -211,7 +211,7 @@ export default function DiscoverScreen() {
               </Text>
               <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <Text style={[styles.viewAll, { color: colors.textTertiary }]}>
-                  View all
+                  {t('view_all')}
                 </Text>
               </Pressable>
             </View>
@@ -253,7 +253,7 @@ export default function DiscoverScreen() {
                           isRTL && styles.textRTL,
                         ]}
                       >
-                        {topic.count} {topic.count === 1 ? 'hadith' : 'hadiths'}
+                        {topic.count} {topic.count === 1 ? t('hadith_singular') : t('hadith_plural')}
                       </Text>
                     </View>
                   </Pressable>
@@ -276,7 +276,7 @@ export default function DiscoverScreen() {
               </Text>
               <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <Text style={[styles.viewAll, { color: colors.textTertiary }]}>
-                  View all
+                  {t('view_all')}
                 </Text>
               </Pressable>
             </View>

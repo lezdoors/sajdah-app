@@ -303,15 +303,15 @@ export default function YouScreen() {
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, { color: colors.textPrimary }]}>{prayerStats.totalPrayed}</Text>
-                <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Total Prayers</Text>
+                <Text style={[styles.statLabel, { color: colors.textTertiary }]}>{t('total_prayers')}</Text>
               </View>
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, { color: colors.textPrimary }]}>{prayerStats.daysTracked}</Text>
-                <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Days Tracked</Text>
+                <Text style={[styles.statLabel, { color: colors.textTertiary }]}>{t('days_tracked')}</Text>
               </View>
               <View style={styles.statItem}>
                 <Text style={[styles.statNumber, { color: colors.textPrimary }]}>{prayerStats.completeDays}</Text>
-                <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Complete Days</Text>
+                <Text style={[styles.statLabel, { color: colors.textTertiary }]}>{t('complete_days')}</Text>
               </View>
             </View>
           </View>
@@ -557,7 +557,7 @@ export default function YouScreen() {
           <Text style={[styles.footerTagline, { color: colors.textTertiary }]}>{t('app_tagline')}</Text>
           <View style={styles.footerPrivacyRow}>
             <Shield size={12} color={colors.textTertiary} strokeWidth={1.5} />
-            <Text style={[styles.footerPrivacy, { color: colors.textTertiary }]}>Ad-free. Privacy-first. Always.</Text>
+            <Text style={[styles.footerPrivacy, { color: colors.textTertiary }]}>{t('ad_free_privacy')}</Text>
           </View>
         </View>
 

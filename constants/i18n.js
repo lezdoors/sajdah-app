@@ -220,6 +220,18 @@ export const translations = {
     // Home Ring
     next_in: 'Next in',
     time_remaining: 'remaining',
+
+    // Hardcoded strings cleanup
+    view_all: 'View all',
+    services: 'Services',
+    tap_to_view_prayers: 'Tap to view all prayer times',
+    no_duas_found: 'No duas found',
+    total_prayers: 'Total Prayers',
+    days_tracked: 'Days Tracked',
+    complete_days: 'Complete Days',
+    ad_free_privacy: 'Ad-free. Privacy-first. Always.',
+    hadith_singular: 'hadith',
+    hadith_plural: 'hadiths',
   },
 
   ar: {
@@ -438,5 +450,17 @@ export const translations = {
     // Home Ring
     next_in: 'التالي في',
     time_remaining: 'متبقي',
+
+    // Hardcoded strings cleanup
+    view_all: 'عرض الكل',
+    services: 'الخدمات',
+    tap_to_view_prayers: 'اضغط لعرض أوقات الصلاة',
+    no_duas_found: 'لم يتم العثور على أدعية',
+    total_prayers: 'إجمالي الصلوات',
+    days_tracked: 'الأيام المتتبعة',
+    complete_days: 'أيام مكتملة',
+    ad_free_privacy: 'بدون إعلانات. خصوصية أولاً. دائماً.',
+    hadith_singular: 'حديث',
+    hadith_plural: 'أحاديث',
   },
 };

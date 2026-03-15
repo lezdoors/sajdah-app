@@ -273,7 +273,7 @@ export default function HomeScreen() {
                       {countdown.text}
                     </Text>
                     <Text style={[styles.countdownLabel, { color: colors.textTertiary }]}>
-                      remaining
+                      {t('time_remaining')}
                     </Text>
                   </View>
                 </View>
@@ -329,7 +329,7 @@ export default function HomeScreen() {
               </View>
               {/* Prayer completion summary */}
               <Text style={[styles.prayerSummary, { color: colors.textTertiary }]}>
-                {completedPrayers}/5 prayers today
+                {completedPrayers}/5 {t('prayers_today')}
               </Text>
             </View>
           </Animated.View>
@@ -339,8 +339,8 @@ export default function HomeScreen() {
             <Pressable style={styles.heroPadding} onPress={() => router.push('/prayer')}>
               <ImageBackground source={Images.heroYellow} style={styles.heroBanner} imageStyle={styles.heroBannerImage}>
                 <LinearGradient colors={['transparent', 'rgba(0,0,0,0.6)']} style={styles.heroOverlay}>
-                  <Text style={styles.heroTitle}>{currentPrayer?.name || 'Prayer Times'}</Text>
-                  <Text style={styles.heroSubtitle}>Tap to view all prayer times</Text>
+                  <Text style={styles.heroTitle}>{currentPrayer?.name || t('prayer_times')}</Text>
+                  <Text style={styles.heroSubtitle}>{t('tap_to_view_prayers')}</Text>
                 </LinearGradient>
               </ImageBackground>
             </Pressable>
@@ -350,9 +350,9 @@ export default function HomeScreen() {
           <Animated.View style={servicesStyle}>
             <View style={styles.section}>
               <View style={[styles.sectionHeader, { flexDirection: rowDir }]}>
-                <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Services</Text>
+                <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('services')}</Text>
                 <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                  <Text style={[styles.viewAll, { color: colors.textTertiary }]}>View all</Text>
+                  <Text style={[styles.viewAll, { color: colors.textTertiary }]}>{t('view_all')}</Text>
                 </Pressable>
               </View>
               <View style={styles.servicesGrid}>
