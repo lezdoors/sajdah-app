@@ -224,12 +224,15 @@ export default function DiscoverScreen() {
               {topicsData.map((topic) => {
                 const tc = topicColorMap[topic.key] || topicColorMap.faith;
                 return (
-                  <View
+                  <Pressable
                     key={topic.key}
-                    style={[
+                    onPress={() => {}}
+                    style={({ pressed }) => [
                       styles.topicCard,
                       {
                         backgroundColor: tc.bg,
+                        opacity: pressed ? 0.85 : 1,
+                        transform: [{ scale: pressed ? 0.97 : 1 }],
                       },
                     ]}
                   >
@@ -253,7 +256,7 @@ export default function DiscoverScreen() {
                         {topic.count} {topic.count === 1 ? 'hadith' : 'hadiths'}
                       </Text>
                     </View>
-                  </View>
+                  </Pressable>
                 );
               })}
             </View>

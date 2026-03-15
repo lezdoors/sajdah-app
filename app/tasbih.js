@@ -34,9 +34,10 @@ const DHIKR_PRESETS = [
   { key: 'subhanallah', i18nKey: 'subhanallah', arabic: 'سبحان الله' },
   { key: 'alhamdulillah', i18nKey: 'alhamdulillah', arabic: 'الحمد لله' },
   { key: 'allahu_akbar', i18nKey: 'allahu_akbar', arabic: 'الله أكبر' },
+  { key: 'la_ilaha', i18nKey: 'la_ilaha_illallah', arabic: 'لا إله إلا الله' },
 ];
 
-const TARGET = 33;
+const TARGET_OPTIONS = [33, 99, Infinity];
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -47,8 +48,12 @@ export default function TasbihScreen() {
   const [sessionCount, setSessionCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [activeDhikr, setActiveDhikr] = useState(DHIKR_PRESETS[0].key);
+  const [target, setTarget] = useState(33);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
+  const ringColorAnim = useRef(new Animated.Value(0)).current;
+  const celebrationScale = useRef(new Animated.Value(1)).current;
+  const celebrationActive = useRef(false);
 
   // Load lifetime total on mount
   useEffect(() => {
@@ -57,17 +62,73 @@ export default function TasbihScreen() {
 
   // Animate progress ring when session count changes
   useEffect(() => {
-    const progress = Math.min(sessionCount / TARGET, 1);
+    const progress = target === Infinity ? 0 : Math.min(sessionCount / target, 1);
     Animated.timing(progressAnim, {
       toValue: progress,
       duration: 200,
       useNativeDriver: false,
     }).start();
-  }, [sessionCount]);
+  }, [sessionCount, target]);
+
+  // Completion celebration when target is reached
+  useEffect(() => {
+    if (target === Infinity || sessionCount === 0 || sessionCount < target) return;
+    if (celebrationActive.current) return;
+    celebrationActive.current = true;
+
+    // Haptic for completion
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    // Gold flash on ring color
+    Animated.sequence([
+      Animated.timing(ringColorAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: false,
+      }),
+      Animated.timing(ringColorAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: false,
+      }),
+    ]).start();
+
+    // Scale-up celebration on ring
+    Animated.sequence([
+      Animated.timing(celebrationScale, {
+        toValue: 1.08,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(celebrationScale, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Auto-reset after 800ms
+    const timer = setTimeout(() => {
+      setSessionCount(0);
+      celebrationActive.current = false;
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [sessionCount, target]);
 
   const handleTap = useCallback(async () => {
-    // Haptic feedback
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const nextCount = sessionCount + 1;
+
+    // Milestone haptic feedback (distinct from normal tap)
+    if (target !== Infinity && nextCount === target) {
+      // Target reached — handled by celebration useEffect
+    } else if (nextCount === 99) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    } else if (nextCount === 33) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } else {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
 
     // Scale animation
     Animated.sequence([
@@ -83,10 +144,10 @@ export default function TasbihScreen() {
       }),
     ]).start();
 
-    setSessionCount((prev) => prev + 1);
+    setSessionCount(nextCount);
     const newTotal = await incrementTasbih(1);
     setTotalCount(newTotal);
-  }, []);
+  }, [sessionCount, target]);
 
   const handleReset = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -99,13 +160,26 @@ export default function TasbihScreen() {
     setSessionCount(0);
   }, []);
 
+  const handleTargetSelect = useCallback((val) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setTarget(val);
+    setSessionCount(0);
+  }, []);
+
   // Interpolate stroke offset for progress ring
   const strokeDashoffset = progressAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [CIRCUMFERENCE, 0],
   });
 
+  // Interpolate ring stroke color for gold flash celebration
+  const ringStrokeColor = ringColorAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['#D4B76E', '#FFD700'],
+  });
+
   const activePreset = DHIKR_PRESETS.find((d) => d.key === activeDhikr);
+  const isInfinity = target === Infinity;
 
   return (
     <View style={styles.container}>
@@ -148,7 +222,11 @@ export default function TasbihScreen() {
               <Animated.View
                 style={[
                   styles.ringOuter,
-                  { transform: [{ scale: scaleAnim }] },
+                  {
+                    transform: [
+                      { scale: Animated.multiply(scaleAnim, celebrationScale) },
+                    ],
+                  },
                 ]}
               >
                 {/* SVG progress ring */}
@@ -171,7 +249,7 @@ export default function TasbihScreen() {
                     cx={RING_SIZE / 2}
                     cy={RING_SIZE / 2}
                     r={RADIUS}
-                    stroke="#D4B76E"
+                    stroke={ringStrokeColor}
                     strokeWidth={STROKE_WIDTH}
                     fill="transparent"
                     strokeDasharray={CIRCUMFERENCE}
@@ -187,9 +265,11 @@ export default function TasbihScreen() {
                   <Text style={styles.countNumber}>
                     {sessionCount}
                   </Text>
-                  <Text style={styles.countTarget}>
-                    / {TARGET}
-                  </Text>
+                  {!isInfinity && (
+                    <Text style={styles.countTarget}>
+                      / {target}
+                    </Text>
+                  )}
                 </View>
               </Animated.View>
             </Pressable>
@@ -237,6 +317,34 @@ export default function TasbihScreen() {
                     ]}
                   >
                     {t(preset.i18nKey)}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* Target selector pills */}
+          <View style={styles.targetRow}>
+            {TARGET_OPTIONS.map((val) => {
+              const isActive = target === val;
+              const label = val === Infinity ? '\u221E' : String(val);
+              return (
+                <TouchableOpacity
+                  key={label}
+                  activeOpacity={0.7}
+                  onPress={() => handleTargetSelect(val)}
+                  style={[
+                    styles.targetPill,
+                    isActive && styles.targetPillActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.targetPillText,
+                      isActive && styles.targetPillTextActive,
+                    ]}
+                  >
+                    {label}
                   </Text>
                 </TouchableOpacity>
               );
@@ -382,14 +490,15 @@ const styles = StyleSheet.create({
   // Presets
   presetsContainer: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
     gap: Spacing.xs,
     paddingHorizontal: Spacing.md,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.sm,
   },
   presetButton: {
-    flex: 1,
     paddingVertical: 12,
-    paddingHorizontal: Spacing.xs,
+    paddingHorizontal: Spacing.sm,
     borderRadius: BorderRadius.xl,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.2)',
@@ -405,6 +514,34 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.6)',
   },
   presetTextActive: {
+    color: '#D4B76E',
+    fontWeight: FontWeight.semibold,
+  },
+
+  // Target selector
+  targetRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: Spacing.xs,
+    marginBottom: Spacing.md,
+  },
+  targetPill: {
+    paddingVertical: 6,
+    paddingHorizontal: 18,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  targetPillActive: {
+    backgroundColor: 'rgba(212, 183, 110, 0.2)',
+    borderColor: '#D4B76E',
+  },
+  targetPillText: {
+    fontSize: FontSize.bodySmall,
+    fontWeight: FontWeight.medium,
+    color: 'rgba(255, 255, 255, 0.6)',
+  },
+  targetPillTextActive: {
     color: '#D4B76E',
     fontWeight: FontWeight.semibold,
   },

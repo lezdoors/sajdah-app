@@ -195,3 +195,58 @@ export async function resetTasbihSession() {
   // Only resets the session counter, not the lifetime total
   return 0;
 }
+
+// Prayer Completion Tracking
+const PRAYER_LOG_KEY = 'sajdah_prayer_log';
+
+export async function getPrayerLog() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const data = await AsyncStorage.getItem(PRAYER_LOG_KEY);
+    if (!data) return {};
+    const parsed = JSON.parse(data);
+    return parsed[today] || {};
+  } catch {
+    return {};
+  }
+}
+
+export async function togglePrayerCompleted(prayerName) {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const data = await AsyncStorage.getItem(PRAYER_LOG_KEY);
+    const parsed = data ? JSON.parse(data) : {};
+    if (!parsed[today]) parsed[today] = {};
+    parsed[today][prayerName] = !parsed[today][prayerName];
+    // Keep only last 90 days
+    const keys = Object.keys(parsed).sort();
+    if (keys.length > 90) {
+      for (const key of keys.slice(0, keys.length - 90)) {
+        delete parsed[key];
+      }
+    }
+    await AsyncStorage.setItem(PRAYER_LOG_KEY, JSON.stringify(parsed));
+    return parsed[today];
+  } catch {
+    return {};
+  }
+}
+
+export async function getPrayerStats() {
+  try {
+    const data = await AsyncStorage.getItem(PRAYER_LOG_KEY);
+    if (!data) return { totalPrayed: 0, daysTracked: 0, completeDays: 0 };
+    const parsed = JSON.parse(data);
+    const days = Object.keys(parsed);
+    let totalPrayed = 0;
+    let completeDays = 0;
+    for (const day of days) {
+      const prayers = Object.values(parsed[day]).filter(Boolean).length;
+      totalPrayed += prayers;
+      if (prayers >= 5) completeDays++;
+    }
+    return { totalPrayed, daysTracked: days.length, completeDays };
+  } catch {
+    return { totalPrayed: 0, daysTracked: 0, completeDays: 0 };
+  }
+}

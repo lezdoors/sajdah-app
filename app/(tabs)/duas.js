@@ -105,6 +105,16 @@ export default function DuasScreen() {
     []
   );
 
+  // Pick a "daily dua" based on the day of the year
+  const dailyDua = useMemo(() => {
+    const allDuas = DUA_CATEGORIES.flatMap((c) => c.duas);
+    if (allDuas.length === 0) return null;
+    const dayOfYear = Math.floor(
+      (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
+    );
+    return allDuas[dayOfYear % allDuas.length];
+  }, []);
+
   const rowDir = isRTL ? 'row-reverse' : 'row';
 
   function handleCategoryPress(category) {
@@ -206,6 +216,26 @@ export default function DuasScreen() {
                   </LinearGradient>
                 </ImageBackground>
               </Animated.View>
+
+              {/* Daily Dua Card */}
+              {dailyDua && (
+                <Animated.View
+                  style={[
+                    styles.dailyDuaWrapper,
+                    { opacity: heroAnim, transform: [{ translateY: heroSlide }] },
+                  ]}
+                >
+                  <View style={[styles.dailyDuaCard, { backgroundColor: colors.accent }]}>
+                    <Text style={styles.dailyDuaLabel}>{t('daily_dua') || 'Daily Dua'}</Text>
+                    <Text style={styles.dailyDuaArabic} numberOfLines={2}>
+                      {dailyDua.arabic}
+                    </Text>
+                    <Text style={styles.dailyDuaEnglish} numberOfLines={3}>
+                      {dailyDua.english}
+                    </Text>
+                  </View>
+                </Animated.View>
+              )}
 
               {/* Search Bar */}
               <Animated.View
@@ -341,6 +371,38 @@ const styles = StyleSheet.create({
     fontWeight: FontWeight.medium,
     color: 'rgba(255,255,255,0.85)',
     marginTop: 4,
+  },
+
+  // Daily Dua Card
+  dailyDuaWrapper: {
+    paddingHorizontal: Spacing.md,
+    marginTop: Spacing.sm,
+  },
+  dailyDuaCard: {
+    borderRadius: 16,
+    padding: 20,
+  },
+  dailyDuaLabel: {
+    fontSize: FontSize.caption,
+    fontWeight: FontWeight.bold,
+    color: 'rgba(255,255,255,0.7)',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: 8,
+  },
+  dailyDuaArabic: {
+    fontSize: 22,
+    fontWeight: FontWeight.medium,
+    color: '#FFFFFF',
+    textAlign: 'right',
+    lineHeight: 36,
+    marginBottom: 8,
+  },
+  dailyDuaEnglish: {
+    fontSize: FontSize.bodySmall,
+    fontWeight: FontWeight.regular,
+    color: 'rgba(255,255,255,0.9)',
+    lineHeight: 20,
   },
 
   // Search

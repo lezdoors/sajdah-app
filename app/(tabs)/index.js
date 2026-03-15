@@ -6,9 +6,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
+import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
+import Svg, { Circle } from 'react-native-svg';
 import {
-  Bell, Clock, BookOpen, ChevronRight, Heart,
+  Bell, Clock, BookOpen, ChevronRight, Heart, Check,
   Flame, Star, CircleDot, Compass as CompassIcon, CalendarDays,
   Sun, Sunset, Moon, CloudSun, CloudMoon,
 } from 'lucide-react-native';
@@ -20,8 +22,10 @@ import { formatHijriDate } from '../../utils/hijri';
 import { getDailyAyah } from '../../data/ayahs';
 import { getDailyHadith } from '../../data/hadith';
 import { DUA_CATEGORIES } from '../../data/duas';
-import { getDailyGoals, toggleGoal, getStreak, recordDay, getLastRead } from '../../utils/storage';
+import { getDailyGoals, toggleGoal, getStreak, recordDay, getLastRead, getPrayerLog, togglePrayerCompleted } from '../../utils/storage';
 import { SURAHS } from '../../data/surahs';
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const PRAYER_ICONS = { Fajr: Sun, Sunrise: CloudSun, Dhuhr: Sun, Asr: Sunset, Maghrib: CloudMoon, Isha: Moon };
@@ -61,6 +65,8 @@ export default function HomeScreen() {
   const [goals, setGoals] = useState({});
   const [streak, setStreak] = useState({ count: 0, dates: [] });
   const [lastRead, setLastRead] = useState(null);
+  const [prayerLog, setPrayerLog] = useState({});
+  const ringAnim = useRef(new Animated.Value(0)).current;
 
   const headerStyle = useStaggerAnim(0);
   const prayerRowStyle = useStaggerAnim(100);
@@ -73,8 +79,8 @@ export default function HomeScreen() {
 
   useEffect(() => {
     async function loadUserData() {
-      const [g, s, lr] = await Promise.all([getDailyGoals(), getStreak(), getLastRead()]);
-      setGoals(g); setStreak(s); setLastRead(lr);
+      const [g, s, lr, pl] = await Promise.all([getDailyGoals(), getStreak(), getLastRead(), getPrayerLog()]);
+      setGoals(g); setStreak(s); setLastRead(lr); setPrayerLog(pl);
       await recordDay();
       setStreak(await getStreak());
     }
@@ -111,6 +117,8 @@ export default function HomeScreen() {
     intervalRef.current = setInterval(() => {
       if (prayerTimes) {
         const next = getNextPrayer(prayerTimes);
+        setNextPrayer(next);
+        setCurrentPrayer(getCurrentPrayer(prayerTimes));
         if (next) setCountdown(getCountdown(next.time));
       }
     }, 30000);
@@ -129,8 +137,29 @@ export default function HomeScreen() {
     return () => sub.remove();
   }, [prayerTimes]);
 
+  // Animate ring progress whenever prayer times change
+  useEffect(() => {
+    if (!prayerTimes || !nextPrayer || !currentPrayer) return;
+    const now = new Date();
+    const prevTime = currentPrayer.time.getTime();
+    const nextTime = nextPrayer.time.getTime();
+    const totalDuration = nextTime - prevTime;
+    const elapsed = now.getTime() - prevTime;
+    const progress = totalDuration > 0 ? Math.max(0, Math.min(1, elapsed / totalDuration)) : 0;
+    Animated.timing(ringAnim, {
+      toValue: progress,
+      duration: 800,
+      useNativeDriver: false,
+    }).start();
+  }, [prayerTimes, nextPrayer, currentPrayer, countdown]);
+
   async function handleToggleGoal(goalId) {
     setGoals(await toggleGoal(goalId));
+  }
+
+  async function handleTogglePrayer(prayerName) {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setPrayerLog(await togglePrayerCompleted(prayerName));
   }
 
   if (loading) {
@@ -152,6 +181,20 @@ export default function HomeScreen() {
         Icon: PRAYER_ICONS[name] || Sun,
       }))
     : [];
+
+  // Ring SVG dimensions
+  const RING_SIZE = 120;
+  const RING_STROKE = 5;
+  const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2;
+  const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+  const ringStrokeDashoffset = ringAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [RING_CIRCUMFERENCE, 0],
+  });
+
+  // Prayer completion count (exclude Sunrise from count, only 5 obligatory)
+  const obligatoryPrayers = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+  const completedPrayers = obligatoryPrayers.filter(name => !!prayerLog[name]).length;
 
   const lastReadSurah = lastRead ? SURAHS.find(s => s.number === lastRead.surahNumber) : null;
 
@@ -190,21 +233,49 @@ export default function HomeScreen() {
             </View>
           </Animated.View>
 
-          {/* ── Next Prayer Banner ── */}
+          {/* ── Circular Countdown Ring ── */}
           {nextPrayer && (
             <Animated.View style={prayerRowStyle}>
               <Pressable
-                style={[styles.nextPrayerBanner, { backgroundColor: colors.accent }]}
+                style={[styles.countdownRingCard, { backgroundColor: colors.surfaceElevated }]}
                 onPress={() => router.push('/prayer')}
               >
-                <View style={styles.nextPrayerLeft}>
-                  <Clock size={16} color="#FFFFFF" strokeWidth={2} />
-                  <Text style={styles.nextPrayerText}>
-                    {nextPrayer.name} in {countdown.text}
-                  </Text>
-                </View>
-                <View style={styles.nextPrayerBtn}>
-                  <Text style={styles.nextPrayerBtnText}>View</Text>
+                <View style={styles.countdownRingWrapper}>
+                  <Svg width={RING_SIZE} height={RING_SIZE} style={{ transform: [{ rotate: '-90deg' }] }}>
+                    {/* Track (background ring) */}
+                    <Circle
+                      cx={RING_SIZE / 2}
+                      cy={RING_SIZE / 2}
+                      r={RING_RADIUS}
+                      stroke={colors.surfaceBorder}
+                      strokeWidth={RING_STROKE}
+                      fill="transparent"
+                    />
+                    {/* Progress ring */}
+                    <AnimatedCircle
+                      cx={RING_SIZE / 2}
+                      cy={RING_SIZE / 2}
+                      r={RING_RADIUS}
+                      stroke={colors.accent}
+                      strokeWidth={RING_STROKE}
+                      fill="transparent"
+                      strokeDasharray={RING_CIRCUMFERENCE}
+                      strokeDashoffset={ringStrokeDashoffset}
+                      strokeLinecap="round"
+                    />
+                  </Svg>
+                  {/* Center text overlay */}
+                  <View style={styles.countdownRingCenter}>
+                    <Text style={[styles.countdownPrayerName, { color: colors.textPrimary }]}>
+                      {nextPrayer.name}
+                    </Text>
+                    <Text style={[styles.countdownTime, { color: colors.accent }]}>
+                      {countdown.text}
+                    </Text>
+                    <Text style={[styles.countdownLabel, { color: colors.textTertiary }]}>
+                      remaining
+                    </Text>
+                  </View>
                 </View>
               </Pressable>
             </Animated.View>
@@ -214,31 +285,52 @@ export default function HomeScreen() {
           <Animated.View style={heroStyle}>
             <View style={styles.prayerGridSection}>
               <View style={styles.prayerGrid}>
-                {prayerList.map((p) => (
-                  <Pressable
-                    key={p.name}
-                    style={[
-                      styles.prayerCard,
-                      {
-                        backgroundColor: colors.surface,
-                        borderColor: p.active ? colors.accent : colors.surfaceBorder,
-                        borderWidth: p.active ? 2 : 1,
-                      },
-                    ]}
-                    onPress={() => router.push('/prayer')}
-                  >
-                    <View style={styles.prayerCardHeader}>
-                      <Text style={[styles.prayerCardName, { color: p.active ? colors.accent : colors.textPrimary }]}>
-                        {p.name}
+                {prayerList.map((p) => {
+                  const isObligatory = obligatoryPrayers.includes(p.name);
+                  const isCompleted = isObligatory && !!prayerLog[p.name];
+                  const now = new Date();
+                  const prayerRawTime = prayerTimes?.[p.name.toLowerCase()] || prayerTimes?.[p.name];
+                  const hasPassed = prayerRawTime && now >= prayerRawTime;
+                  return (
+                    <Pressable
+                      key={p.name}
+                      style={[
+                        styles.prayerCard,
+                        {
+                          backgroundColor: colors.surface,
+                          borderColor: p.active ? colors.accent : colors.surfaceBorder,
+                          borderWidth: p.active ? 2 : 1,
+                        },
+                      ]}
+                      onPress={() => router.push('/prayer')}
+                      onLongPress={isObligatory ? () => handleTogglePrayer(p.name) : undefined}
+                    >
+                      <View style={styles.prayerCardHeader}>
+                        <Text style={[styles.prayerCardName, { color: p.active ? colors.accent : colors.textPrimary }]}>
+                          {p.name}
+                        </Text>
+                        <p.Icon size={18} color={p.active ? colors.accent : colors.textTertiary} strokeWidth={1.5} />
+                      </View>
+                      <Text style={[styles.prayerCardTime, { color: p.active ? colors.textPrimary : colors.textSecondary }]}>
+                        {p.time}
                       </Text>
-                      <p.Icon size={18} color={p.active ? colors.accent : colors.textTertiary} strokeWidth={1.5} />
-                    </View>
-                    <Text style={[styles.prayerCardTime, { color: p.active ? colors.textPrimary : colors.textSecondary }]}>
-                      {p.time}
-                    </Text>
-                  </Pressable>
-                ))}
+                      {/* Check-in indicator */}
+                      {isObligatory && isCompleted && (
+                        <View style={[styles.checkIndicator, { backgroundColor: colors.success }]}>
+                          <Check size={10} color="#FFFFFF" strokeWidth={3} />
+                        </View>
+                      )}
+                      {isObligatory && !isCompleted && hasPassed && (
+                        <View style={[styles.checkIndicatorEmpty, { borderColor: colors.textTertiary }]} />
+                      )}
+                    </Pressable>
+                  );
+                })}
               </View>
+              {/* Prayer completion summary */}
+              <Text style={[styles.prayerSummary, { color: colors.textTertiary }]}>
+                {completedPrayers}/5 prayers today
+              </Text>
             </View>
           </Animated.View>
 
@@ -376,12 +468,43 @@ const styles = StyleSheet.create({
   streakBadgeText: { fontSize: FontSize.caption, fontWeight: FontWeight.bold },
   bellBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
 
-  // Next Prayer Banner
-  nextPrayerBanner: { marginHorizontal: Spacing.md, marginTop: Spacing.sm, borderRadius: BorderRadius.lg, paddingHorizontal: Spacing.md, paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  nextPrayerLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  nextPrayerText: { color: '#FFFFFF', fontSize: FontSize.bodySmall, fontWeight: FontWeight.semibold },
-  nextPrayerBtn: { backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: BorderRadius.sm, paddingHorizontal: 16, paddingVertical: 6 },
-  nextPrayerBtnText: { color: '#FFFFFF', fontSize: FontSize.bodySmall, fontWeight: FontWeight.semibold },
+  // Circular Countdown Ring
+  countdownRingCard: {
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.sm,
+    borderRadius: 20,
+    paddingVertical: 20,
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  countdownRingWrapper: {
+    width: 120,
+    height: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  countdownRingCenter: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  countdownPrayerName: {
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    marginBottom: 2,
+  },
+  countdownTime: {
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+  },
+  countdownLabel: {
+    fontSize: FontSize.caption,
+    marginTop: 1,
+  },
 
   // Prayer Grid (3x2)
   prayerGridSection: { paddingHorizontal: Spacing.md, marginTop: Spacing.sm },
@@ -390,6 +513,31 @@ const styles = StyleSheet.create({
   prayerCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   prayerCardName: { fontSize: FontSize.bodySmall, fontWeight: FontWeight.bold },
   prayerCardTime: { fontSize: FontSize.h3, fontWeight: FontWeight.semibold, marginTop: 2 },
+  checkIndicator: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkIndicatorEmpty: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 1.5,
+  },
+  prayerSummary: {
+    fontSize: FontSize.caption,
+    fontWeight: FontWeight.medium,
+    textAlign: 'center',
+    marginTop: Spacing.xs,
+  },
 
   // Hero Banner
   heroPadding: { paddingHorizontal: Spacing.md, marginTop: Spacing.lg },

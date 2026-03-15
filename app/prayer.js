@@ -6,14 +6,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
+import * as Haptics from 'expo-haptics';
 import {
-  MapPin, Sun, Sunrise, Sunset, Moon, Cloud, Clock,
+  MapPin, Sun, Sunrise, Sunset, Moon, Cloud, Clock, Check,
 } from 'lucide-react-native';
 
 import { Spacing, FontSize, FontWeight, BorderRadius, Gradients, Images } from '../constants/theme';
 import { useApp } from '../constants/AppContext';
 import { getPrayerTimes, getNextPrayer, getCurrentPrayer, formatTime, getCountdown } from '../utils/prayer';
 import { formatHijriDate } from '../utils/hijri';
+import { getPrayerLog, togglePrayerCompleted } from '../utils/storage';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const HEADER_HEIGHT = SCREEN_HEIGHT * 0.28;
@@ -44,6 +46,7 @@ export default function PrayerScreen() {
   const [countdown, setCountdown] = useState({ text: '--:--' });
   const [hijriDate, setHijriDate] = useState('');
   const [loading, setLoading] = useState(true);
+  const [prayerLog, setPrayerLog] = useState({});
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const gridAnims = useRef(PRAYER_ORDER.map(() => new Animated.Value(0))).current;
@@ -99,6 +102,16 @@ export default function PrayerScreen() {
   }, [prayerTimes]);
 
   useEffect(() => { if (nextPrayer) setCountdown(getCountdown(nextPrayer.time)); }, [nextPrayer]);
+
+  // Load prayer completion log
+  useEffect(() => {
+    getPrayerLog().then(setPrayerLog);
+  }, []);
+
+  async function handlePrayerToggle(prayerName) {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setPrayerLog(await togglePrayerCompleted(prayerName));
+  }
 
   if (loading) {
     return <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}><ActivityIndicator size="large" color={colors.accent} /></View>;
@@ -161,20 +174,14 @@ export default function PrayerScreen() {
             const time = prayerTimes[key];
             const Icon = PRAYER_ICONS[name] || Clock;
             const isCurrent = currentPrayer?.name === name;
+            const isCompleted = !!prayerLog[name];
 
             return (
               <Animated.View
                 key={name}
                 style={[
-                  styles.gridCard,
                   {
                     width: CARD_WIDTH,
-                    backgroundColor: colors.surface,
-                    borderColor: isCurrent ? colors.accent : colors.surfaceBorder,
-                    borderWidth: isCurrent ? 2 : 1,
-                  },
-                  shadows.card,
-                  {
                     opacity: gridAnims[idx],
                     transform: [{
                       translateY: gridAnims[idx].interpolate({
@@ -185,33 +192,61 @@ export default function PrayerScreen() {
                   },
                 ]}
               >
-                <View style={styles.gridCardHeader}>
-                  <Text
-                    style={[
-                      styles.gridPrayerName,
-                      { color: isCurrent ? colors.accent : colors.textPrimary },
-                    ]}
-                    numberOfLines={1}
-                  >
-                    {t(key)}
-                  </Text>
-                  <Icon
-                    size={16}
-                    color={isCurrent ? colors.accent : colors.textTertiary}
-                    strokeWidth={1.5}
-                  />
-                </View>
-                <Text
-                  style={[
-                    styles.gridPrayerTime,
-                    { color: isCurrent ? colors.accent : colors.textSecondary },
+                <Pressable
+                  onLongPress={() => handlePrayerToggle(name)}
+                  delayLongPress={300}
+                  style={({ pressed }) => [
+                    styles.gridCard,
+                    {
+                      backgroundColor: colors.surface,
+                      borderColor: isCurrent ? colors.accent : colors.surfaceBorder,
+                      borderWidth: isCurrent ? 2 : 1,
+                      opacity: pressed ? 0.85 : 1,
+                      transform: [{ scale: pressed ? 0.97 : 1 }],
+                    },
+                    shadows.card,
                   ]}
                 >
-                  {formatTime(time)}
-                </Text>
+                  <View style={styles.gridCardHeader}>
+                    <Text
+                      style={[
+                        styles.gridPrayerName,
+                        { color: isCurrent ? colors.accent : colors.textPrimary },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {t(key)}
+                    </Text>
+                    <Icon
+                      size={16}
+                      color={isCurrent ? colors.accent : colors.textTertiary}
+                      strokeWidth={1.5}
+                    />
+                  </View>
+                  <Text
+                    style={[
+                      styles.gridPrayerTime,
+                      { color: isCurrent ? colors.accent : colors.textSecondary },
+                    ]}
+                  >
+                    {formatTime(time)}
+                  </Text>
+                  {isCompleted && (
+                    <View style={styles.completedBadge}>
+                      <Check size={10} color="#FFFFFF" strokeWidth={3} />
+                    </View>
+                  )}
+                </Pressable>
               </Animated.View>
             );
           })}
+        </View>
+
+        {/* Prayer Completion Summary */}
+        <View style={styles.completionSummary}>
+          <Text style={[styles.completionText, { color: colors.textTertiary }]}>
+            {Object.values(prayerLog).filter(Boolean).length}/5 prayers completed today
+          </Text>
         </View>
 
         <View style={{ height: 32 }} />
@@ -259,6 +294,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     paddingHorizontal: 10,
     paddingVertical: 12,
+    position: 'relative',
   },
   gridCardHeader: {
     flexDirection: 'row',
@@ -274,5 +310,25 @@ const styles = StyleSheet.create({
   gridPrayerTime: {
     fontSize: FontSize.bodySmall,
     fontWeight: FontWeight.regular,
+  },
+  completedBadge: {
+    position: 'absolute',
+    bottom: 6,
+    right: 6,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#22C55E',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  completionSummary: {
+    paddingHorizontal: GRID_PADDING,
+    paddingTop: Spacing.sm,
+    alignItems: 'center',
+  },
+  completionText: {
+    fontSize: FontSize.bodySmall,
+    fontWeight: FontWeight.medium,
   },
 });

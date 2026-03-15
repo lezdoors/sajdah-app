@@ -201,6 +201,25 @@ export const translations = {
     feature_tasbih: 'Tasbih',
     feature_qibla: 'Qibla',
     feature_calendar: 'Calendar',
+
+    // Prayer Tracking
+    prayer_completed: 'Completed',
+    prayer_tap_to_log: 'Tap to log',
+    prayers_today: 'prayers today',
+    prayer_streak_msg: 'Keep it up!',
+    all_prayers_done: 'All prayers logged',
+    prayer_log: 'Prayer Log',
+
+    // Tasbih Milestones
+    tasbih_milestone: 'Milestone!',
+    tasbih_complete: 'Complete!',
+    tasbih_target_33: '33',
+    tasbih_target_99: '99',
+    tasbih_target_custom: 'Custom',
+
+    // Home Ring
+    next_in: 'Next in',
+    time_remaining: 'remaining',
   },
 
   ar: {
@@ -400,5 +419,24 @@ export const translations = {
     feature_tasbih: 'التسبيح',
     feature_qibla: 'القبلة',
     feature_calendar: 'التقويم',
+
+    // Prayer Tracking
+    prayer_completed: 'تم',
+    prayer_tap_to_log: 'اضغط للتسجيل',
+    prayers_today: 'صلوات اليوم',
+    prayer_streak_msg: 'استمر!',
+    all_prayers_done: 'تم تسجيل جميع الصلوات',
+    prayer_log: 'سجل الصلاة',
+
+    // Tasbih Milestones
+    tasbih_milestone: 'إنجاز!',
+    tasbih_complete: 'مكتمل!',
+    tasbih_target_33: '٣٣',
+    tasbih_target_99: '٩٩',
+    tasbih_target_custom: 'مخصص',
+
+    // Home Ring
+    next_in: 'التالي في',
+    time_remaining: 'متبقي',
   },
 };
