@@ -1,0 +1,31 @@
+node_modules/
+dist/
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+.env
+.env.local
+.env.production
+
+# macOS
+.DS_Store
+*.pem
+
+# Metro
+.metro-health-check*
+
+# Debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo

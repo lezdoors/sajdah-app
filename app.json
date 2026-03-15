@@ -1,0 +1,60 @@
+{
+  "expo": {
+    "name": "Sajdah",
+    "slug": "sajdah",
+    "version": "1.0.0",
+    "description": "Your spiritual companion — prayer times, Quran, Qibla compass, and daily inspiration. From the heart.",
+    "scheme": "sajdah",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1A1F1E"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sajdah.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Sajdah needs your location to calculate accurate prayer times and Qibla direction.",
+        "NSMotionUsageDescription": "Sajdah uses the compass sensor to determine the Qibla direction.",
+        "UIBackgroundModes": ["remote-notification"]
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#006D44",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.sajdah.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Sajdah needs your location to calculate accurate prayer times and Qibla direction."
+        }
+      ],
+      "expo-sensors",
+      [
+        "expo-notifications",
+        {
+          "sounds": []
+        }
+      ],
+      "expo-av"
+    ]
+  }
+}
