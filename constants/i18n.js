@@ -187,6 +187,8 @@ export const translations = {
     hijri_calendar: 'Islamic Calendar',
     notable_dates: 'Notable Dates',
     today: 'Today',
+    days_away: 'days away',
+    this_month: 'This month',
 
     // You Tab
     you_title: 'Profile',
@@ -232,6 +234,10 @@ export const translations = {
     ad_free_privacy: 'Ad-free. Privacy-first. Always.',
     hadith_singular: 'hadith',
     hadith_plural: 'hadiths',
+    hadiths_on_topic: 'Hadiths on',
+    back: 'Back',
+    swipe_for_next: 'Swipe for next',
+    category_not_found: 'Category not found',
   },
 
   ar: {
@@ -417,6 +423,8 @@ export const translations = {
     hijri_calendar: 'التقويم الهجري',
     notable_dates: 'التواريخ المهمة',
     today: 'اليوم',
+    days_away: 'يوم متبقي',
+    this_month: 'هذا الشهر',
 
     // You Tab
     you_title: 'الملف الشخصي',
@@ -462,5 +470,9 @@ export const translations = {
     ad_free_privacy: 'بدون إعلانات. خصوصية أولاً. دائماً.',
     hadith_singular: 'حديث',
     hadith_plural: 'أحاديث',
+    hadiths_on_topic: 'أحاديث عن',
+    back: 'رجوع',
+    swipe_for_next: 'اسحب للتالي',
+    category_not_found: 'الفئة غير موجودة',
   },
 };

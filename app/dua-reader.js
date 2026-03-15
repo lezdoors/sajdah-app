@@ -228,7 +228,7 @@ export default function DuaReaderScreen() {
           {index === 0 && totalDuas > 1 && (
             <View style={[styles.swipeHint, { flexDirection: rowDir }]}>
               <Text style={[styles.swipeHintText, { color: colors.textTertiary }]}>
-                Swipe for next
+                {t('swipe_for_next')}
               </Text>
               <ChevronRight size={14} color={colors.textTertiary} strokeWidth={1.5} />
             </View>
@@ -247,7 +247,7 @@ export default function DuaReaderScreen() {
             <ChevronLeft size={28} color={colors.textPrimary} strokeWidth={1.5} />
           </Pressable>
           <Text style={[styles.fallbackText, { color: colors.textSecondary }]}>
-            Category not found
+            {t('category_not_found')}
           </Text>
         </SafeAreaView>
       </View>
@@ -346,7 +346,7 @@ export default function DuaReaderScreen() {
               <View style={styles.completedRow}>
                 <Check size={16} color={colors.success} strokeWidth={2.5} />
                 <Text style={[styles.completedLabel, { color: colors.success }]}>
-                  Completed
+                  {t('completed')}
                 </Text>
               </View>
             )}

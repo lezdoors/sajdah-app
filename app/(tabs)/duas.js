@@ -320,7 +320,7 @@ export default function DuasScreen() {
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <Text style={[styles.emptyText, { color: colors.textTertiary }]}>
-                No duas found
+                {t('no_duas_found')}
               </Text>
             </View>
           }

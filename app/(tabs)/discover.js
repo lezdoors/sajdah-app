@@ -226,7 +226,7 @@ export default function DiscoverScreen() {
                 return (
                   <Pressable
                     key={topic.key}
-                    onPress={() => {}}
+                    onPress={() => router.push({ pathname: '/topic', params: { topic: topic.key } })}
                     style={({ pressed }) => [
                       styles.topicCard,
                       {

@@ -29,6 +29,7 @@ export default function RootLayout() {
         <Stack.Screen name="tasbih" options={{ animation: 'slide_from_bottom' }} />
         <Stack.Screen name="names" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="calendar" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="topic" options={{ animation: 'slide_from_right' }} />
       </Stack>
     </AppProvider>
   );

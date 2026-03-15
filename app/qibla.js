@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  View, Text, StyleSheet, Dimensions, ActivityIndicator, Pressable, Animated, Platform, ImageBackground,
+  View, Text, StyleSheet, Dimensions, ActivityIndicator, Pressable, Animated, Platform, ImageBackground, TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import { Magnetometer } from 'expo-sensors';
-import { MapPin, Navigation, RotateCcw } from 'lucide-react-native';
+import { MapPin, Navigation, RotateCcw, ChevronLeft } from 'lucide-react-native';
 
 import { Spacing, FontSize, FontWeight, BorderRadius, Images } from '../constants/theme';
 import { useApp } from '../constants/AppContext';
@@ -42,6 +43,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 
 export default function QiblaScreen() {
   const { colors, shadows, isDark, t } = useApp();
+  const router = useRouter();
 
   const [location, setLocation] = useState(null);
   const [cityName, setCityName] = useState('--');
@@ -133,7 +135,15 @@ export default function QiblaScreen() {
       <LinearGradient colors={isDark ? ['rgba(0,0,0,0.85)', 'rgba(0,0,0,0.95)'] : ['rgba(250,248,243,0.92)', 'rgba(250,248,243,0.98)']} style={styles.overlay}>
         <SafeAreaView edges={['top']} style={{ flex: 1 }}>
           <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              style={styles.backButton}
+            >
+              <ChevronLeft size={24} color={colors.textPrimary} strokeWidth={2} />
+            </TouchableOpacity>
             <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>{t('qibla_finder')}</Text>
+            <View style={{ width: 24 }} />
           </View>
 
           {/* Location */}
@@ -210,7 +220,8 @@ const styles = StyleSheet.create({
   loadingText: { fontSize: FontSize.body },
   errorText: { fontSize: FontSize.body, textAlign: 'center', paddingHorizontal: Spacing.xl, lineHeight: 24, marginTop: Spacing.sm },
 
-  header: { alignItems: 'center', padding: Spacing.md },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.md, paddingVertical: Spacing.xs },
+  backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { fontSize: FontSize.h3, fontWeight: FontWeight.bold, letterSpacing: -0.3 },
 
   locationInfo: { alignItems: 'center', marginBottom: Spacing.sm },

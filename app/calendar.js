@@ -95,6 +95,16 @@ const NOTABLE_DATES = [
   },
 ];
 
+function getDaysUntilHijri(targetMonth, targetDay, currentHijriDate) {
+  // Approximate: Hijri months are ~29.5 days
+  const HIJRI_MONTH_DAYS = 29.5;
+  let currentDayOfYear = (currentHijriDate.month - 1) * HIJRI_MONTH_DAYS + currentHijriDate.day;
+  let targetDayOfYear = (targetMonth - 1) * HIJRI_MONTH_DAYS + targetDay;
+  let diff = targetDayOfYear - currentDayOfYear;
+  if (diff < 0) diff += Math.round(12 * HIJRI_MONTH_DAYS); // Next year
+  return Math.round(diff);
+}
+
 export default function CalendarScreen() {
   const { colors, isDark, t, isRTL } = useApp();
   const router = useRouter();
@@ -339,15 +349,18 @@ export default function CalendarScreen() {
                       >
                         {isRTL ? event.nameAr : event.name}
                       </Text>
-                      <Text
-                        style={[
-                          styles.eventDateLabel,
-                          { color: colors.textTertiary },
-                          isRTL && styles.textRTL,
-                        ]}
-                      >
-                        {event.day} {getHijriMonthName(event.month)}
-                      </Text>
+                      {!isCurrentMonth && (
+                        <Text style={[styles.eventDaysUntil, { color: colors.accent }, isRTL && styles.textRTL]}>
+                          {getDaysUntilHijri(event.month, event.day, hijriDate) === 0
+                            ? t('today')
+                            : `${getDaysUntilHijri(event.month, event.day, hijriDate)} ${t('days_away')}`}
+                        </Text>
+                      )}
+                      {isCurrentMonth && (
+                        <Text style={[styles.eventDaysUntil, { color: isDark ? '#D4B76E' : '#C4A35A' }, isRTL && styles.textRTL]}>
+                          {t('this_month')}
+                        </Text>
+                      )}
                       <Text
                         style={[
                           styles.eventDescription,
@@ -551,6 +564,11 @@ const styles = StyleSheet.create({
   eventDateLabel: {
     fontSize: FontSize.caption,
     fontWeight: FontWeight.regular,
+    lineHeight: 16,
+  },
+  eventDaysUntil: {
+    fontSize: FontSize.caption,
+    fontWeight: FontWeight.semibold,
     lineHeight: 16,
   },
   eventDescription: {

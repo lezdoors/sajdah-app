@@ -10,7 +10,7 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import Svg, { Circle } from 'react-native-svg';
 import {
-  Bell, Clock, BookOpen, ChevronRight, Heart, Check,
+  Bell, Clock, BookOpen, ChevronRight, Heart, Check, Bookmark,
   Flame, Star, CircleDot, Compass as CompassIcon, CalendarDays,
   Sun, Sunset, Moon, CloudSun, CloudMoon,
 } from 'lucide-react-native';
@@ -22,7 +22,7 @@ import { formatHijriDate } from '../../utils/hijri';
 import { getDailyAyah } from '../../data/ayahs';
 import { getDailyHadith } from '../../data/hadith';
 import { DUA_CATEGORIES } from '../../data/duas';
-import { getDailyGoals, toggleGoal, getStreak, recordDay, getLastRead, getPrayerLog, togglePrayerCompleted } from '../../utils/storage';
+import { getDailyGoals, toggleGoal, getStreak, recordDay, getLastRead, getPrayerLog, togglePrayerCompleted, toggleBookmark, isBookmarked } from '../../utils/storage';
 import { SURAHS } from '../../data/surahs';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -66,6 +66,8 @@ export default function HomeScreen() {
   const [streak, setStreak] = useState({ count: 0, dates: [] });
   const [lastRead, setLastRead] = useState(null);
   const [prayerLog, setPrayerLog] = useState({});
+  const [ayahBookmarked, setAyahBookmarked] = useState(false);
+  const [hadithBookmarked, setHadithBookmarked] = useState(false);
   const ringAnim = useRef(new Animated.Value(0)).current;
 
   const headerStyle = useStaggerAnim(0);
@@ -83,6 +85,14 @@ export default function HomeScreen() {
       setGoals(g); setStreak(s); setLastRead(lr); setPrayerLog(pl);
       await recordDay();
       setStreak(await getStreak());
+      if (dailyAyah) {
+        const ab = await isBookmarked(`ayah-${dailyAyah.surahNumber}-${dailyAyah.number}`, 'ayah');
+        setAyahBookmarked(ab);
+      }
+      if (dailyHadith) {
+        const hb = await isBookmarked(`hadith-${dailyHadith.source.replace(/\s+/g, '-')}`, 'hadith');
+        setHadithBookmarked(hb);
+      }
     }
     loadUserData();
   }, []);
@@ -160,6 +170,26 @@ export default function HomeScreen() {
   async function handleTogglePrayer(prayerName) {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setPrayerLog(await togglePrayerCompleted(prayerName));
+  }
+
+  async function handleBookmarkAyah() {
+    const result = await toggleBookmark({
+      id: `ayah-${dailyAyah.surahNumber}-${dailyAyah.number}`,
+      type: 'ayah',
+      title: `Surah ${dailyAyah.surahName} ${dailyAyah.surahNumber}:${dailyAyah.number}`,
+      text: dailyAyah.english,
+    });
+    setAyahBookmarked(result.some(b => b.id === `ayah-${dailyAyah.surahNumber}-${dailyAyah.number}`));
+  }
+
+  async function handleBookmarkHadith() {
+    const result = await toggleBookmark({
+      id: `hadith-${dailyHadith.source.replace(/\s+/g, '-')}`,
+      type: 'hadith',
+      title: `${dailyHadith.source}`,
+      text: dailyHadith.english,
+    });
+    setHadithBookmarked(result.some(b => b.id === `hadith-${dailyHadith.source.replace(/\s+/g, '-')}`));
   }
 
   if (loading) {
@@ -419,6 +449,9 @@ export default function HomeScreen() {
               <View style={styles.section}>
                 <View style={[styles.sectionHeader, { flexDirection: rowDir }]}>
                   <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('daily_ayah')}</Text>
+                  <Pressable onPress={handleBookmarkAyah} hitSlop={8}>
+                    <Bookmark size={18} color={ayahBookmarked ? colors.gold : colors.textTertiary} fill={ayahBookmarked ? colors.gold : 'transparent'} strokeWidth={1.5} />
+                  </Pressable>
                 </View>
                 <View style={[styles.contentCard, { backgroundColor: colors.surfaceElevated }]}>
                   <Text style={[styles.arabicText, { color: colors.textPrimary }]}>{dailyAyah.arabic}</Text>
@@ -437,6 +470,9 @@ export default function HomeScreen() {
               <View style={styles.section}>
                 <View style={[styles.sectionHeader, { flexDirection: rowDir }]}>
                   <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('daily_hadith')}</Text>
+                  <Pressable onPress={handleBookmarkHadith} hitSlop={8}>
+                    <Bookmark size={18} color={hadithBookmarked ? colors.gold : colors.textTertiary} fill={hadithBookmarked ? colors.gold : 'transparent'} strokeWidth={1.5} />
+                  </Pressable>
                 </View>
                 <View style={[styles.contentCard, { backgroundColor: colors.surfaceElevated }]}>
                   <Text style={[styles.arabicTextSmall, { color: colors.textPrimary }]}>{dailyHadith.arabic}</Text>
