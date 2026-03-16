@@ -16,7 +16,10 @@ import { Spacing, FontSize, FontWeight, BorderRadius, Gradients, Images } from '
 import { useApp } from '../constants/AppContext';
 import { getPrayerTimes, getNextPrayer, getCurrentPrayer, formatTime, getCountdown } from '../utils/prayer';
 import { formatHijriDate } from '../utils/hijri';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPrayerLog, togglePrayerCompleted } from '../utils/storage';
+
+const PRAYER_HINT_KEY = 'sajdah_prayer_hint_shown';
 
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get('window');
 const HEADER_HEIGHT = SCREEN_HEIGHT * 0.28;
@@ -53,6 +56,14 @@ export default function PrayerScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const gridAnims = useRef(PRAYER_ORDER.map(() => new Animated.Value(0))).current;
   const intervalRef = useRef(null);
+  const [flashedPrayer, setFlashedPrayer] = useState(null);
+  const [showLongPressHint, setShowLongPressHint] = useState(false);
+
+  useEffect(() => {
+    AsyncStorage.getItem(PRAYER_HINT_KEY).then((val) => {
+      if (val !== 'true') setShowLongPressHint(true);
+    });
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -112,11 +123,27 @@ export default function PrayerScreen() {
 
   async function handlePrayerToggle(prayerName) {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setPrayerLog(await togglePrayerCompleted(prayerName));
+    const updated = await togglePrayerCompleted(prayerName);
+    setPrayerLog(updated);
+    // Brief green border flash on the toggled card
+    if (updated[prayerName]) {
+      setFlashedPrayer(prayerName);
+      setTimeout(() => setFlashedPrayer(null), 400);
+    }
+    // Dismiss long-press hint forever
+    if (showLongPressHint) {
+      setShowLongPressHint(false);
+      AsyncStorage.setItem(PRAYER_HINT_KEY, 'true');
+    }
   }
 
   if (loading) {
-    return <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}><ActivityIndicator size="large" color={colors.accent} /></View>;
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.accent} />
+        <Text style={[styles.loadingText, { color: colors.textTertiary }]}>{t('finding_your_location')}</Text>
+      </View>
+    );
   }
 
   const today = new Date();
@@ -208,8 +235,8 @@ export default function PrayerScreen() {
                     styles.gridCard,
                     {
                       backgroundColor: colors.surface,
-                      borderColor: isCurrent ? colors.accent : colors.surfaceBorder,
-                      borderWidth: isCurrent ? 2 : 1,
+                      borderColor: flashedPrayer === name ? '#22C55E' : isCurrent ? colors.accent : colors.surfaceBorder,
+                      borderWidth: flashedPrayer === name ? 2 : isCurrent ? 2 : 1,
                       opacity: pressed ? 0.85 : 1,
                       transform: [{ scale: pressed ? 0.97 : 1 }],
                     },
@@ -251,6 +278,13 @@ export default function PrayerScreen() {
           })}
         </View>
 
+        {/* Long-press hint */}
+        {showLongPressHint && (
+          <Text style={[styles.longPressHint, { color: colors.textTertiary }]}>
+            {t('long_press_hint')}
+          </Text>
+        )}
+
         {/* Prayer Completion Progress */}
         <View style={styles.completionSection}>
           <View style={[styles.progressBarBg, { backgroundColor: colors.surfaceBorder }]}>
@@ -272,7 +306,8 @@ export default function PrayerScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.sm },
+  loadingText: { fontSize: FontSize.body, fontWeight: FontWeight.medium },
   scrollContent: { paddingBottom: 100 },
 
   heroHeader: { height: HEADER_HEIGHT, width: '100%' },
@@ -336,6 +371,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#22C55E',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  longPressHint: {
+    fontSize: FontSize.caption,
+    fontWeight: FontWeight.medium,
+    textAlign: 'center',
+    marginTop: Spacing.xs,
+    paddingHorizontal: GRID_PADDING,
   },
   completionSection: {
     paddingHorizontal: GRID_PADDING,

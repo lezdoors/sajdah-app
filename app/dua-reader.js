@@ -27,6 +27,7 @@ export default function DuaReaderScreen() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [counts, setCounts] = useState(() => duas.map(() => 0));
+  const [hasUserSwiped, setHasUserSwiped] = useState(false);
   const flatListRef = useRef(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -88,7 +89,9 @@ export default function DuaReaderScreen() {
 
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     if (viewableItems.length > 0) {
-      setCurrentIndex(viewableItems[0].index);
+      const newIndex = viewableItems[0].index;
+      if (newIndex !== 0) setHasUserSwiped(true);
+      setCurrentIndex(newIndex);
     }
   }).current;
 
@@ -224,8 +227,8 @@ export default function DuaReaderScreen() {
             </View>
           </View>
 
-          {/* Swipe hint — first card only, when multiple duas */}
-          {index === 0 && totalDuas > 1 && (
+          {/* Swipe hint — show on current card until user has swiped */}
+          {!hasUserSwiped && totalDuas > 1 && (
             <View style={[styles.swipeHint, { flexDirection: rowDir }]}>
               <Text style={[styles.swipeHintText, { color: colors.textTertiary }]}>
                 {t('swipe_for_next')}

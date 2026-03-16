@@ -8,8 +8,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Flame, Target, Bookmark, Calculator, MapPin, Bell, Moon, Sun,
-  Smartphone, Globe, Star, Shield, Info, ChevronRight,
+  Smartphone, Globe, Star, Shield, Info, ChevronRight, Check,
 } from 'lucide-react-native';
+import Constants from 'expo-constants';
 
 import { Spacing, FontSize, FontWeight, BorderRadius, HeroGradients } from '../../constants/theme';
 import { useApp } from '../../constants/AppContext';
@@ -19,18 +20,7 @@ import { getStreak, getDailyGoals, toggleGoal, getBookmarks, getPrayerStats } fr
 const CALC_METHOD_KEY = 'sajdah_calc_method';
 const NOTIF_KEY = 'sajdah_notifications';
 
-const METHOD_LABELS = {
-  MWL: 'Muslim World League',
-  ISNA: 'Islamic Society of North America',
-  Egyptian: 'Egyptian General Authority',
-  Karachi: 'University of Islamic Sciences, Karachi',
-  Dubai: 'Dubai',
-  Qatar: 'Qatar',
-  Kuwait: 'Kuwait',
-  Singapore: 'Singapore',
-  Turkey: 'Turkey',
-  Tehran: 'Institute of Geophysics, Tehran',
-};
+const appVersion = Constants.expoConfig?.version || '1.0.0';
 
 const GOAL_ITEMS = [
   { id: 'fajr', labelKey: 'goal_fajr' },
@@ -61,6 +51,8 @@ export default function YouScreen() {
   const rowDir = isRTL ? 'row-reverse' : 'row';
   const textAlign = isRTL ? 'right' : 'left';
 
+  const getMethodLabel = (method) => t(`calc_method_${method.toLowerCase()}`) || method;
+
   // Staggered entrance animations
   const sectionAnims = useRef(
     Array.from({ length: SECTION_COUNT }, () => new Animated.Value(0))
@@ -76,6 +68,16 @@ export default function YouScreen() {
       })
     );
     Animated.stagger(100, animations).start();
+  }, []);
+
+  // Hero entrance animation
+  const heroAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(heroAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
   }, []);
 
   // Scale animation for active streak dots
@@ -136,9 +138,23 @@ export default function YouScreen() {
     });
   }, [streak.dates]);
 
+  // Goal checkbox bounce animations
+  const goalScaleAnims = useRef(
+    GOAL_ITEMS.reduce((acc, g) => { acc[g.id] = new Animated.Value(1); return acc; }, {})
+  ).current;
+
   const handleGoalToggle = useCallback(async (goalId) => {
     const updated = await toggleGoal(goalId);
     setGoals(updated);
+    // Bounce animation on the checkbox
+    const anim = goalScaleAnims[goalId];
+    if (anim) {
+      Animated.sequence([
+        Animated.timing(anim, { toValue: 0.8, duration: 80, useNativeDriver: true }),
+        Animated.spring(anim, { toValue: 1.1, friction: 3, tension: 200, useNativeDriver: true }),
+        Animated.spring(anim, { toValue: 1, friction: 5, tension: 120, useNativeDriver: true }),
+      ]).start();
+    }
   }, []);
 
   async function handleMethodChange(method) {
@@ -229,20 +245,25 @@ export default function YouScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
         {/* -- 1. Hero Profile Header -- */}
-        <LinearGradient
-          colors={[...HeroGradients.you, colors.background]}
-          locations={[0, 0.6, 1]}
-          style={styles.heroHeader}
-        >
-          <SafeAreaView edges={['top']} style={styles.heroSafeArea}>
-            <View style={styles.heroGradient}>
-              <View style={styles.heroContent}>
-                <Text style={styles.heroAppName}>{t('app_name')}</Text>
-                <Text style={styles.heroTagline}>{t('app_tagline')}</Text>
+        <Animated.View style={{
+          opacity: heroAnim,
+          transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
+        }}>
+          <LinearGradient
+            colors={[...HeroGradients.you, colors.background]}
+            locations={[0, 0.6, 1]}
+            style={styles.heroHeader}
+          >
+            <SafeAreaView edges={['top']} style={styles.heroSafeArea}>
+              <View style={styles.heroGradient}>
+                <View style={styles.heroContent}>
+                  <Text style={styles.heroAppName}>{t('app_name')}</Text>
+                  <Text style={styles.heroTagline}>{t('app_tagline')}</Text>
+                </View>
               </View>
-            </View>
-          </SafeAreaView>
-        </LinearGradient>
+            </SafeAreaView>
+          </LinearGradient>
+        </Animated.View>
 
         {/* -- 2. Streak Stats Card -- */}
         <AnimatedSection index={0} style={styles.sectionSpacing}>
@@ -320,13 +341,15 @@ export default function YouScreen() {
                     ]}>
                       {t(goal.labelKey)}
                     </Text>
-                    <View style={[
-                      styles.goalCheckbox,
-                      { borderColor: isDone ? colors.accent : colors.textTertiary },
-                      isDone && { backgroundColor: colors.accent, borderColor: colors.accent },
-                    ]}>
-                      {isDone && <Text style={styles.goalCheckmark}>&#10003;</Text>}
-                    </View>
+                    <Animated.View style={{ transform: [{ scale: goalScaleAnims[goal.id] }] }}>
+                      <View style={[
+                        styles.goalCheckbox,
+                        { borderColor: isDone ? colors.accent : colors.textTertiary },
+                        isDone && { backgroundColor: colors.accent, borderColor: colors.accent },
+                      ]}>
+                        {isDone && <Check size={14} color="#FFFFFF" strokeWidth={3} />}
+                      </View>
+                    </Animated.View>
                   </Pressable>
                 </View>
               );
@@ -378,7 +401,7 @@ export default function YouScreen() {
             {renderSettingsRow({
               icon: Calculator,
               label: t('calc_method'),
-              value: METHOD_LABELS[calcMethod] || calcMethod,
+              value: getMethodLabel(calcMethod),
               onPress: () => setShowMethodPicker(!showMethodPicker),
             })}
             <View style={[styles.settingsDivider, { backgroundColor: colors.divider }]} />
@@ -409,11 +432,11 @@ export default function YouScreen() {
                   { color: colors.textPrimary },
                   calcMethod === method && { color: colors.accent, fontWeight: FontWeight.semibold },
                 ]}>
-                  {METHOD_LABELS[method] || method}
+                  {getMethodLabel(method)}
                 </Text>
                 {calcMethod === method && (
                   <View style={[styles.methodCheck, { backgroundColor: colors.accent }]}>
-                    <Text style={styles.methodCheckText}>&#10003;</Text>
+                    <Check size={12} color="#FFFFFF" strokeWidth={3} />
                   </View>
                 )}
               </Pressable>
@@ -515,6 +538,7 @@ export default function YouScreen() {
               icon: Star,
               label: t('rate_app'),
               iconColor: colors.gold,
+              // TODO: Update with actual App Store URL once listing is live
               onPress: () => Linking.openURL('https://apps.apple.com'),
             })}
             <View style={[styles.settingsDivider, { backgroundColor: colors.divider }]} />
@@ -527,7 +551,7 @@ export default function YouScreen() {
             {renderSettingsRow({
               icon: Info,
               label: t('version'),
-              value: '1.0.0',
+              value: appVersion,
               onPress: () => {},
               rightElement: <View />,
             })}
@@ -536,7 +560,7 @@ export default function YouScreen() {
 
         {/* -- 6. App Footer -- */}
         <View style={styles.footer}>
-          <Text style={[styles.footerAppName, { color: colors.accent }]}>Sajdah</Text>
+          <Text style={[styles.footerAppName, { color: colors.accent }]}>{t('app_name')}</Text>
           <Text style={[styles.footerTagline, { color: colors.textTertiary }]}>{t('app_tagline')}</Text>
           <View style={styles.footerPrivacyRow}>
             <Shield size={12} color={colors.textTertiary} strokeWidth={1.5} />

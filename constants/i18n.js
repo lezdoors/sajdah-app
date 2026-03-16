@@ -248,6 +248,25 @@ export const translations = {
     back: 'Back',
     swipe_for_next: 'Swipe for next',
     category_not_found: 'Category not found',
+
+    // Calculation Methods
+    calc_method_mwl: 'Muslim World League',
+    calc_method_isna: 'Islamic Society of North America',
+    calc_method_egyptian: 'Egyptian General Authority',
+    calc_method_karachi: 'University of Islamic Sciences, Karachi',
+    calc_method_dubai: 'Dubai',
+    calc_method_qatar: 'Qatar',
+    calc_method_kuwait: 'Kuwait',
+    calc_method_singapore: 'Singapore',
+    calc_method_turkey: 'Turkey',
+    calc_method_tehran: 'Institute of Geophysics, Tehran',
+
+    // Empty states
+    enable_location: 'Enable location to see prayer times',
+    open_settings: 'Open Settings',
+    finding_your_location: 'Finding your location...',
+    no_names_found: 'No names match your search',
+    long_press_hint: 'Long press to mark as prayed',
   },
 
   ar: {
@@ -494,5 +513,24 @@ export const translations = {
     back: 'رجوع',
     swipe_for_next: 'اسحب للتالي',
     category_not_found: 'الفئة غير موجودة',
+
+    // Calculation Methods
+    calc_method_mwl: 'رابطة العالم الإسلامي',
+    calc_method_isna: 'الجمعية الإسلامية لأمريكا الشمالية',
+    calc_method_egyptian: 'الهيئة المصرية العامة للمساحة',
+    calc_method_karachi: 'جامعة العلوم الإسلامية، كراتشي',
+    calc_method_dubai: 'دبي',
+    calc_method_qatar: 'قطر',
+    calc_method_kuwait: 'الكويت',
+    calc_method_singapore: 'سنغافورة',
+    calc_method_turkey: 'تركيا',
+    calc_method_tehran: 'معهد الجيوفيزياء، طهران',
+
+    // Empty states
+    enable_location: 'فعّل الموقع لعرض أوقات الصلاة',
+    open_settings: 'فتح الإعدادات',
+    finding_your_location: 'جاري تحديد موقعك...',
+    no_names_found: 'لم يتم العثور على أسماء مطابقة',
+    long_press_hint: 'اضغط مطولاً للتحديد كصلاة',
   },
 };

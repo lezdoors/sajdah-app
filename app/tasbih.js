@@ -355,7 +355,8 @@ export default function TasbihScreen() {
           <TouchableOpacity
             onPress={handleReset}
             activeOpacity={0.7}
-            style={styles.resetButton}
+            disabled={sessionCount === 0}
+            style={[styles.resetButton, { opacity: sessionCount === 0 ? 0.3 : 1 }]}
           >
             <RotateCcw size={16} color="rgba(255,255,255,0.7)" strokeWidth={2} />
             <Text style={styles.resetText}>

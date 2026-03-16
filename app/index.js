@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Animated, ImageBackground } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Images } from '../constants/theme';
+import { Images, Palette } from '../constants/theme';
 import { useApp } from '../constants/AppContext';
 
 const ONBOARDING_KEY = 'sajdah_onboarded';
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   },
   arabic: {
     fontSize: 28,
-    color: '#D4B44A',
+    color: Palette.gold400,
     marginTop: 8,
   },
   tagline: {

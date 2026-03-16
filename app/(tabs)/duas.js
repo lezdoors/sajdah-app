@@ -313,7 +313,8 @@ export default function DuasScreen() {
           }
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Text style={[styles.emptyText, { color: colors.textTertiary }]}>
+              <Search size={32} color={colors.textTertiary} strokeWidth={1.5} />
+              <Text style={[styles.emptyText, { color: colors.textTertiary, marginTop: Spacing.sm }]}>
                 {t('no_duas_found')}
               </Text>
             </View>
@@ -438,7 +439,7 @@ const styles = StyleSheet.create({
   // Grid
   gridContent: {
     paddingHorizontal: Spacing.md,
-    paddingBottom: 120,
+    paddingBottom: 100,
   },
   gridRow: {
     marginBottom: CARD_GAP,

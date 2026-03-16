@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, Dimensions, Share,
-  ActivityIndicator, AppState, Pressable, Animated,
+  ActivityIndicator, AppState, Pressable, Animated, Linking,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
@@ -12,7 +13,7 @@ import Svg, { Circle } from 'react-native-svg';
 import {
   Bell, Clock, BookOpen, ChevronRight, Heart, Check, Bookmark, Share2,
   Flame, Star, CircleDot, Compass as CompassIcon, CalendarDays,
-  Sun, Sunset, Moon, CloudSun, CloudMoon,
+  Sun, Sunset, Moon, CloudSun, CloudMoon, MapPin,
 } from 'lucide-react-native';
 
 import { Spacing, FontSize, FontWeight, BorderRadius, FeatureGradients, HeroGradients } from '../../constants/theme';
@@ -69,14 +70,16 @@ export default function HomeScreen() {
   const [prayerLog, setPrayerLog] = useState({});
   const [ayahBookmarked, setAyahBookmarked] = useState(false);
   const [hadithBookmarked, setHadithBookmarked] = useState(false);
+  const [locationDenied, setLocationDenied] = useState(false);
+  const [showLongPressHint, setShowLongPressHint] = useState(false);
   const ringAnim = useRef(new Animated.Value(0)).current;
 
   const headerStyle = useStaggerAnim(0);
-  const prayerRowStyle = useStaggerAnim(100);
-  const heroStyle = useStaggerAnim(200);
-  const servicesStyle = useStaggerAnim(300);
-  const goalsStyle = useStaggerAnim(400);
-  const contentStyle = useStaggerAnim(500);
+  const prayerRowStyle = useStaggerAnim(80);
+  const heroStyle = useStaggerAnim(160);
+  const servicesStyle = useStaggerAnim(240);
+  const goalsStyle = useStaggerAnim(320);
+  const contentStyle = useStaggerAnim(400);
 
   const intervalRef = useRef(null);
 
@@ -96,6 +99,10 @@ export default function HomeScreen() {
       }
     }
     loadUserData();
+    // Check if long-press hint has been shown
+    AsyncStorage.getItem('sajdah_prayer_hint_shown').then((val) => {
+      if (val !== 'true') setShowLongPressHint(true);
+    });
   }, []);
 
   useEffect(() => {
@@ -104,7 +111,7 @@ export default function HomeScreen() {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-          if (mounted) { setHijriDate(formatHijriDate()); setLoading(false); }
+          if (mounted) { setLocationDenied(true); setHijriDate(formatHijriDate()); setLoading(false); }
           return;
         }
         const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
@@ -172,6 +179,10 @@ export default function HomeScreen() {
   async function handleTogglePrayer(prayerName) {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setPrayerLog(await togglePrayerCompleted(prayerName));
+    if (showLongPressHint) {
+      setShowLongPressHint(false);
+      AsyncStorage.setItem('sajdah_prayer_hint_shown', 'true');
+    }
   }
 
   async function handleBookmarkAyah() {
@@ -282,6 +293,24 @@ export default function HomeScreen() {
             </View>
           </Animated.View>
 
+          {/* ── No Location Empty State ── */}
+          {locationDenied && !prayerTimes && (
+            <Animated.View style={prayerRowStyle}>
+              <View style={[styles.noLocationCard, { backgroundColor: colors.surfaceElevated }]}>
+                <MapPin size={20} color={colors.textTertiary} strokeWidth={1.5} />
+                <Text style={[styles.noLocationText, { color: colors.textSecondary }]}>
+                  {t('enable_location')}
+                </Text>
+                <Pressable
+                  style={[styles.noLocationButton, { backgroundColor: colors.accent }]}
+                  onPress={() => Linking.openSettings()}
+                >
+                  <Text style={styles.noLocationButtonText}>{t('open_settings')}</Text>
+                </Pressable>
+              </View>
+            </Animated.View>
+          )}
+
           {/* ── Circular Countdown Ring ── */}
           {nextPrayer && (
             <Animated.View style={prayerRowStyle}>
@@ -380,6 +409,11 @@ export default function HomeScreen() {
               <Text style={[styles.prayerSummary, { color: colors.textTertiary }]}>
                 {completedPrayers}/5 {t('prayers_today')}
               </Text>
+              {showLongPressHint && (
+                <Text style={[styles.longPressHint, { color: colors.textTertiary }]}>
+                  {t('long_press_hint')}
+                </Text>
+              )}
             </View>
           </Animated.View>
 
@@ -621,6 +655,39 @@ const styles = StyleSheet.create({
     fontWeight: FontWeight.medium,
     textAlign: 'center',
     marginTop: Spacing.xs,
+  },
+  longPressHint: {
+    fontSize: FontSize.caption,
+    fontWeight: FontWeight.regular,
+    textAlign: 'center',
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+
+  // No Location Card
+  noLocationCard: {
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  noLocationText: {
+    fontSize: FontSize.bodySmall,
+    fontWeight: FontWeight.medium,
+    textAlign: 'center',
+  },
+  noLocationButton: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 10,
+    borderRadius: BorderRadius.full,
+    marginTop: 4,
+  },
+  noLocationButtonText: {
+    fontSize: FontSize.bodySmall,
+    fontWeight: FontWeight.semibold,
+    color: '#FFFFFF',
   },
 
   // Hero Banner

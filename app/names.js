@@ -401,6 +401,14 @@ export default function NamesScreen() {
           initialNumToRender={15}
           maxToRenderPerBatch={10}
           extraData={expandedId}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Search size={32} color={colors.textTertiary} strokeWidth={1.5} />
+              <Text style={[styles.emptyText, { color: colors.textTertiary }]}>
+                {t('no_names_found')}
+              </Text>
+            </View>
+          }
         />
       </Animated.View>
     </View>
@@ -600,6 +608,17 @@ const styles = StyleSheet.create({
   // Separator
   separator: {
     height: Spacing.xs,
+  },
+
+  // Empty state
+  emptyState: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.xxl,
+    gap: Spacing.sm,
+  },
+  emptyText: {
+    fontSize: FontSize.body,
   },
 
   // RTL

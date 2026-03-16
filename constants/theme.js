@@ -287,16 +287,16 @@ export const TopicColors = {
 };
 
 export const TopicColorsDark = {
-  prayer: { bg: '#1A7A5E', text: '#FFFFFF' },
-  faith: { bg: '#5856D6', text: '#FFFFFF' },
-  manners: { bg: '#007AFF', text: '#FFFFFF' },
-  charity: { bg: '#FF9500', text: '#FFFFFF' },
-  patience: { bg: '#00838F', text: '#FFFFFF' },
-  forgiveness: { bg: '#AF52DE', text: '#FFFFFF' },
-  knowledge: { bg: '#34C759', text: '#FFFFFF' },
-  remembrance: { bg: '#FF2D55', text: '#FFFFFF' },
-  sincerity: { bg: '#FF6B35', text: '#FFFFFF' },
-  family: { bg: '#5AC8FA', text: '#FFFFFF' },
+  prayer:      { bg: '#2AB78D', text: '#FFFFFF' },
+  faith:       { bg: '#7B79E8', text: '#FFFFFF' },
+  manners:     { bg: '#4DA3FF', text: '#FFFFFF' },
+  charity:     { bg: '#FFB340', text: '#FFFFFF' },
+  patience:    { bg: '#26A5B3', text: '#FFFFFF' },
+  forgiveness: { bg: '#C77AE8', text: '#FFFFFF' },
+  knowledge:   { bg: '#5DD87A', text: '#FFFFFF' },
+  remembrance: { bg: '#FF5C7A', text: '#FFFFFF' },
+  sincerity:   { bg: '#FF8F5C', text: '#FFFFFF' },
+  family:      { bg: '#7AD6FA', text: '#FFFFFF' },
 };
 
 // ── Image References ────────────────────────────────────
