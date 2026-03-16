@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, Dimensions, Image, Animated } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Dimensions, Image, Animated, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Compass, Bell, MapPin, Sparkles, ArrowRight } from 'lucide-react-native';
@@ -52,7 +52,14 @@ export default function OnboardingScreen() {
       description: t('location_desc'),
       button: t('allow_location'),
       action: async () => {
-        await Location.requestForegroundPermissionsAsync();
+        try {
+          // expo-location permissions are not supported the same way on web
+          if (Platform.OS !== 'web') {
+            await Location.requestForegroundPermissionsAsync();
+          }
+        } catch (e) {
+          // Don't block onboarding if permissions fail
+        }
       },
     },
     {
@@ -64,8 +71,12 @@ export default function OnboardingScreen() {
       description: t('setup_desc'),
       button: t('finish_setup'),
       action: async () => {
-        if (remindersEnabled) {
-          await Notifications.requestPermissionsAsync();
+        try {
+          if (remindersEnabled && Platform.OS !== 'web') {
+            await Notifications.requestPermissionsAsync();
+          }
+        } catch (e) {
+          // Don't block onboarding if permissions fail
         }
       },
     },
@@ -78,7 +89,11 @@ export default function OnboardingScreen() {
     if (step < steps.length - 1) {
       setStep(step + 1);
     } else {
-      await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+      try {
+        await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+      } catch (e) {
+        // Ignore storage failures
+      }
       router.replace('/(tabs)');
     }
   }

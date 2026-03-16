@@ -100,10 +100,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* Hidden from tab bar - old screens kept as routes for deep links */}
-      <Tabs.Screen name="prayer" options={{ href: null }} />
-      <Tabs.Screen name="qibla" options={{ href: null }} />
-      <Tabs.Screen name="settings" options={{ href: null }} />
     </Tabs>
   );
 }
