@@ -25,9 +25,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#006D44",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "foregroundImage": "./assets/icon.png"
       },
       "package": "com.sajdah.app",
       "permissions": [

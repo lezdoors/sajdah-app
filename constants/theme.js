@@ -257,6 +257,21 @@ export const Gradients = {
   discoverCardDark: ['#2C2C2E', '#1C1C1E'],
 };
 
+// ── Feature Gradients (replace card photos) ─────────────
+export const FeatureGradients = {
+  names:    { colors: ['#0A3D5C', '#1A7A8A'], icon: 'Star' },
+  tasbih:   { colors: ['#5C3A0A', '#B8860B'], icon: 'CircleDot' },
+  qibla:    { colors: ['#1A1A4E', '#3D3DA6'], icon: 'Compass' },
+  calendar: { colors: ['#4A1942', '#8B3A7A'], icon: 'Calendar' },
+};
+
+export const HeroGradients = {
+  discover: ['#0D3B2E', '#1A7A5E', '#0D3B2E'],
+  duas:     ['#0A1628', '#1A3A5C', '#0D2240'],
+  you:      ['#1A2A1A', '#2D4A2D'],
+  prayer:   ['#1A1A2E', '#2D2D5C', '#0D0D1E'],
+};
+
 // ── Topic Colors (vibrant, Bible App style) ─────────────
 export const TopicColors = {
   prayer: { bg: '#1A7A5E', text: '#FFFFFF' },
@@ -292,11 +307,8 @@ export const Images = {
   quran: require('../assets/images/quran.jpg'),
   tasbih: require('../assets/images/tasbih.jpg'),
   mosqueEntrance: require('../assets/images/mosque-entrance.jpg'),
-  heroWhite: require('../assets/images/hero-white.jpg'),
   heroMacca: require('../assets/images/hero-macca.jpg'),
-  heroOrange: require('../assets/images/hero-orange.jpg'),
   heroPink: require('../assets/images/hero-pink.jpg'),
-  heroYellow: require('../assets/images/hero-yellow.jpg'),
   heroFinial: require('../assets/images/hero-finial.jpg'),
   quranCover: require('../assets/images/quran-cover.jpg'),
   quranOpen: require('../assets/images/quran-open.jpg'),

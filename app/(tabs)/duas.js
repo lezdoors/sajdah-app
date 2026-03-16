@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import {
   View, Text, FlatList, StyleSheet, Pressable, TextInput,
-  Dimensions, StatusBar, Animated, ImageBackground,
+  Dimensions, StatusBar, Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -10,7 +10,7 @@ import { useRouter } from 'expo-router';
 
 import { useApp } from '../../constants/AppContext';
 import {
-  Spacing, FontSize, FontWeight, BorderRadius, Images,
+  Spacing, FontSize, FontWeight, BorderRadius, HeroGradients,
 } from '../../constants/theme';
 import { DUA_CATEGORIES } from '../../data/duas';
 
@@ -196,25 +196,19 @@ export default function DuasScreen() {
                   { opacity: heroAnim, transform: [{ translateY: heroSlide }] },
                 ]}
               >
-                <ImageBackground
-                  source={Images.quranCover}
+                <LinearGradient
+                  colors={HeroGradients.duas}
                   style={styles.heroBanner}
-                  imageStyle={styles.heroBannerImage}
+                  start={{x:0,y:0}}
+                  end={{x:1,y:1}}
                 >
-                  <LinearGradient
-                    colors={[
-                      'rgba(0,0,0,0.15)',
-                      'rgba(0,0,0,0.55)',
-                      'rgba(0,0,0,0.75)',
-                    ]}
-                    style={styles.heroGradient}
-                  >
+                  <View style={styles.heroGradient}>
                     <Text style={styles.heroTitle}>{t('duas_title')}</Text>
                     <Text style={styles.heroSubtitle}>
                       {totalDuas} {t('duas_count')}
                     </Text>
-                  </LinearGradient>
-                </ImageBackground>
+                  </View>
+                </LinearGradient>
               </Animated.View>
 
               {/* Daily Dua Card */}
@@ -349,9 +343,6 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
     justifyContent: 'flex-end',
-  },
-  heroBannerImage: {
-    borderRadius: BorderRadius.lg,
   },
   heroGradient: {
     flex: 1,

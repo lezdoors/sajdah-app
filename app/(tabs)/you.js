@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, Pressable, Switch, Linking,
-  ImageBackground, Animated,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,7 +11,7 @@ import {
   Smartphone, Globe, Star, Shield, Info, ChevronRight,
 } from 'lucide-react-native';
 
-import { Spacing, FontSize, FontWeight, BorderRadius, Images } from '../../constants/theme';
+import { Spacing, FontSize, FontWeight, BorderRadius, HeroGradients } from '../../constants/theme';
 import { useApp } from '../../constants/AppContext';
 import { getAvailableMethods } from '../../utils/prayer';
 import { getStreak, getDailyGoals, toggleGoal, getBookmarks, getPrayerStats } from '../../utils/storage';
@@ -224,34 +224,25 @@ export default function YouScreen() {
     { key: 'ar', label: t('arabic') },
   ];
 
-  // Gradient colors for hero mask
-  const heroGradientColors = isDark
-    ? ['transparent', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.75)', colors.background]
-    : ['transparent', 'rgba(255,255,255,0.2)', 'rgba(255,255,255,0.75)', colors.background];
-
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
         {/* -- 1. Hero Profile Header -- */}
-        <ImageBackground
-          source={Images.heroFinial}
+        <LinearGradient
+          colors={[...HeroGradients.you, colors.background]}
+          locations={[0, 0.6, 1]}
           style={styles.heroHeader}
-          resizeMode="cover"
         >
           <SafeAreaView edges={['top']} style={styles.heroSafeArea}>
-            <LinearGradient
-              colors={heroGradientColors}
-              locations={[0, 0.4, 0.75, 1]}
-              style={styles.heroGradient}
-            >
+            <View style={styles.heroGradient}>
               <View style={styles.heroContent}>
                 <Text style={styles.heroAppName}>{t('app_name')}</Text>
                 <Text style={styles.heroTagline}>{t('app_tagline')}</Text>
               </View>
-            </LinearGradient>
+            </View>
           </SafeAreaView>
-        </ImageBackground>
+        </LinearGradient>
 
         {/* -- 2. Streak Stats Card -- */}
         <AnimatedSection index={0} style={styles.sectionSpacing}>

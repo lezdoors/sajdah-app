@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Pressable,
   Dimensions,
-  ImageBackground,
   Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,9 +19,10 @@ import {
   FontSize,
   FontWeight,
   BorderRadius,
-  Images,
   TopicColors,
   TopicColorsDark,
+  FeatureGradients,
+  HeroGradients,
 } from '../../constants/theme';
 import { DAILY_HADITHS, getDailyHadith } from '../../data/hadith';
 
@@ -88,7 +88,7 @@ export default function DiscoverScreen() {
       title: t('names_of_allah'),
       subtitle: t('names_subtitle'),
       route: '/names',
-      image: Images.heroMacca,
+      gradient: FeatureGradients.names.colors,
     },
     {
       key: 'tasbih',
@@ -96,7 +96,7 @@ export default function DiscoverScreen() {
       title: t('tasbih_title'),
       subtitle: t('tasbih_subtitle'),
       route: '/tasbih',
-      image: Images.heroOrange,
+      gradient: FeatureGradients.tasbih.colors,
     },
     {
       key: 'qibla',
@@ -104,7 +104,7 @@ export default function DiscoverScreen() {
       title: t('qibla_title'),
       subtitle: t('qibla_subtitle'),
       route: '/qibla',
-      image: Images.heroWhite,
+      gradient: FeatureGradients.qibla.colors,
     },
     {
       key: 'calendar',
@@ -112,7 +112,7 @@ export default function DiscoverScreen() {
       title: t('calendar_title'),
       subtitle: t('calendar_subtitle'),
       route: '/calendar',
-      image: Images.heroPink,
+      gradient: FeatureGradients.calendar.colors,
     },
   ];
 
@@ -128,23 +128,21 @@ export default function DiscoverScreen() {
         >
           {/* ── Hero Banner ── */}
           <Animated.View style={[styles.heroWrapper, getAnimStyle(0)]}>
-            <ImageBackground
-              source={Images.heroFinial}
+            <LinearGradient
+              colors={HeroGradients.discover}
               style={styles.heroBanner}
-              imageStyle={styles.heroBannerImage}
+              start={{x:0,y:0}}
+              end={{x:1,y:1}}
             >
-              <LinearGradient
-                colors={['rgba(0,0,0,0.15)', 'rgba(0,0,0,0.7)']}
-                style={styles.heroOverlay}
-              >
+              <View style={styles.heroOverlay}>
                 <View style={styles.heroTextContainer}>
                   <Text style={styles.heroTitle}>{t('discover_title')}</Text>
                   <Text style={styles.heroSubtitle}>
                     {t('browse_by_topic')}
                   </Text>
                 </View>
-              </LinearGradient>
-            </ImageBackground>
+              </View>
+            </LinearGradient>
           </Animated.View>
 
           {/* ── Featured Hadith ── */}
@@ -287,15 +285,13 @@ export default function DiscoverScreen() {
                       { opacity: pressed ? 0.85 : 1 },
                     ]}
                   >
-                    <ImageBackground
-                      source={card.image}
+                    <LinearGradient
+                      colors={card.gradient}
                       style={styles.featureCardBg}
-                      imageStyle={styles.featureCardImage}
+                      start={{x:0,y:0}}
+                      end={{x:1,y:1}}
                     >
-                      <LinearGradient
-                        colors={['transparent', 'rgba(0,0,0,0.65)']}
-                        style={styles.featureCardOverlay}
-                      >
+                      <View style={styles.featureCardOverlay}>
                         <IconComponent
                           size={20}
                           color="#FFFFFF"
@@ -304,8 +300,8 @@ export default function DiscoverScreen() {
                         <Text style={styles.featureCardTitle}>
                           {card.title}
                         </Text>
-                      </LinearGradient>
-                    </ImageBackground>
+                      </View>
+                    </LinearGradient>
                   </Pressable>
                 );
               })}
@@ -340,9 +336,6 @@ const styles = StyleSheet.create({
     height: HERO_HEIGHT,
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
-  },
-  heroBannerImage: {
-    borderRadius: BorderRadius.lg,
   },
   heroOverlay: {
     flex: 1,
@@ -452,8 +445,6 @@ const styles = StyleSheet.create({
   },
   featureCardBg: {
     flex: 1,
-  },
-  featureCardImage: {
     borderRadius: BorderRadius.md,
   },
   featureCardOverlay: {

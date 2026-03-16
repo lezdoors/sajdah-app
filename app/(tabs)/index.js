@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, Dimensions, Share,
-  ActivityIndicator, AppState, Pressable, Animated, ImageBackground,
+  ActivityIndicator, AppState, Pressable, Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,7 +15,7 @@ import {
   Sun, Sunset, Moon, CloudSun, CloudMoon,
 } from 'lucide-react-native';
 
-import { Spacing, FontSize, FontWeight, BorderRadius, Images } from '../../constants/theme';
+import { Spacing, FontSize, FontWeight, BorderRadius, FeatureGradients, HeroGradients } from '../../constants/theme';
 import { useApp } from '../../constants/AppContext';
 import { getPrayerTimes, getNextPrayer, getCurrentPrayer, formatTime, getCountdown } from '../../utils/prayer';
 import { formatHijriDate } from '../../utils/hijri';
@@ -248,10 +248,10 @@ export default function HomeScreen() {
   const lastReadSurah = lastRead ? SURAHS.find(s => s.number === lastRead.surahNumber) : null;
 
   const services = [
-    { title: t('feature_names'), icon: Star, route: '/names', image: Images.heroMacca },
-    { title: t('feature_tasbih'), icon: CircleDot, route: '/tasbih', image: Images.heroOrange },
-    { title: t('feature_qibla'), icon: CompassIcon, route: '/qibla', image: Images.heroWhite },
-    { title: t('feature_calendar'), icon: CalendarDays, route: '/calendar', image: Images.heroPink },
+    { title: t('feature_names'), icon: Star, route: '/names', gradient: FeatureGradients.names.colors },
+    { title: t('feature_tasbih'), icon: CircleDot, route: '/tasbih', gradient: FeatureGradients.tasbih.colors },
+    { title: t('feature_qibla'), icon: CompassIcon, route: '/qibla', gradient: FeatureGradients.qibla.colors },
+    { title: t('feature_calendar'), icon: CalendarDays, route: '/calendar', gradient: FeatureGradients.calendar.colors },
   ];
 
   const completedGoals = Object.values(goals).filter(Boolean).length;
@@ -383,15 +383,15 @@ export default function HomeScreen() {
             </View>
           </Animated.View>
 
-          {/* ── Hero Image ── */}
+          {/* ── Hero Banner ── */}
           <Animated.View style={servicesStyle}>
             <Pressable style={styles.heroPadding} onPress={() => router.push('/prayer')}>
-              <ImageBackground source={Images.heroYellow} style={styles.heroBanner} imageStyle={styles.heroBannerImage}>
-                <LinearGradient colors={['transparent', 'rgba(0,0,0,0.6)']} style={styles.heroOverlay}>
+              <LinearGradient colors={HeroGradients.prayer} style={styles.heroBanner} start={{x:0,y:0}} end={{x:1,y:1}}>
+                <View style={styles.heroOverlay}>
                   <Text style={styles.heroTitle}>{currentPrayer?.name || t('prayer_times')}</Text>
                   <Text style={styles.heroSubtitle}>{t('tap_to_view_prayers')}</Text>
-                </LinearGradient>
-              </ImageBackground>
+                </View>
+              </LinearGradient>
             </Pressable>
           </Animated.View>
 
@@ -407,12 +407,12 @@ export default function HomeScreen() {
               <View style={styles.servicesGrid}>
                 {services.map((svc, i) => (
                   <Pressable key={i} onPress={() => router.push(svc.route)} style={({ pressed }) => [styles.serviceCard, { opacity: pressed ? 0.85 : 1 }]}>
-                    <ImageBackground source={svc.image} style={styles.serviceCardBg} imageStyle={styles.serviceCardImage}>
-                      <LinearGradient colors={['transparent', 'rgba(0,0,0,0.65)']} style={styles.serviceCardOverlay}>
+                    <LinearGradient colors={svc.gradient} style={styles.serviceCardBg} start={{x:0,y:0}} end={{x:1,y:1}}>
+                      <View style={styles.serviceCardOverlay}>
                         <svc.icon size={20} color="#FFFFFF" strokeWidth={1.5} />
                         <Text style={styles.serviceCardTitle}>{svc.title}</Text>
-                      </LinearGradient>
-                    </ImageBackground>
+                      </View>
+                    </LinearGradient>
                   </Pressable>
                 ))}
               </View>
@@ -626,7 +626,6 @@ const styles = StyleSheet.create({
   // Hero Banner
   heroPadding: { paddingHorizontal: Spacing.md, marginTop: Spacing.lg },
   heroBanner: { height: 140, borderRadius: BorderRadius.lg, overflow: 'hidden' },
-  heroBannerImage: { borderRadius: BorderRadius.lg },
   heroOverlay: { flex: 1, justifyContent: 'flex-end', padding: Spacing.md },
   heroTitle: { fontSize: FontSize.h2, fontWeight: FontWeight.bold, color: '#FFFFFF' },
   heroSubtitle: { fontSize: FontSize.caption, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
@@ -640,8 +639,7 @@ const styles = StyleSheet.create({
   // Services Grid
   servicesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   serviceCard: { width: SERVICE_CARD_W, height: 100, borderRadius: BorderRadius.md, overflow: 'hidden' },
-  serviceCardBg: { flex: 1 },
-  serviceCardImage: { borderRadius: BorderRadius.md },
+  serviceCardBg: { flex: 1, borderRadius: BorderRadius.md },
   serviceCardOverlay: { flex: 1, justifyContent: 'flex-end', padding: 12, gap: 4 },
   serviceCardTitle: { fontSize: FontSize.bodySmall, fontWeight: FontWeight.bold, color: '#FFFFFF' },
 
