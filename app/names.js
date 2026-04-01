@@ -294,7 +294,7 @@ export default function NamesScreen() {
       {/* Hero Image Header */}
       <Animated.View style={getAnimStyle(0)}>
         <ImageBackground
-          source={Images.heroMacca}
+          source={Images.hassan2Door}
           style={styles.hero}
           resizeMode="cover"
         >
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     fontSize: FontSize.h2,
-    fontWeight: FontWeight.bold,
+    fontFamily: 'Amiri-Bold',
     color: '#FFFFFF',
     lineHeight: 28,
   },

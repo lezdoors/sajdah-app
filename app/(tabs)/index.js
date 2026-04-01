@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
   heroPadding: { paddingHorizontal: Spacing.md, marginTop: Spacing.lg },
   heroBanner: { height: 140, borderRadius: BorderRadius.lg, overflow: 'hidden' },
   heroOverlay: { flex: 1, justifyContent: 'flex-end', padding: Spacing.md },
-  heroTitle: { fontSize: FontSize.h2, fontWeight: FontWeight.bold, color: '#FFFFFF' },
+  heroTitle: { fontSize: FontSize.h2, fontFamily: 'Amiri-Bold', color: '#FFFFFF' },
   heroSubtitle: { fontSize: FontSize.caption, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
 
   // Section

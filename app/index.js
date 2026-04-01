@@ -1,11 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { View, Text, StyleSheet, Animated, ImageBackground } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Palette } from '../constants/theme';
+import { Palette, Images } from '../constants/theme';
 import { useApp } from '../constants/AppContext';
-import MoroccanPattern from '../components/MoroccanPattern';
 
 const ONBOARDING_KEY = 'sajdah_onboarded';
 
@@ -46,29 +45,35 @@ export default function Index() {
   }, []);
 
   return (
-    <LinearGradient
-      colors={['#0A1A14', '#0D2B1F', '#0A1A14']}
+    <ImageBackground
+      source={Images.mosqueNight}
       style={styles.container}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
+      resizeMode="cover"
     >
-      <MoroccanPattern color="#FFFFFF" opacity={0.04} />
-      <Animated.View
-        style={[
-          styles.content,
-          { opacity: fadeIn, transform: [{ translateY: floatY }] },
-        ]}
+      <LinearGradient
+        colors={['rgba(0,0,0,0.3)', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.8)']}
+        style={styles.overlay}
       >
-        <Text style={styles.title}>{t('app_name')}</Text>
-        <Text style={styles.arabic}>{t('app_name_arabic')}</Text>
-        <Text style={styles.tagline}>{t('app_tagline')}</Text>
-      </Animated.View>
-    </LinearGradient>
+        <Animated.View
+          style={[
+            styles.content,
+            { opacity: fadeIn, transform: [{ translateY: floatY }] },
+          ]}
+        >
+          <Text style={styles.title}>{t('app_name')}</Text>
+          <Text style={styles.arabic}>{t('app_name_arabic')}</Text>
+          <Text style={styles.tagline}>{t('app_tagline')}</Text>
+        </Animated.View>
+      </LinearGradient>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  overlay: {
     flex: 1,
   },
   content: {
@@ -78,7 +83,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 44,
-    fontWeight: '700',
+    fontFamily: 'Amiri-Bold',
     color: '#FFFFFF',
     letterSpacing: -1,
   },

@@ -121,7 +121,7 @@ function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, o
     <>
       {/* Collapsible Hero Header */}
       <Animated.View style={{ height: heroHeight, opacity: heroOpacity, overflow: 'hidden' }}>
-        <ImageBackground source={Images.quran} style={styles.heroHeader} resizeMode="cover">
+        <ImageBackground source={Images.quranMadinah} style={styles.heroHeader} resizeMode="cover">
           <LinearGradient colors={Gradients.heroMaskDark} style={styles.heroGradient}>
             <SafeAreaView edges={['top']} style={styles.heroInner}>
               <View style={styles.heroTextBlock}>
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
   heroGradient: { flex: 1, justifyContent: 'flex-end' },
   heroInner: { flex: 1, justifyContent: 'flex-end' },
   heroTextBlock: { paddingHorizontal: Spacing.md, paddingBottom: Spacing.xl },
-  heroTitle: { fontSize: FontSize.h1, fontWeight: FontWeight.bold, color: '#FFFFFF', letterSpacing: -0.5 },
+  heroTitle: { fontSize: FontSize.h1, fontFamily: 'Amiri-Bold', color: '#FFFFFF', letterSpacing: -0.5 },
   heroSubtitle: { fontSize: FontSize.bodySmall, color: 'rgba(255,255,255,0.7)', marginTop: 4 },
 
   // Search

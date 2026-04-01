@@ -264,6 +264,16 @@ export const translations = {
     calc_method_turkey: 'Turkey',
     calc_method_tehran: 'Institute of Geophysics, Tehran',
 
+    // Adhan Sounds
+    adhan_section: 'ADHAN SOUND',
+    adhan_sound: 'Adhan Sound',
+    adhan_default: 'Default',
+    adhan_makkah: 'Makkah',
+    adhan_madinah: 'Madinah',
+    adhan_alaqsa: 'Al-Aqsa',
+    adhan_silent: 'Silent',
+    adhan_preview: 'Tap to preview',
+
     // Empty states
     enable_location: 'Enable location to see prayer times',
     open_settings: 'Open Settings',
@@ -554,6 +564,16 @@ export const translations = {
     calc_method_singapore: 'سنغافورة',
     calc_method_turkey: 'تركيا',
     calc_method_tehran: 'معهد الجيوفيزياء، طهران',
+
+    // Adhan Sounds
+    adhan_section: 'صوت الأذان',
+    adhan_sound: 'صوت الأذان',
+    adhan_default: 'الافتراضي',
+    adhan_makkah: 'مكة',
+    adhan_madinah: 'المدينة',
+    adhan_alaqsa: 'الأقصى',
+    adhan_silent: 'صامت',
+    adhan_preview: 'اضغط للاستماع',
 
     // Empty states
     enable_location: 'فعّل الموقع لعرض أوقات الصلاة',
@@ -848,6 +868,16 @@ export const translations = {
     calc_method_singapore: 'Singapour',
     calc_method_turkey: 'Turquie',
     calc_method_tehran: 'Institut de géophysique, Téhéran',
+
+    // Adhan Sounds
+    adhan_section: 'SON DE L\'ADHAN',
+    adhan_sound: 'Son de l\'adhan',
+    adhan_default: 'Par défaut',
+    adhan_makkah: 'La Mecque',
+    adhan_madinah: 'Médine',
+    adhan_alaqsa: 'Al-Aqsa',
+    adhan_silent: 'Silencieux',
+    adhan_preview: 'Appuyez pour écouter',
 
     // Empty states
     enable_location: 'Activez la localisation pour voir les horaires de prière',

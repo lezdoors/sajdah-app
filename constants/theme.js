@@ -317,4 +317,13 @@ export const Images = {
   heroYellow: require('../assets/images/hero-yellow.jpg'),
   quranCover: require('../assets/images/quran-cover.jpg'),
   quranOpen: require('../assets/images/quran-open.jpg'),
+  // Per-section hero images
+  hassan2Night: require('../assets/images/hassan2-night.jpg'),
+  mosqueWhite: require('../assets/images/mosque-white.jpg'),
+  mosqueArch: require('../assets/images/mosque-arch.jpg'),
+  hassan2Arch: require('../assets/images/hassan2-arch.jpg'),
+  hassan2Door: require('../assets/images/hassan2-door.jpg'),
+  istanbulNight: require('../assets/images/istanbul-night.jpg'),
+  quranMadinah: require('../assets/images/quran-madinah.jpg'),
+  hassanTower: require('../assets/images/hassan-tower.jpg'),
 };

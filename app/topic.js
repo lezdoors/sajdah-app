@@ -137,7 +137,7 @@ export default function TopicScreen() {
       {/* Hero Image Header */}
       <Animated.View style={getAnimStyle(0)}>
         <ImageBackground
-          source={Images.heroFinial}
+          source={Images.mosqueArch}
           style={styles.hero}
           resizeMode="cover"
         >
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     fontSize: FontSize.h2,
-    fontWeight: FontWeight.bold,
+    fontFamily: 'Amiri-Bold',
     color: '#FFFFFF',
     lineHeight: 28,
   },

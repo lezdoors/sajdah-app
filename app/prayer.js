@@ -154,7 +154,7 @@ export default function PrayerScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Animated.ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent} style={{ opacity: fadeAnim }}>
         {/* Hero Header */}
-        <ImageBackground source={Images.mosqueSilhouette} style={styles.heroHeader} resizeMode="cover">
+        <ImageBackground source={Images.mosqueWhite} style={styles.heroHeader} resizeMode="cover">
           <LinearGradient colors={Gradients.heroMaskDark} style={styles.heroGradient}>
             <SafeAreaView edges={['top']} style={styles.heroInner}>
               <TouchableOpacity
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   heroGradient: { flex: 1, justifyContent: 'flex-end' },
   heroInner: { flex: 1, justifyContent: 'flex-end' },
   heroTextBlock: { paddingHorizontal: Spacing.md, paddingBottom: Spacing.xl },
-  heroTitle: { fontSize: FontSize.h1, fontWeight: FontWeight.bold, color: '#FFFFFF', letterSpacing: -0.5 },
+  heroTitle: { fontSize: FontSize.h1, fontFamily: 'Amiri-Bold', color: '#FFFFFF', letterSpacing: -0.5 },
   locationRow: { alignItems: 'center', gap: 6, marginTop: 6 },
   locationText: { fontSize: FontSize.bodySmall, color: 'rgba(255,255,255,0.7)', fontWeight: FontWeight.medium },
 

@@ -1,7 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { Stack } from 'expo-router';
 import * as Notifications from 'expo-notifications';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
 import { AppProvider } from '../constants/AppContext';
+
+SplashScreen.preventAutoHideAsync();
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -12,10 +16,21 @@ Notifications.setNotificationHandler({
 });
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    'Amiri': require('../assets/fonts/Amiri-Regular.ttf'),
+    'Amiri-Bold': require('../assets/fonts/Amiri-Bold.ttf'),
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
   useEffect(() => {
     const sub = Notifications.addNotificationReceivedListener(() => {});
     return () => sub.remove();
   }, []);
+
+  if (!fontsLoaded) return null;
 
   return (
     <AppProvider>

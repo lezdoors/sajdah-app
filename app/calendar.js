@@ -160,7 +160,7 @@ export default function CalendarScreen() {
       {/* Hero Image Header */}
       <Animated.View style={getAnimStyle(0)}>
         <ImageBackground
-          source={Images.heroPink}
+          source={Images.hassan2Arch}
           style={styles.hero}
           resizeMode="cover"
         >
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     fontSize: FontSize.h2,
-    fontWeight: FontWeight.bold,
+    fontFamily: 'Amiri-Bold',
     color: '#FFFFFF',
     lineHeight: 28,
   },

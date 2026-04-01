@@ -131,7 +131,7 @@ export default function DiscoverScreen() {
           {/* ── Hero Banner ── */}
           <Animated.View style={[styles.heroWrapper, getAnimStyle(0)]}>
             <ImageBackground
-              source={Images.heroWhite}
+              source={Images.hassan2Night}
               style={styles.heroBanner}
               resizeMode="cover"
             >
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   heroTextContainer: {},
   heroTitle: {
     fontSize: FontSize.h1,
-    fontWeight: FontWeight.bold,
+    fontFamily: 'Amiri-Bold',
     color: '#FFFFFF',
     letterSpacing: -0.5,
   },

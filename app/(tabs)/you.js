@@ -8,10 +8,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Flame, Target, Bookmark, Calculator, MapPin, Bell, Moon, Sun,
-  Smartphone, Globe, Star, Shield, Info, ChevronRight, Check, Share2,
+  Smartphone, Globe, Star, Shield, Info, ChevronRight, Check, Share2, Volume2, Play,
 } from 'lucide-react-native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
+import { Audio } from 'expo-av';
 
 import { Spacing, FontSize, FontWeight, BorderRadius, HeroGradients, Images } from '../../constants/theme';
 import { useApp } from '../../constants/AppContext';
@@ -20,6 +21,15 @@ import { getStreak, getDailyGoals, toggleGoal, getBookmarks, getPrayerStats } fr
 
 const CALC_METHOD_KEY = 'sajdah_calc_method';
 const NOTIF_KEY = 'sajdah_notifications';
+const ADHAN_SOUND_KEY = 'sajdah_adhan_sound';
+
+const ADHAN_SOUNDS = [
+  { id: 'default', labelKey: 'adhan_default', file: require('../../assets/audio/adhan-default.mp3') },
+  { id: 'makkah', labelKey: 'adhan_makkah', file: require('../../assets/audio/adhan-makkah.mp3') },
+  { id: 'madinah', labelKey: 'adhan_madinah', file: require('../../assets/audio/adhan-madinah.mp3') },
+  { id: 'alaqsa', labelKey: 'adhan_alaqsa', file: require('../../assets/audio/adhan-alaqsa.mp3') },
+  { id: 'silent', labelKey: 'adhan_silent', file: null },
+];
 
 const appVersion = Constants.expoConfig?.version || '1.0.0';
 
@@ -48,6 +58,9 @@ export default function YouScreen() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [prayerStats, setPrayerStats] = useState({ totalPrayed: 0, daysTracked: 0, completeDays: 0 });
   const [showMethodPicker, setShowMethodPicker] = useState(false);
+  const [adhanSound, setAdhanSound] = useState('default');
+  const [showAdhanPicker, setShowAdhanPicker] = useState(false);
+  const previewSoundRef = useRef(null);
   const methods = getAvailableMethods();
 
   const rowDir = isRTL ? 'row-reverse' : 'row';
@@ -109,6 +122,9 @@ export default function YouScreen() {
 
     const savedNotif = await AsyncStorage.getItem(NOTIF_KEY);
     if (savedNotif !== null) setNotificationsEnabled(savedNotif === 'true');
+
+    const savedAdhan = await AsyncStorage.getItem(ADHAN_SOUND_KEY);
+    if (savedAdhan) setAdhanSound(savedAdhan);
   }
 
   // Animate active dots after streak loads
@@ -169,6 +185,38 @@ export default function YouScreen() {
     setNotificationsEnabled(value);
     await AsyncStorage.setItem(NOTIF_KEY, String(value));
   }
+
+  async function handleAdhanChange(soundId) {
+    // Stop any playing preview
+    if (previewSoundRef.current) {
+      await previewSoundRef.current.unloadAsync();
+      previewSoundRef.current = null;
+    }
+    setAdhanSound(soundId);
+    await AsyncStorage.setItem(ADHAN_SOUND_KEY, soundId);
+    setShowAdhanPicker(false);
+    // Auto-preview the selected sound (short clip)
+    const selected = ADHAN_SOUNDS.find((s) => s.id === soundId);
+    if (selected?.file) {
+      const { sound } = await Audio.Sound.createAsync(selected.file);
+      previewSoundRef.current = sound;
+      await sound.playAsync();
+      // Stop after 5 seconds
+      setTimeout(async () => {
+        try { await sound.stopAsync(); await sound.unloadAsync(); } catch {}
+        if (previewSoundRef.current === sound) previewSoundRef.current = null;
+      }, 5000);
+    }
+  }
+
+  // Cleanup preview sound on unmount
+  useEffect(() => {
+    return () => {
+      if (previewSoundRef.current) {
+        previewSoundRef.current.unloadAsync().catch(() => {});
+      }
+    };
+  }, []);
 
   // Build last 7 days array for streak dots
   const last7Days = [];
@@ -253,7 +301,7 @@ export default function YouScreen() {
           transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
         }}>
           <ImageBackground
-            source={Images.heroPink}
+            source={Images.hassanTower}
             style={styles.heroHeader}
             resizeMode="cover"
           >
@@ -474,6 +522,56 @@ export default function YouScreen() {
           </View>
         </AnimatedSection>
 
+        {/* 5b2. Adhan Sound */}
+        <AnimatedSection index={4} style={styles.settingsGroupSpacing}>
+          <Text style={[styles.settingsGroupLabel, { color: colors.textTertiary, textAlign }]}>{t('adhan_section')}</Text>
+          <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }, shadows.card]}>
+            {renderSettingsRow({
+              icon: Volume2,
+              label: t('adhan_sound'),
+              value: t(ADHAN_SOUNDS.find((s) => s.id === adhanSound)?.labelKey || 'adhan_default'),
+              onPress: () => setShowAdhanPicker(!showAdhanPicker),
+            })}
+          </View>
+        </AnimatedSection>
+
+        {/* Adhan Picker */}
+        {showAdhanPicker && (
+          <View style={[styles.methodPicker, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }, shadows.card]}>
+            {ADHAN_SOUNDS.map((sound) => (
+              <Pressable
+                key={sound.id}
+                style={[
+                  styles.methodOption,
+                  { borderBottomColor: colors.divider },
+                  adhanSound === sound.id && { backgroundColor: colors.accentLight },
+                ]}
+                onPress={() => handleAdhanChange(sound.id)}
+              >
+                <View style={[styles.adhanOptionRow, { flexDirection: rowDir }]}>
+                  {sound.file ? (
+                    <Play size={14} color={adhanSound === sound.id ? colors.accent : colors.textTertiary} strokeWidth={2} />
+                  ) : (
+                    <Volume2 size={14} color={colors.textTertiary} strokeWidth={2} />
+                  )}
+                  <Text style={[
+                    styles.methodOptionText,
+                    { color: colors.textPrimary },
+                    adhanSound === sound.id && { color: colors.accent, fontWeight: FontWeight.semibold },
+                  ]}>
+                    {t(sound.labelKey)}
+                  </Text>
+                </View>
+                {adhanSound === sound.id && (
+                  <View style={[styles.methodCheck, { backgroundColor: colors.accent }]}>
+                    <Check size={12} color="#FFFFFF" strokeWidth={3} />
+                  </View>
+                )}
+              </Pressable>
+            ))}
+          </View>
+        )}
+
         {/* 5c. Appearance */}
         <AnimatedSection index={4} style={styles.settingsGroupSpacing}>
           <Text style={[styles.settingsGroupLabel, { color: colors.textTertiary, textAlign }]}>{t('appearance_section')}</Text>
@@ -618,7 +716,7 @@ const styles = StyleSheet.create({
   },
   heroAppName: {
     fontSize: FontSize.h1,
-    fontWeight: FontWeight.bold,
+    fontFamily: 'Amiri-Bold',
     color: '#FFFFFF',
     letterSpacing: -0.5,
   },
@@ -815,7 +913,7 @@ const styles = StyleSheet.create({
   settingsRowLeft: {
     alignItems: 'center',
     gap: Spacing.sm,
-    flex: 1,
+    flexShrink: 0,
   },
   settingsRowLabel: {
     fontSize: FontSize.body,
@@ -824,9 +922,13 @@ const styles = StyleSheet.create({
   settingsRowRight: {
     alignItems: 'center',
     gap: 6,
+    flex: 1,
+    justifyContent: 'flex-end',
   },
   settingsRowValue: {
     fontSize: FontSize.caption,
+    textAlign: 'right',
+    flexShrink: 1,
   },
   settingsDivider: {
     height: 1,
@@ -858,6 +960,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  adhanOptionRow: {
+    alignItems: 'center',
+    gap: 8,
   },
   methodCheckText: {
     color: '#FFFFFF',

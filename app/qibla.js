@@ -61,6 +61,8 @@ export default function QiblaScreen() {
   const subscriptionRef = useRef(null);
   const lastHapticRef = useRef(0);
   const wasAlignedRef = useRef(false);
+  const cumulativeAngleRef = useRef(0);
+  const prevAngleRef = useRef(null);
 
   // Pulse animation for compass glow
   useEffect(() => {
@@ -115,11 +117,10 @@ export default function QiblaScreen() {
         let angle = Math.atan2(data.y, data.x) * (180 / Math.PI);
         angle = (angle + 360) % 360;
         const h = Platform.OS === 'ios' ? (360 - angle) % 360 : angle;
-        const needleAngle = qiblaDirection - h;
+        const needleAngle = ((qiblaDirection - h) % 360 + 360) % 360;
 
         // Check if aligned (needle pointing up = 0 degrees = facing qibla)
-        const normalizedAngle = ((needleAngle % 360) + 360) % 360;
-        const aligned = normalizedAngle < ALIGNED_THRESHOLD || normalizedAngle > (360 - ALIGNED_THRESHOLD);
+        const aligned = needleAngle < ALIGNED_THRESHOLD || needleAngle > (360 - ALIGNED_THRESHOLD);
         setIsAligned(aligned);
 
         // Haptic feedback when entering aligned state
@@ -132,8 +133,19 @@ export default function QiblaScreen() {
         }
         wasAlignedRef.current = aligned;
 
+        // Shortest-path rotation to avoid spinning across 0/360 boundary
+        if (prevAngleRef.current === null) {
+          cumulativeAngleRef.current = needleAngle;
+        } else {
+          let delta = needleAngle - prevAngleRef.current;
+          if (delta > 180) delta -= 360;
+          if (delta < -180) delta += 360;
+          cumulativeAngleRef.current += delta;
+        }
+        prevAngleRef.current = needleAngle;
+
         Animated.spring(animatedRotation, {
-          toValue: needleAngle, useNativeDriver: true, tension: 40, friction: 8,
+          toValue: cumulativeAngleRef.current, useNativeDriver: true, tension: 40, friction: 8,
         }).start();
       });
     }
@@ -141,7 +153,10 @@ export default function QiblaScreen() {
     return () => { mounted = false; if (subscriptionRef.current) { subscriptionRef.current.remove(); subscriptionRef.current = null; } };
   }, [loading, location, qiblaDirection]);
 
-  const rotation = animatedRotation.interpolate({ inputRange: [-360, 360], outputRange: ['-360deg', '360deg'] });
+  const rotation = animatedRotation.interpolate({
+    inputRange: [-3600, 3600],
+    outputRange: ['-3600deg', '3600deg'],
+  });
 
   const compassBorderColor = glowAnim.interpolate({
     inputRange: [0, 1],
@@ -175,7 +190,7 @@ export default function QiblaScreen() {
   }
 
   return (
-    <ImageBackground source={Images.mosqueNight} style={[styles.container]} resizeMode="cover">
+    <ImageBackground source={Images.istanbulNight} style={[styles.container]} resizeMode="cover">
       <LinearGradient colors={isDark ? ['rgba(0,0,0,0.85)', 'rgba(0,0,0,0.95)'] : ['rgba(246,246,248,0.92)', 'rgba(246,246,248,0.98)']} style={styles.overlay}>
         <SafeAreaView edges={['top']} style={{ flex: 1 }}>
           <View style={styles.header}>
@@ -209,11 +224,13 @@ export default function QiblaScreen() {
           {/* Compass */}
           <View style={styles.compassContainer}>
             <Animated.View style={[styles.compassGlow, {
-              backgroundColor: compassGlowColor,
               transform: [{ scale: pulseAnim }],
-            }]} />
+            }]}>
+              <Animated.View style={[StyleSheet.absoluteFill, { borderRadius: (COMPASS_SIZE + 50) / 2, backgroundColor: compassGlowColor }]} />
+            </Animated.View>
 
-            <Animated.View style={[styles.compassOuter, { borderColor: compassBorderColor }, shadows.depth3d]}>
+            <Animated.View style={[styles.compassOuter, shadows.depth3d]}>
+              <Animated.View style={[StyleSheet.absoluteFill, { borderRadius: COMPASS_SIZE / 2, borderWidth: 6, borderColor: compassBorderColor }]} />
               <View style={styles.cardinalN}><Text style={[styles.cardinalText, { color: colors.textTertiary }]}>N</Text></View>
               <View style={styles.cardinalS}><Text style={[styles.cardinalText, { color: colors.textTertiary }]}>S</Text></View>
               <View style={styles.cardinalE}><Text style={[styles.cardinalText, { color: colors.textTertiary }]}>E</Text></View>
@@ -318,7 +335,7 @@ const styles = StyleSheet.create({
 
   compassContainer: { alignItems: 'center', justifyContent: 'center', marginVertical: Spacing.sm },
   compassGlow: { position: 'absolute', width: COMPASS_SIZE + 50, height: COMPASS_SIZE + 50, borderRadius: (COMPASS_SIZE + 50) / 2 },
-  compassOuter: { width: COMPASS_SIZE, height: COMPASS_SIZE, borderRadius: COMPASS_SIZE / 2, borderWidth: 6, alignItems: 'center', justifyContent: 'center' },
+  compassOuter: { width: COMPASS_SIZE, height: COMPASS_SIZE, borderRadius: COMPASS_SIZE / 2, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   compassInner: { width: COMPASS_SIZE - 32, height: COMPASS_SIZE - 32, borderRadius: (COMPASS_SIZE - 32) / 2, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
 
   cardinalN: { position: 'absolute', top: 12, alignSelf: 'center' },
