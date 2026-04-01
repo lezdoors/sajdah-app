@@ -38,11 +38,12 @@ export const Palette = {
 
 // ── Light Theme ─────────────────────────────────────────
 export const LightColors = {
-  background: '#FFFFFF',
-  backgroundSecondary: '#F2F2F7',
+  background: '#F6F6F8',
+  backgroundSecondary: '#EDEDF0',
   surface: '#FFFFFF',
   surfaceElevated: '#FFFFFF',
-  surfaceBorder: '#E5E5EA',
+  surfaceBorder: 'rgba(0, 0, 0, 0.06)',
+  cardBorder: 'rgba(0, 0, 0, 0.06)',
 
   accent: '#1A7A5E',
   accentMedium: '#1F9A76',
@@ -87,7 +88,8 @@ export const DarkColors = {
   backgroundSecondary: '#1C1C1E',
   surface: '#1C1C1E',
   surfaceElevated: '#2C2C2E',
-  surfaceBorder: '#3A3A3C',
+  surfaceBorder: 'rgba(255, 255, 255, 0.08)',
+  cardBorder: 'rgba(255, 255, 255, 0.06)',
 
   accent: '#4ECBA0',
   accentMedium: '#2AB78D',
@@ -134,11 +136,11 @@ export const Spacing = {
   xs: 8,
   sm: 16,
   md: 24,
-  lg: 32,
-  xl: 40,
-  xxl: 48,
-  xxxl: 56,
-  huge: 64,
+  lg: 36,
+  xl: 44,
+  xxl: 52,
+  xxxl: 60,
+  huge: 72,
 };
 
 export const FontSize = {
@@ -176,30 +178,30 @@ export const Shadows = {
   none: {},
   soft: {
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
     elevation: 2,
   },
   card: {
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.09,
+    shadowRadius: 12,
     elevation: 4,
   },
   cardLifted: {
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
     elevation: 8,
   },
   float: {
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.16,
+    shadowRadius: 28,
     elevation: 12,
   },
   depth3d: {
@@ -212,14 +214,14 @@ export const Shadows = {
   oliveGlow: {
     shadowColor: '#1A7A5E',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.20,
+    shadowOpacity: 0.25,
     shadowRadius: 16,
     elevation: 8,
   },
   goldGlow: {
     shadowColor: '#C9A227',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
+    shadowOpacity: 0.22,
     shadowRadius: 16,
     elevation: 6,
   },
@@ -227,10 +229,10 @@ export const Shadows = {
 
 export const ShadowsDark = {
   ...Shadows,
-  soft: { ...Shadows.soft, shadowColor: '#000000', shadowOpacity: 0.3 },
-  card: { ...Shadows.card, shadowColor: '#000000', shadowOpacity: 0.4 },
-  cardLifted: { ...Shadows.cardLifted, shadowColor: '#000000', shadowOpacity: 0.5 },
-  float: { ...Shadows.float, shadowColor: '#000000', shadowOpacity: 0.6 },
+  soft: { ...Shadows.soft, shadowColor: '#000000', shadowOpacity: 0.35 },
+  card: { ...Shadows.card, shadowColor: '#000000', shadowOpacity: 0.45 },
+  cardLifted: { ...Shadows.cardLifted, shadowColor: '#000000', shadowOpacity: 0.55 },
+  float: { ...Shadows.float, shadowColor: '#000000', shadowOpacity: 0.65 },
 };
 
 // ── Glass System ────────────────────────────────────────
@@ -310,6 +312,9 @@ export const Images = {
   heroMacca: require('../assets/images/hero-macca.jpg'),
   heroPink: require('../assets/images/hero-pink.jpg'),
   heroFinial: require('../assets/images/hero-finial.jpg'),
+  heroWhite: require('../assets/images/hero-white.jpg'),
+  heroOrange: require('../assets/images/hero-orange.jpg'),
+  heroYellow: require('../assets/images/hero-yellow.jpg'),
   quranCover: require('../assets/images/quran-cover.jpg'),
   quranOpen: require('../assets/images/quran-open.jpg'),
 };

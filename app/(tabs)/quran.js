@@ -44,10 +44,24 @@ const JUZ_STARTS = [
 function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, onSelectSurah }) {
   const { colors, shadows, isDark, t, isRTL } = useApp();
 
+  const scrollY = useRef(new Animated.Value(0)).current;
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }).start();
   }, []);
+
+  // Hero collapses as user scrolls
+  const heroHeight = scrollY.interpolate({
+    inputRange: [0, HEADER_HEIGHT],
+    outputRange: [HEADER_HEIGHT, 0],
+    extrapolate: 'clamp',
+  });
+  const heroOpacity = scrollY.interpolate({
+    inputRange: [0, HEADER_HEIGHT * 0.6],
+    outputRange: [1, 0],
+    extrapolate: 'clamp',
+  });
 
   const filtered = SURAHS.filter((s) => {
     if (!searchQuery) return true;
@@ -103,21 +117,21 @@ function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, o
     );
   }
 
-  return (
-    <View style={[styles.container, { backgroundColor: colors.surface }]}>
-      <StatusBar barStyle="light-content" />
-
-      {/* Hero Header */}
-      <ImageBackground source={Images.quran} style={styles.heroHeader} resizeMode="cover">
-        <LinearGradient colors={Gradients.heroMaskDark} style={styles.heroGradient}>
-          <SafeAreaView edges={['top']} style={styles.heroInner}>
-            <View style={styles.heroTextBlock}>
-              <Text style={styles.heroTitle}>{t('quran_title')}</Text>
-              <Text style={styles.heroSubtitle}>{t('surahs_count')}</Text>
-            </View>
-          </SafeAreaView>
-        </LinearGradient>
-      </ImageBackground>
+  const listHeader = (
+    <>
+      {/* Collapsible Hero Header */}
+      <Animated.View style={{ height: heroHeight, opacity: heroOpacity, overflow: 'hidden' }}>
+        <ImageBackground source={Images.quran} style={styles.heroHeader} resizeMode="cover">
+          <LinearGradient colors={Gradients.heroMaskDark} style={styles.heroGradient}>
+            <SafeAreaView edges={['top']} style={styles.heroInner}>
+              <View style={styles.heroTextBlock}>
+                <Text style={styles.heroTitle}>{t('quran_title')}</Text>
+                <Text style={styles.heroSubtitle}>{t('surahs_count')}</Text>
+              </View>
+            </SafeAreaView>
+          </LinearGradient>
+        </ImageBackground>
+      </Animated.View>
 
       {/* Search Bar */}
       <Animated.View style={[styles.searchWrapper, shadows.card, { opacity: fadeAnim }]}>
@@ -153,10 +167,20 @@ function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, o
           <Text style={[styles.tabText, { color: colors.textTertiary }, activeTab === 'juz' && { color: colors.accent, fontWeight: FontWeight.semibold }]}>{t('juz')}</Text>
         </Pressable>
       </View>
+    </>
+  );
 
-      {/* Surah / Juz List */}
+  const onScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+    { useNativeDriver: false }
+  );
+
+  return (
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+      <StatusBar barStyle="light-content" />
+
       {activeTab === 'juz' ? (
-        <SectionList
+        <Animated.SectionList
           sections={filteredJuzSections}
           renderItem={renderSurahRow}
           renderSectionHeader={({ section }) => (
@@ -170,6 +194,9 @@ function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, o
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           stickySectionHeadersEnabled={true}
+          ListHeaderComponent={listHeader}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <Text style={[styles.emptyText, { color: colors.textTertiary }]}>{t('no_surahs')}</Text>
@@ -177,12 +204,15 @@ function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, o
           }
         />
       ) : (
-        <FlatList
+        <Animated.FlatList
           data={filtered}
           renderItem={renderSurahRow}
           keyExtractor={(item) => String(item.number)}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          ListHeaderComponent={listHeader}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
           ListEmptyComponent={
             <View style={styles.emptyState}>
               <Text style={[styles.emptyText, { color: colors.textTertiary }]}>{t('no_surahs')}</Text>

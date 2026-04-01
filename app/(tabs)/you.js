@@ -1,18 +1,19 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, Pressable, Switch, Linking,
-  Animated,
+  Animated, Alert, Share, ImageBackground,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Flame, Target, Bookmark, Calculator, MapPin, Bell, Moon, Sun,
-  Smartphone, Globe, Star, Shield, Info, ChevronRight, Check,
+  Smartphone, Globe, Star, Shield, Info, ChevronRight, Check, Share2,
 } from 'lucide-react-native';
 import Constants from 'expo-constants';
+import { useRouter } from 'expo-router';
 
-import { Spacing, FontSize, FontWeight, BorderRadius, HeroGradients } from '../../constants/theme';
+import { Spacing, FontSize, FontWeight, BorderRadius, HeroGradients, Images } from '../../constants/theme';
 import { useApp } from '../../constants/AppContext';
 import { getAvailableMethods } from '../../utils/prayer';
 import { getStreak, getDailyGoals, toggleGoal, getBookmarks, getPrayerStats } from '../../utils/storage';
@@ -37,6 +38,7 @@ const GOAL_ITEMS = [
 const SECTION_COUNT = 6;
 
 export default function YouScreen() {
+  const router = useRouter();
   const { colors, shadows, isDark, themeMode, setTheme, locale, setLocale, t, isRTL } = useApp();
 
   const [streak, setStreak] = useState({ count: 0, dates: [] });
@@ -238,6 +240,7 @@ export default function YouScreen() {
   const langOptions = [
     { key: 'en', label: t('english') },
     { key: 'ar', label: t('arabic') },
+    { key: 'fr', label: t('french') },
   ];
 
   return (
@@ -249,26 +252,32 @@ export default function YouScreen() {
           opacity: heroAnim,
           transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
         }}>
-          <LinearGradient
-            colors={[...HeroGradients.you, colors.background]}
-            locations={[0, 0.6, 1]}
+          <ImageBackground
+            source={Images.heroPink}
             style={styles.heroHeader}
+            resizeMode="cover"
           >
-            <SafeAreaView edges={['top']} style={styles.heroSafeArea}>
-              <View style={styles.heroGradient}>
-                <View style={styles.heroContent}>
-                  <Text style={styles.heroAppName}>{t('app_name')}</Text>
-                  <Text style={styles.heroTagline}>{t('app_tagline')}</Text>
+            <LinearGradient
+              colors={['transparent', 'rgba(0,0,0,0.55)', colors.background]}
+              locations={[0.1, 0.6, 1]}
+              style={styles.heroGradientOverlay}
+            >
+              <SafeAreaView edges={['top']} style={styles.heroSafeArea}>
+                <View style={styles.heroGradient}>
+                  <View style={styles.heroContent}>
+                    <Text style={styles.heroAppName}>{t('app_name')}</Text>
+                    <Text style={styles.heroTagline}>{t('app_tagline')}</Text>
+                  </View>
                 </View>
-              </View>
-            </SafeAreaView>
-          </LinearGradient>
+              </SafeAreaView>
+            </LinearGradient>
+          </ImageBackground>
         </Animated.View>
 
         {/* -- 2. Streak Stats Card -- */}
         <AnimatedSection index={0} style={styles.sectionSpacing}>
           {renderSectionTitle(t('your_streak'), Flame)}
-          <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, shadows.soft]}>
+          <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }, shadows.card]}>
             <View style={[styles.streakTopRow, { flexDirection: rowDir }]}>
               <View style={[styles.streakIconRow, { flexDirection: rowDir }]}>
                 <View style={[styles.streakIconCircle, { backgroundColor: colors.goldLight }]}>
@@ -324,7 +333,7 @@ export default function YouScreen() {
         {/* -- 3. Daily Goals Section -- */}
         <AnimatedSection index={1} style={styles.sectionSpacing}>
           {renderSectionTitle(`${t('your_goals')} (${completedGoals}/${GOAL_ITEMS.length})`, Target)}
-          <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, shadows.soft]}>
+          <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }, shadows.card]}>
             {GOAL_ITEMS.map((goal, index) => {
               const isDone = !!goals[goal.id];
               return (
@@ -360,7 +369,7 @@ export default function YouScreen() {
         {/* -- 4. Bookmarks Section -- */}
         <AnimatedSection index={2} style={styles.sectionSpacing}>
           {renderSectionTitle(t('bookmarks_title'), Bookmark)}
-          <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, shadows.soft]}>
+          <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }, shadows.card]}>
             {bookmarks.length === 0 ? (
               <View style={styles.emptyState}>
                 <Bookmark size={24} color={colors.textTertiary} strokeWidth={1.5} />
@@ -397,7 +406,7 @@ export default function YouScreen() {
         {/* 5a. Prayer Settings */}
         <AnimatedSection index={3} style={styles.settingsGroupSpacing}>
           <Text style={[styles.settingsGroupLabel, { color: colors.textTertiary, textAlign }]}>{t('prayer_section')}</Text>
-          <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, shadows.soft]}>
+          <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }, shadows.card]}>
             {renderSettingsRow({
               icon: Calculator,
               label: t('calc_method'),
@@ -409,14 +418,15 @@ export default function YouScreen() {
               icon: MapPin,
               label: t('location'),
               value: t('automatic'),
-              onPress: () => {},
+              onPress: () => Linking.openSettings(),
+              rightElement: <View />,
             })}
           </View>
         </AnimatedSection>
 
         {/* Method Picker */}
         {showMethodPicker && (
-          <View style={[styles.methodPicker, { backgroundColor: colors.surfaceElevated, borderColor: colors.surfaceBorder }, shadows.card]}>
+          <View style={[styles.methodPicker, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }, shadows.card]}>
             {methods.map((method) => (
               <Pressable
                 key={method}
@@ -447,7 +457,7 @@ export default function YouScreen() {
         {/* 5b. Notifications */}
         <AnimatedSection index={4} style={styles.settingsGroupSpacing}>
           <Text style={[styles.settingsGroupLabel, { color: colors.textTertiary, textAlign }]}>{t('notifications_section')}</Text>
-          <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, shadows.soft]}>
+          <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }, shadows.card]}>
             {renderSettingsRow({
               icon: Bell,
               label: t('prayer_reminders'),
@@ -467,7 +477,7 @@ export default function YouScreen() {
         {/* 5c. Appearance */}
         <AnimatedSection index={4} style={styles.settingsGroupSpacing}>
           <Text style={[styles.settingsGroupLabel, { color: colors.textTertiary, textAlign }]}>{t('appearance_section')}</Text>
-          <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, shadows.soft]}>
+          <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }, shadows.card]}>
             <View style={styles.segmentContainer}>
               <View style={[styles.segmentRow, { backgroundColor: colors.backgroundSecondary, flexDirection: rowDir }]}>
                 {themeOptions.map((opt) => {
@@ -500,7 +510,7 @@ export default function YouScreen() {
         {/* 5d. Language */}
         <AnimatedSection index={5} style={styles.settingsGroupSpacing}>
           <Text style={[styles.settingsGroupLabel, { color: colors.textTertiary, textAlign }]}>{t('language_section')}</Text>
-          <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, shadows.soft]}>
+          <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }, shadows.card]}>
             <View style={styles.segmentContainer}>
               <View style={[styles.segmentRow, { backgroundColor: colors.backgroundSecondary, flexDirection: rowDir }]}>
                 {langOptions.map((opt) => {
@@ -533,7 +543,7 @@ export default function YouScreen() {
         {/* 5e. About */}
         <AnimatedSection index={5} style={styles.settingsGroupSpacing}>
           <Text style={[styles.settingsGroupLabel, { color: colors.textTertiary, textAlign }]}>{t('about_section')}</Text>
-          <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, shadows.soft]}>
+          <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }, shadows.card]}>
             {renderSettingsRow({
               icon: Star,
               label: t('rate_app'),
@@ -543,9 +553,18 @@ export default function YouScreen() {
             })}
             <View style={[styles.settingsDivider, { backgroundColor: colors.divider }]} />
             {renderSettingsRow({
+              icon: Share2,
+              label: t('share_app'),
+              iconColor: colors.accent,
+              onPress: () => Share.share({
+                message: t('share_message'),
+              }),
+            })}
+            <View style={[styles.settingsDivider, { backgroundColor: colors.divider }]} />
+            {renderSettingsRow({
               icon: Shield,
               label: t('privacy'),
-              onPress: () => {},
+              onPress: () => router.push('/privacy'),
             })}
             <View style={[styles.settingsDivider, { backgroundColor: colors.divider }]} />
             {renderSettingsRow({
@@ -580,8 +599,11 @@ const styles = StyleSheet.create({
 
   // -- Hero Header --
   heroHeader: {
-    height: 180,
+    height: 200,
     width: '100%',
+  },
+  heroGradientOverlay: {
+    flex: 1,
   },
   heroSafeArea: {
     flex: 1,
@@ -628,6 +650,7 @@ const styles = StyleSheet.create({
     marginHorizontal: Spacing.md,
     borderRadius: BorderRadius.xl,
     overflow: 'hidden',
+    borderWidth: 1,
   },
 
   // -- Streak --

@@ -9,13 +9,14 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#1A1F1E"
+      "image": "./assets/images/mosque-night.jpg",
+      "resizeMode": "cover",
+      "backgroundColor": "#0A1A14"
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.lezdoors.sajdah",
+      "buildNumber": "1",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Sajdah needs your location to calculate accurate prayer times and Qibla direction.",
         "NSMotionUsageDescription": "Sajdah uses the compass sensor to determine the Qibla direction.",
@@ -30,7 +31,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#006D44",
+        "backgroundColor": "#0A1628",
         "foregroundImage": "./assets/icon.png"
       },
       "package": "com.lezdoors.sajdah",

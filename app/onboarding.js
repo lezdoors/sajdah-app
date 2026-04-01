@@ -173,7 +173,7 @@ export default function OnboardingScreen() {
           </View>
 
           {isFirst && (
-            <Text style={[styles.signIn, { color: colors.textSecondary }]}>{t('sign_in')}</Text>
+            <Text style={[styles.footerNote, { color: colors.textTertiary }]}>{t('free_forever')}</Text>
           )}
           {!isFirst && !isLast && (
             <Pressable onPress={() => setStep(step + 1)}>
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   buttonText: { fontSize: FontSize.body, fontWeight: FontWeight.bold, color: '#FFFFFF', letterSpacing: 0.3 },
   dotsRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
   dot: { width: 8, height: 8, borderRadius: 4 },
-  signIn: { fontSize: FontSize.bodySmall, marginTop: Spacing.xs },
+  footerNote: { fontSize: FontSize.bodySmall, marginTop: Spacing.xs },
   skipText: { fontSize: FontSize.bodySmall, fontWeight: FontWeight.medium },
   settingsNote: { fontSize: FontSize.caption, textAlign: 'center' },
 });

@@ -30,7 +30,7 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const PRAYER_ICONS = { Fajr: Sun, Sunrise: CloudSun, Dhuhr: Sun, Asr: Sunset, Maghrib: CloudMoon, Isha: Moon };
-const SERVICE_CARD_W = (SCREEN_WIDTH - Spacing.md * 2 - 12) / 2;
+const SERVICE_CARD_W = (SCREEN_WIDTH - Spacing.md * 2 - Spacing.sm) / 2;
 const PRAYER_GRID_GAP = 10;
 const PRAYER_CARD_W = (SCREEN_WIDTH - Spacing.md * 2 - PRAYER_GRID_GAP * 2) / 3;
 
@@ -286,7 +286,7 @@ export default function HomeScreen() {
                     <Text style={[styles.streakBadgeText, { color: colors.gold }]}>{streak.count}</Text>
                   </View>
                 )}
-                <Pressable style={[styles.bellBtn, { backgroundColor: colors.surfaceElevated }]} onPress={() => router.push('/(tabs)/you')}>
+                <Pressable style={[styles.bellBtn, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]} onPress={() => router.push('/(tabs)/you')}>
                   <Bell size={20} color={colors.textPrimary} strokeWidth={1.5} />
                 </Pressable>
               </View>
@@ -315,7 +315,7 @@ export default function HomeScreen() {
           {nextPrayer && (
             <Animated.View style={prayerRowStyle}>
               <Pressable
-                style={[styles.countdownRingCard, { backgroundColor: colors.surfaceElevated }]}
+                style={[styles.countdownRingCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]}
                 onPress={() => router.push('/prayer')}
               >
                 <View style={styles.countdownRingWrapper}>
@@ -469,7 +469,7 @@ export default function HomeScreen() {
                 ].map((g) => {
                   const done = !!goals[g.id];
                   return (
-                    <Pressable key={g.id} style={[styles.goalChip, { backgroundColor: done ? colors.accent : colors.surfaceElevated }]} onPress={() => handleToggleGoal(g.id)}>
+                    <Pressable key={g.id} style={[styles.goalChip, { backgroundColor: done ? colors.accent : colors.surfaceElevated, borderColor: done ? colors.accent : colors.cardBorder }]} onPress={() => handleToggleGoal(g.id)}>
                       <Text style={[styles.goalChipText, { color: done ? '#FFFFFF' : colors.textSecondary }]}>{g.label}</Text>
                     </Pressable>
                   );
@@ -482,7 +482,7 @@ export default function HomeScreen() {
           {lastRead && lastReadSurah && (
             <Animated.View style={contentStyle}>
               <View style={styles.section}>
-                <Pressable style={[styles.continueCard, { backgroundColor: colors.surfaceElevated }]} onPress={() => router.push('/(tabs)/quran')}>
+                <Pressable style={[styles.continueCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]} onPress={() => router.push('/(tabs)/quran')}>
                   <View style={[styles.continueRow, { flexDirection: rowDir }]}>
                     <BookOpen size={18} color={colors.accent} strokeWidth={1.5} />
                     <View style={{ flex: 1 }}>
@@ -511,7 +511,7 @@ export default function HomeScreen() {
                     </Pressable>
                   </View>
                 </View>
-                <View style={[styles.contentCard, { backgroundColor: colors.surfaceElevated }]}>
+                <View style={[styles.contentCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]}>
                   <Text style={[styles.arabicText, { color: colors.textPrimary }]}>{dailyAyah.arabic}</Text>
                   <Text style={[styles.translationText, { color: colors.textSecondary }]}>{dailyAyah.english}</Text>
                   <Text style={[styles.sourceText, { color: colors.accent }]}>
@@ -537,7 +537,7 @@ export default function HomeScreen() {
                     </Pressable>
                   </View>
                 </View>
-                <View style={[styles.contentCard, { backgroundColor: colors.surfaceElevated }]}>
+                <View style={[styles.contentCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]}>
                   <Text style={[styles.arabicTextSmall, { color: colors.textPrimary }]}>{dailyHadith.arabic}</Text>
                   <Text style={[styles.translationText, { color: colors.textSecondary }]}>{dailyHadith.english}</Text>
                   <Text style={[styles.sourceText, { color: colors.textTertiary }]}>{dailyHadith.narrator} -- {dailyHadith.source}</Text>
@@ -556,7 +556,7 @@ export default function HomeScreen() {
                     <Text style={[styles.viewAll, { color: colors.textTertiary }]}>{t('view_all')}</Text>
                   </Pressable>
                 </View>
-                <View style={[styles.contentCard, { backgroundColor: colors.surfaceElevated }]}>
+                <View style={[styles.contentCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]}>
                   <Text style={[styles.arabicTextSmall, { color: colors.textPrimary }]}>{dailyDua.arabic}</Text>
                   <Text style={[styles.translationText, { color: colors.textSecondary }]}>{dailyDua.english}</Text>
                   <Text style={[styles.sourceText, { color: colors.accent }]}>{dailyDua.categoryName}</Text>
@@ -578,25 +578,26 @@ const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 100 },
 
   // Header
-  header: { justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Spacing.md, paddingTop: Spacing.sm, paddingBottom: Spacing.xs },
-  greeting: { fontSize: FontSize.h2, fontWeight: FontWeight.bold, letterSpacing: -0.5 },
+  header: { justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Spacing.md, paddingTop: Spacing.md, paddingBottom: Spacing.sm },
+  greeting: { fontSize: 28, fontWeight: FontWeight.bold, letterSpacing: -0.5 },
   hijri: { fontSize: FontSize.caption, marginTop: 2 },
   headerRight: { alignItems: 'center', gap: Spacing.xs },
   streakBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, borderRadius: BorderRadius.full },
   streakBadgeText: { fontSize: FontSize.caption, fontWeight: FontWeight.bold },
-  bellBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  bellBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
 
   // Circular Countdown Ring
   countdownRingCard: {
     marginHorizontal: Spacing.md,
     marginTop: Spacing.sm,
     borderRadius: 20,
-    paddingVertical: 20,
+    paddingVertical: 24,
     alignItems: 'center',
+    borderWidth: 1,
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.09,
+    shadowRadius: 12,
     elevation: 4,
   },
   countdownRingWrapper: {
@@ -627,7 +628,7 @@ const styles = StyleSheet.create({
   // Prayer Grid (3x2)
   prayerGridSection: { paddingHorizontal: Spacing.md, marginTop: Spacing.sm },
   prayerGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: PRAYER_GRID_GAP },
-  prayerCard: { width: PRAYER_CARD_W, borderRadius: BorderRadius.md, padding: 12, gap: 4 },
+  prayerCard: { width: PRAYER_CARD_W, borderRadius: BorderRadius.md, padding: 14, gap: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 6, elevation: 2 },
   prayerCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   prayerCardName: { fontSize: FontSize.bodySmall, fontWeight: FontWeight.bold },
   prayerCardTime: { fontSize: FontSize.h3, fontWeight: FontWeight.semibold, marginTop: 2 },
@@ -699,32 +700,32 @@ const styles = StyleSheet.create({
 
   // Section
   section: { marginTop: Spacing.lg, paddingHorizontal: Spacing.md },
-  sectionHeader: { justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
-  sectionTitle: { fontSize: FontSize.h3, fontWeight: FontWeight.bold },
+  sectionHeader: { justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
+  sectionTitle: { fontSize: 17, fontWeight: FontWeight.bold, letterSpacing: 0.5, textTransform: 'uppercase' },
   viewAll: { fontSize: FontSize.caption, fontWeight: FontWeight.medium },
 
   // Services Grid
-  servicesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  serviceCard: { width: SERVICE_CARD_W, height: 100, borderRadius: BorderRadius.md, overflow: 'hidden' },
+  servicesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 14 },
+  serviceCard: { width: SERVICE_CARD_W, height: 100, borderRadius: BorderRadius.lg, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.2, shadowRadius: 14, elevation: 8 },
   serviceCardBg: { flex: 1, borderRadius: BorderRadius.md },
-  serviceCardOverlay: { flex: 1, justifyContent: 'flex-end', padding: 12, gap: 4 },
-  serviceCardTitle: { fontSize: FontSize.bodySmall, fontWeight: FontWeight.bold, color: '#FFFFFF' },
+  serviceCardOverlay: { flex: 1, justifyContent: 'space-between', padding: 14 },
+  serviceCardTitle: { fontSize: FontSize.body, fontWeight: FontWeight.bold, color: '#FFFFFF' },
 
   // Goals
   goalsScroll: { gap: 8 },
-  goalChip: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: BorderRadius.full },
+  goalChip: { paddingHorizontal: 18, paddingVertical: 11, borderRadius: BorderRadius.full, borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.04, shadowRadius: 4, elevation: 1 },
   goalChipText: { fontSize: FontSize.bodySmall, fontWeight: FontWeight.semibold },
 
   // Continue Reading
-  continueCard: { borderRadius: BorderRadius.md, padding: Spacing.md },
+  continueCard: { borderRadius: BorderRadius.lg, padding: 20, borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 3 },
   continueRow: { alignItems: 'center', gap: Spacing.sm },
   continueLabel: { fontSize: FontSize.caption },
   continueSurah: { fontSize: FontSize.body, fontWeight: FontWeight.semibold },
 
   // Content Cards (Ayah, Hadith)
-  contentCard: { borderRadius: BorderRadius.md, padding: Spacing.md },
-  arabicText: { fontSize: 22, textAlign: 'right', lineHeight: 40, marginBottom: Spacing.sm },
-  arabicTextSmall: { fontSize: 20, textAlign: 'right', lineHeight: 36, marginBottom: Spacing.sm },
-  translationText: { fontSize: FontSize.body, lineHeight: 24, marginBottom: Spacing.xs },
-  sourceText: { fontSize: FontSize.caption, fontWeight: FontWeight.semibold, marginTop: Spacing.xs },
+  contentCard: { borderRadius: BorderRadius.lg, padding: 20, borderWidth: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 3 },
+  arabicText: { fontSize: 22, textAlign: 'right', lineHeight: 40, marginBottom: 14 },
+  arabicTextSmall: { fontSize: 20, textAlign: 'right', lineHeight: 36, marginBottom: 14 },
+  translationText: { fontSize: FontSize.body, lineHeight: 24, marginBottom: 10 },
+  sourceText: { fontSize: FontSize.caption, fontWeight: FontWeight.semibold, marginTop: 10 },
 });

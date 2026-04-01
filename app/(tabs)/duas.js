@@ -5,7 +5,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Search, X } from 'lucide-react-native';
+import {
+  Search, X, Sunrise, Sunset, Moon, Sun, Heart,
+  UtensilsCrossed, Plane, Building2, Droplets,
+} from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 import { useApp } from '../../constants/AppContext';
@@ -23,6 +26,19 @@ const FILTERS = [
   { key: 'athkar', label: 'athkar_filter' },
   { key: 'daily', label: 'daily_filter' },
 ];
+
+// Icon map for category cards
+const ICON_MAP = {
+  sunrise: Sunrise,
+  sunset: Sunset,
+  moon: Moon,
+  sun: Sun,
+  heart: Heart,
+  utensils: UtensilsCrossed,
+  plane: Plane,
+  building: Building2,
+  water: Droplets,
+};
 
 // Stagger delay between animated sections
 const STAGGER_MS = 100;
@@ -122,53 +138,45 @@ export default function DuasScreen() {
   }
 
   function renderCategoryCard({ item, index }) {
+    const IconComp = ICON_MAP[item.icon] || Heart;
     return (
       <Pressable
         onPress={() => handleCategoryPress(item)}
         style={({ pressed }) => [
           styles.card,
           {
-            backgroundColor: colors.surface,
+            backgroundColor: colors.surfaceElevated,
+            borderColor: colors.cardBorder,
             width: CARD_WIDTH,
             marginLeft: index % 2 === 0 ? 0 : CARD_GAP,
             transform: [{ scale: pressed ? 0.97 : 1 }],
             opacity: pressed ? 0.9 : 1,
           },
-          shadows.card,
         ]}
       >
-        {/* Colored left accent stripe */}
-        <View
-          style={[
-            styles.cardAccentStripe,
-            { backgroundColor: colors.accent },
-            isRTL && { left: undefined, right: 0 },
-          ]}
-        />
+        <View style={styles.cardContent}>
+          <View style={[styles.cardIconCircle, { backgroundColor: isDark ? 'rgba(78, 203, 160, 0.18)' : '#D2EDE3' }]}>
+            <IconComp size={18} color={colors.accent} strokeWidth={2} />
+          </View>
 
-        <View
-          style={[
-            styles.cardContent,
-            { paddingLeft: isRTL ? Spacing.sm : Spacing.sm + 4 },
-            isRTL && { paddingRight: Spacing.sm + 4, paddingLeft: Spacing.sm },
-          ]}
-        >
-          <Text
-            style={[
-              styles.cardName,
-              { color: colors.textPrimary, textAlign: isRTL ? 'right' : 'left' },
-            ]}
-            numberOfLines={2}
-          >
-            {item.name}
-          </Text>
-
-          <View style={[styles.cardFooter, { flexDirection: rowDir }]}>
-            <View style={[styles.duaCountBadge, { backgroundColor: colors.accentLight }]}>
-              <Text style={[styles.duaCountText, { color: colors.accent }]}>
-                {item.duas.length} {t('duas_count')}
-              </Text>
-            </View>
+          <View>
+            <Text
+              style={[
+                styles.cardName,
+                { color: colors.textPrimary, textAlign: isRTL ? 'right' : 'left' },
+              ]}
+              numberOfLines={2}
+            >
+              {item.name}
+            </Text>
+            <Text
+              style={[
+                styles.duaCountText,
+                { color: colors.textTertiary, textAlign: isRTL ? 'right' : 'left' },
+              ]}
+            >
+              {item.duas.length} {t('duas_count')}
+            </Text>
           </View>
         </View>
       </Pressable>
@@ -340,17 +348,14 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.xs,
   },
   heroBanner: {
-    height: 160,
+    height: 120,
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
-    justifyContent: 'flex-end',
   },
   heroGradient: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     paddingHorizontal: Spacing.md,
-    paddingBottom: Spacing.md,
-    borderRadius: BorderRadius.lg,
   },
   heroTitle: {
     fontSize: FontSize.h1,
@@ -371,8 +376,13 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
   },
   dailyDuaCard: {
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 18,
+    padding: 22,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 14,
+    elevation: 6,
   },
   dailyDuaLabel: {
     fontSize: FontSize.caption,
@@ -421,9 +431,9 @@ const styles = StyleSheet.create({
   filterRow: {
     flexDirection: 'row',
     paddingHorizontal: Spacing.md,
-    marginTop: Spacing.sm,
-    marginBottom: Spacing.sm,
-    gap: Spacing.xs,
+    marginTop: 14,
+    marginBottom: 14,
+    gap: 10,
   },
   filterChip: {
     paddingHorizontal: Spacing.sm,
@@ -447,41 +457,36 @@ const styles = StyleSheet.create({
 
   // Card
   card: {
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     overflow: 'hidden',
-    position: 'relative',
-  },
-  cardAccentStripe: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 4,
-    borderTopLeftRadius: BorderRadius.md,
-    borderBottomLeftRadius: BorderRadius.md,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 5,
   },
   cardContent: {
-    padding: Spacing.sm,
-    minHeight: 110,
+    padding: 14,
+    minHeight: 100,
     justifyContent: 'space-between',
+  },
+  cardIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   cardName: {
     fontSize: FontSize.body,
     fontWeight: FontWeight.semibold,
     lineHeight: 22,
   },
-  cardFooter: {
-    marginTop: Spacing.xs,
-    alignItems: 'flex-start',
-  },
-  duaCountBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: BorderRadius.full,
-  },
   duaCountText: {
     fontSize: FontSize.caption,
     fontWeight: FontWeight.medium,
+    marginTop: 2,
   },
 
   // Empty

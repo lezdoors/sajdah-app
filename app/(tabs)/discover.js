@@ -8,6 +8,7 @@ import {
   Pressable,
   Dimensions,
   Animated,
+  ImageBackground,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,15 +23,16 @@ import {
   TopicColors,
   TopicColorsDark,
   FeatureGradients,
-  HeroGradients,
+  Images,
 } from '../../constants/theme';
 import { DAILY_HADITHS, getDailyHadith } from '../../data/hadith';
+import MoroccanPattern from '../../components/MoroccanPattern';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_GAP = 12;
+const CARD_GAP = 14;
 const HORIZONTAL_PADDING = Spacing.md;
 const TOPIC_CARD_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - CARD_GAP) / 2;
-const FEATURE_CARD_WIDTH = (SCREEN_WIDTH - HORIZONTAL_PADDING * 2 - CARD_GAP) / 2;
+const FEATURE_CARD_WIDTH = TOPIC_CARD_WIDTH;
 const HERO_HEIGHT = 200;
 
 // Number of animated sections for stagger
@@ -128,21 +130,25 @@ export default function DiscoverScreen() {
         >
           {/* ── Hero Banner ── */}
           <Animated.View style={[styles.heroWrapper, getAnimStyle(0)]}>
-            <LinearGradient
-              colors={HeroGradients.discover}
+            <ImageBackground
+              source={Images.heroWhite}
               style={styles.heroBanner}
-              start={{x:0,y:0}}
-              end={{x:1,y:1}}
+              resizeMode="cover"
             >
-              <View style={styles.heroOverlay}>
+              <MoroccanPattern color="#FFFFFF" opacity={0.07} />
+              <LinearGradient
+                colors={['transparent', 'rgba(0,0,0,0.55)']}
+                style={styles.heroOverlay}
+                locations={[0.3, 1]}
+              >
                 <View style={styles.heroTextContainer}>
                   <Text style={styles.heroTitle}>{t('discover_title')}</Text>
                   <Text style={styles.heroSubtitle}>
                     {t('browse_by_topic')}
                   </Text>
                 </View>
-              </View>
-            </LinearGradient>
+              </LinearGradient>
+            </ImageBackground>
           </Animated.View>
 
           {/* ── Featured Hadith ── */}
@@ -163,6 +169,7 @@ export default function DiscoverScreen() {
                 styles.hadithCard,
                 {
                   backgroundColor: colors.surfaceElevated,
+                  borderColor: colors.cardBorder,
                 },
               ]}
             >
@@ -363,7 +370,7 @@ const styles = StyleSheet.create({
   sectionHeader: {
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: 14,
   },
   sectionLabel: {
     fontSize: FontSize.caption,
@@ -382,8 +389,14 @@ const styles = StyleSheet.create({
 
   // ── Featured Hadith ──
   hadithCard: {
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    padding: 20,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
   },
   hadithArabic: {
     fontSize: 24,
@@ -411,13 +424,18 @@ const styles = StyleSheet.create({
   },
   topicCard: {
     width: TOPIC_CARD_WIDTH,
-    height: 120,
-    borderRadius: BorderRadius.md,
+    height: 80,
+    borderRadius: BorderRadius.lg,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.22,
+    shadowRadius: 14,
+    elevation: 8,
   },
   topicCardContent: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     padding: Spacing.sm,
   },
   topicLabel: {
@@ -440,8 +458,13 @@ const styles = StyleSheet.create({
   featureCard: {
     width: FEATURE_CARD_WIDTH,
     height: 100,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.22,
+    shadowRadius: 14,
+    elevation: 8,
   },
   featureCardBg: {
     flex: 1,
@@ -449,9 +472,8 @@ const styles = StyleSheet.create({
   },
   featureCardOverlay: {
     flex: 1,
-    justifyContent: 'flex-end',
-    padding: 12,
-    gap: 4,
+    justifyContent: 'space-between',
+    padding: 14,
   },
   featureCardTitle: {
     fontSize: FontSize.bodySmall,

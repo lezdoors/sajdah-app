@@ -1,7 +1,7 @@
 // Sajdah i18n — English + Arabic
 // RTL-aware translation system
 
-export const SUPPORTED_LOCALES = ['en', 'ar'];
+export const SUPPORTED_LOCALES = ['en', 'ar', 'fr'];
 
 export const translations = {
   en: {
@@ -53,6 +53,9 @@ export const translations = {
     compass_active: 'Compass active',
     finding_location: 'Finding your location...',
     location_needed: 'Location access is needed to find the Qibla direction.',
+    facing_qibla: 'Facing Qibla',
+    qibla_aligned_hint: 'You are facing the Qibla',
+    qibla_rotate_hint: 'Rotate your phone until the Kaaba points up',
 
     // Quran
     quran_title: 'Quran',
@@ -107,7 +110,7 @@ export const translations = {
     daily_reminders: 'Daily Reminders',
     daily_reminders_desc: 'Receive a morning inspiration',
     skip: 'Skip',
-    sign_in: 'Already have an account? Sign In',
+    free_forever: 'Free. No account needed.',
     settings_note: 'You can change these settings anytime in your profile.',
 
     // Daily Goals
@@ -267,6 +270,29 @@ export const translations = {
     finding_your_location: 'Finding your location...',
     no_names_found: 'No names match your search',
     long_press_hint: 'Long press to mark as prayed',
+
+    // Privacy Policy
+    privacy_last_updated: 'Last updated: March 30, 2026',
+    privacy_intro: 'Sajdah is built with your privacy in mind. We believe your spiritual journey is personal, and your data should stay that way.',
+    privacy_data_title: 'Data Collection',
+    privacy_data_body: 'Sajdah does not collect, store, or transmit any personal data to external servers. All your data — including prayer logs, bookmarks, goals, and preferences — is stored locally on your device.',
+    privacy_location_title: 'Location Data',
+    privacy_location_body: 'Sajdah requests location access solely to calculate accurate prayer times and Qibla direction. Your location is processed on-device and is never sent to any server.',
+    privacy_storage_title: 'Local Storage',
+    privacy_storage_body: 'All app data is stored on your device using local storage. If you uninstall the app, all data will be permanently deleted. We do not back up your data to any cloud service.',
+    privacy_analytics_title: 'Analytics & Advertising',
+    privacy_analytics_body: 'Sajdah does not use any analytics, tracking, or advertising services. There are no ads in the app, and we do not share any information with third parties.',
+    privacy_children_title: "Children's Privacy",
+    privacy_children_body: 'Sajdah is safe for users of all ages. Since we do not collect any personal data, there are no special concerns regarding children\'s privacy.',
+    privacy_changes_title: 'Changes to This Policy',
+    privacy_changes_body: 'If we update this privacy policy, the changes will be reflected in the app. We encourage you to review this page periodically.',
+    privacy_contact_title: 'Contact',
+    privacy_contact_body: 'If you have questions about this privacy policy, you can reach us through the App Store listing.',
+    // Share
+    share_app: 'Share Sajdah',
+    share_message: 'Check out Sajdah — a beautiful prayer times app with Quran, Duas, Qibla compass and more. Free, no ads, no account needed.\n\nDownload: https://apps.apple.com/app/sajdah',
+    // Language
+    french: 'Français',
   },
 
   ar: {
@@ -318,6 +344,9 @@ export const translations = {
     compass_active: 'البوصلة نشطة',
     finding_location: 'جاري تحديد موقعك...',
     location_needed: 'نحتاج إذن الموقع لتحديد اتجاه القبلة.',
+    facing_qibla: 'متجه للقبلة',
+    qibla_aligned_hint: 'أنت متجه نحو القبلة',
+    qibla_rotate_hint: 'أدر هاتفك حتى تشير الكعبة للأعلى',
 
     // Quran
     quran_title: 'القرآن الكريم',
@@ -372,7 +401,7 @@ export const translations = {
     daily_reminders: 'التذكير اليومي',
     daily_reminders_desc: 'تلقي إلهام صباحي',
     skip: 'تخطي',
-    sign_in: 'لديك حساب بالفعل؟ تسجيل الدخول',
+    free_forever: 'مجاني. لا حاجة لحساب.',
     settings_note: 'يمكنك تغيير هذه الإعدادات في أي وقت.',
 
     // Daily Goals
@@ -532,5 +561,317 @@ export const translations = {
     finding_your_location: 'جاري تحديد موقعك...',
     no_names_found: 'لم يتم العثور على أسماء مطابقة',
     long_press_hint: 'اضغط مطولاً للتحديد كصلاة',
+
+    // Privacy Policy
+    privacy_last_updated: 'آخر تحديث: ٣٠ مارس ٢٠٢٦',
+    privacy_intro: 'سجدة مبنية مع مراعاة خصوصيتك. نؤمن بأن رحلتك الروحية شخصية، وبياناتك يجب أن تبقى كذلك.',
+    privacy_data_title: 'جمع البيانات',
+    privacy_data_body: 'سجدة لا تجمع أو تخزن أو ترسل أي بيانات شخصية إلى خوادم خارجية. جميع بياناتك — بما في ذلك سجل الصلاة والمحفوظات والأهداف والتفضيلات — مخزنة محلياً على جهازك.',
+    privacy_location_title: 'بيانات الموقع',
+    privacy_location_body: 'تطلب سجدة إذن الموقع فقط لحساب أوقات الصلاة واتجاه القبلة بدقة. يتم معالجة موقعك على الجهاز ولا يتم إرساله إلى أي خادم.',
+    privacy_storage_title: 'التخزين المحلي',
+    privacy_storage_body: 'جميع بيانات التطبيق مخزنة على جهازك باستخدام التخزين المحلي. إذا قمت بحذف التطبيق، سيتم حذف جميع البيانات نهائياً. نحن لا ننسخ بياناتك احتياطياً إلى أي خدمة سحابية.',
+    privacy_analytics_title: 'التحليلات والإعلانات',
+    privacy_analytics_body: 'سجدة لا تستخدم أي خدمات تحليل أو تتبع أو إعلانات. لا توجد إعلانات في التطبيق، ولا نشارك أي معلومات مع أطراف ثالثة.',
+    privacy_children_title: 'خصوصية الأطفال',
+    privacy_children_body: 'سجدة آمنة للمستخدمين من جميع الأعمار. بما أننا لا نجمع أي بيانات شخصية، لا توجد مخاوف خاصة بشأن خصوصية الأطفال.',
+    privacy_changes_title: 'التغييرات على هذه السياسة',
+    privacy_changes_body: 'إذا قمنا بتحديث سياسة الخصوصية هذه، ستنعكس التغييرات في التطبيق. نشجعك على مراجعة هذه الصفحة بشكل دوري.',
+    privacy_contact_title: 'التواصل',
+    privacy_contact_body: 'إذا كانت لديك أسئلة حول سياسة الخصوصية هذه، يمكنك التواصل معنا من خلال صفحة التطبيق على المتجر.',
+    // Share
+    share_app: 'شارك سجدة',
+    share_message: 'جرّب تطبيق سجدة — تطبيق أوقات الصلاة مع القرآن والأدعية وبوصلة القبلة. مجاني بدون إعلانات.\n\nحمّل: https://apps.apple.com/app/sajdah',
+    // Language
+    french: 'Français',
+  },
+
+  fr: {
+    // Tab labels
+    tab_home: 'Accueil',
+    tab_prayer: 'Salat',
+    tab_qibla: 'Qibla',
+    tab_quran: 'Coran',
+    tab_settings: 'Plus',
+    tab_duas: 'Duas',
+    tab_discover: 'Explorer',
+    tab_you: 'Profil',
+
+    // Home
+    greeting_morning: 'Bonjour',
+    greeting_afternoon: 'Bon après-midi',
+    greeting_evening: 'Bonsoir',
+    current_prayer: 'PRIÈRE EN COURS',
+    starts_at: 'COMMENCE À',
+    go_to_prayer: 'Horaires de prière',
+    daily_ayah: 'VERSET DU JOUR',
+    reflect_title: 'Réflexion du jour',
+    reflect_subtitle: 'Prenez un moment pour vous recentrer.',
+    reflect_prompt: '"De quoi êtes-vous reconnaissant aujourd\'hui ?"',
+    journal_button: 'Écrire vos pensées',
+    quick_prayers: 'Prières',
+    quick_quran: 'Coran',
+    quick_qibla: 'Qibla',
+    quick_dua: 'Duas',
+
+    // Prayer
+    prayer_times: 'Horaires de prière',
+    next_prayer: 'PRIÈRE SUIVANTE',
+    fajr: 'Fajr',
+    sunrise: 'Lever du soleil',
+    dhuhr: 'Dhuhr',
+    asr: 'Asr',
+    maghrib: 'Maghrib',
+    isha: 'Isha',
+    qiyam: 'Qiyam',
+
+    // Qibla
+    qibla_finder: 'Direction de la Qibla',
+    current_location: 'POSITION ACTUELLE',
+    distance: 'DISTANCE',
+    direction: 'DIRECTION',
+    towards_mecca: 'Vers La Mecque',
+    calibrate_tip: 'Bougez votre téléphone en forme de 8 pour calibrer',
+    compass_active: 'Boussole active',
+    finding_location: 'Localisation en cours...',
+    location_needed: 'L\'accès à la localisation est nécessaire pour trouver la direction de la Qibla.',
+    facing_qibla: 'Face à la Qibla',
+    qibla_aligned_hint: 'Vous êtes face à la Qibla',
+    qibla_rotate_hint: 'Tournez votre téléphone jusqu\'à ce que la Kaaba pointe vers le haut',
+
+    // Quran
+    quran_title: 'Coran',
+    surahs_count: '114 Sourates',
+    search_surahs: 'Rechercher une sourate...',
+    surah: 'Sourate',
+    juz: 'Juz',
+    ayahs: 'versets',
+    loading_surah: 'Chargement de la sourate...',
+    load_error: 'Impossible de charger la sourate. Vérifiez votre connexion.',
+    try_again: 'Réessayer',
+    no_surahs: 'Aucune sourate trouvée',
+
+    // Settings
+    settings_title: 'Paramètres',
+    prayer_section: 'PRIÈRE',
+    calc_method: 'Méthode de calcul',
+    location: 'Localisation',
+    automatic: 'Automatique',
+    notifications_section: 'NOTIFICATIONS',
+    prayer_reminders: 'Rappels de prière',
+    appearance_section: 'APPARENCE',
+    dark_mode: 'Mode sombre',
+    theme_light: 'Clair',
+    theme_dark: 'Sombre',
+    theme_system: 'Système',
+    language_section: 'LANGUE',
+    language: 'Langue',
+    english: 'English',
+    arabic: 'العربية',
+    french: 'Français',
+    about_section: 'À PROPOS',
+    rate_app: 'Noter Sajdah',
+    share_app: 'Partager Sajdah',
+    share_message: 'Découvrez Sajdah — une belle application d\'horaires de prière avec Coran, Duas, boussole Qibla et plus. Gratuite, sans publicité.\n\nTélécharger : https://apps.apple.com/app/sajdah',
+    privacy: 'Politique de confidentialité',
+    version: 'Version',
+    app_tagline: 'Votre compagnon spirituel',
+    app_name: 'Sajdah',
+    app_name_arabic: 'سجدة',
+
+    // Onboarding
+    welcome_title: 'Bienvenue dans votre',
+    welcome_accent: 'compagnon spirituel.',
+    welcome_desc: 'Trouvez la paix dans le chaos, restez connecté à votre communauté et progressez chaque jour dans votre foi.',
+    get_started: 'Commencer',
+    location_title: 'Accès à la localisation',
+    location_accent: 'Horaires de prière précis',
+    location_desc: 'Nous avons besoin de votre position pour calculer les horaires de prière et la direction de la Qibla.',
+    allow_location: 'Autoriser la localisation',
+    setup_title: 'Prêt pour votre voyage',
+    setup_desc: 'Restez inspiré avec un verset ou une citation quotidienne. Fixez votre intention de progresser chaque jour.',
+    finish_setup: 'Terminer la configuration',
+    preferences: 'Préférences',
+    daily_reminders: 'Rappels quotidiens',
+    daily_reminders_desc: 'Recevoir une inspiration matinale',
+    skip: 'Passer',
+    free_forever: 'Gratuit. Aucun compte requis.',
+    settings_note: 'Vous pouvez modifier ces paramètres à tout moment dans votre profil.',
+
+    // Daily Goals
+    daily_goals: 'Objectifs quotidiens',
+    goal_fajr: 'Fajr',
+    goal_quran: 'Coran',
+    goal_dhikr: 'Dhikr',
+    goal_dhuhr: 'Dhuhr',
+    goal_charity: 'Charité',
+    goal_asr: 'Asr',
+    goal_maghrib: 'Maghrib',
+    goal_isha: 'Isha',
+
+    // Streak
+    streak_title: 'Série',
+    streak_days: 'jours',
+    streak_best: 'Record',
+
+    // Continue Reading
+    continue_reading: 'Continuer la lecture',
+    surah_reading: 'Sourate',
+    ayah_reading: 'Verset',
+
+    // Daily Hadith
+    daily_hadith: 'HADITH DU JOUR',
+    hadith_source: 'Source',
+
+    // Daily Dua
+    daily_dua: 'DUA DU JOUR',
+    dua_of_the_day: 'Dua du jour',
+
+    // Duas Tab
+    duas_title: 'Invocations',
+    duas_subtitle: 'Votre compagnon quotidien pour le rappel',
+    search_duas: 'Rechercher des duas...',
+    all_categories: 'Tout',
+    athkar_filter: 'Athkar',
+    daily_filter: 'Quotidien',
+    duas_count: 'duas',
+
+    // Dua Reader
+    dua_reader_title: 'Lecteur de Duas',
+    repetitions: 'répétitions',
+    completed: 'Terminé',
+    next_dua: 'Suivant',
+    prev_dua: 'Précédent',
+    count_label: 'Compte',
+
+    // Discover
+    discover_title: 'Explorer',
+    featured_hadith: 'HADITH EN VEDETTE',
+    topics: 'Sujets',
+    browse_by_topic: 'Parcourir par sujet',
+    features: 'Fonctionnalités',
+    names_of_allah: '99 Noms d\'Allah',
+    names_subtitle: 'Apprenez les beaux noms',
+    tasbih_title: 'Compteur de Tasbih',
+    tasbih_subtitle: 'Chapelet numérique',
+    qibla_title: 'Boussole Qibla',
+    qibla_subtitle: 'Trouvez la direction',
+    calendar_title: 'Calendrier islamique',
+    calendar_subtitle: 'Dates et événements hégirien',
+
+    // Tasbih
+    tasbih_counter: 'Tasbih',
+    tasbih_total: 'Total',
+    tasbih_session: 'Session',
+    tasbih_reset: 'Réinitialiser',
+    tasbih_target: 'Objectif',
+    subhanallah: 'SubhanAllah',
+    alhamdulillah: 'Alhamdulillah',
+    allahu_akbar: 'Allahu Akbar',
+    la_ilaha_illallah: 'La ilaha illallah',
+
+    // Bookmark Types
+    bookmark_ayah: 'Verset',
+    bookmark_surah: 'Sourate',
+    bookmark_dua: 'Dua',
+    bookmark_hadith: 'Hadith',
+    bookmark_name: 'Nom',
+
+    // 99 Names
+    names_title: '99 Noms d\'Allah',
+    names_search: 'Rechercher un nom...',
+
+    // Calendar
+    hijri_calendar: 'Calendrier islamique',
+    notable_dates: 'Dates importantes',
+    today: 'Aujourd\'hui',
+    days_away: 'jours restants',
+    this_month: 'Ce mois-ci',
+
+    // You Tab
+    you_title: 'Profil',
+    your_streak: 'Votre série',
+    your_goals: 'Vos objectifs',
+    bookmarks_title: 'Favoris',
+    no_bookmarks: 'Aucun favori pour le moment',
+    all_settings: 'Paramètres',
+
+    // Feature Grid (Home)
+    feature_names: '99 Noms',
+    feature_tasbih: 'Tasbih',
+    feature_qibla: 'Qibla',
+    feature_calendar: 'Calendrier',
+
+    // Prayer Tracking
+    prayer_completed: 'Effectuée',
+    prayer_tap_to_log: 'Appuyez pour enregistrer',
+    prayers_today: 'prières aujourd\'hui',
+    prayer_streak_msg: 'Continuez !',
+    all_prayers_done: 'Toutes les prières enregistrées',
+    prayer_log: 'Journal de prière',
+
+    // Tasbih Milestones
+    tasbih_milestone: 'Étape !',
+    tasbih_complete: 'Terminé !',
+    tasbih_target_33: '33',
+    tasbih_target_99: '99',
+    tasbih_target_custom: 'Personnalisé',
+
+    // Home Ring
+    next_in: 'Prochaine dans',
+    time_remaining: 'restant',
+
+    // Hardcoded strings cleanup
+    view_all: 'Voir tout',
+    services: 'Services',
+    tap_to_view_prayers: 'Appuyez pour voir les horaires',
+    no_duas_found: 'Aucune dua trouvée',
+    total_prayers: 'Total prières',
+    days_tracked: 'Jours suivis',
+    complete_days: 'Jours complets',
+    ad_free_privacy: 'Sans pub. Confidentialité d\'abord. Toujours.',
+    hadith_singular: 'hadith',
+    hadith_plural: 'hadiths',
+    hadiths_on_topic: 'Hadiths sur',
+    back: 'Retour',
+    swipe_for_next: 'Glissez pour suivant',
+    category_not_found: 'Catégorie introuvable',
+
+    // Calculation Methods
+    calc_method_mwl: 'Ligue islamique mondiale',
+    calc_method_isna: 'Société islamique d\'Amérique du Nord',
+    calc_method_egyptian: 'Autorité générale égyptienne',
+    calc_method_karachi: 'Université des sciences islamiques, Karachi',
+    calc_method_dubai: 'Dubaï',
+    calc_method_qatar: 'Qatar',
+    calc_method_kuwait: 'Koweït',
+    calc_method_singapore: 'Singapour',
+    calc_method_turkey: 'Turquie',
+    calc_method_tehran: 'Institut de géophysique, Téhéran',
+
+    // Empty states
+    enable_location: 'Activez la localisation pour voir les horaires de prière',
+    open_settings: 'Ouvrir les paramètres',
+    finding_your_location: 'Localisation en cours...',
+    no_names_found: 'Aucun nom ne correspond à votre recherche',
+    long_press_hint: 'Appui long pour marquer comme priée',
+
+    // Privacy Policy
+    privacy_last_updated: 'Dernière mise à jour : 30 mars 2026',
+    privacy_intro: 'Sajdah est conçue dans le respect de votre vie privée. Nous croyons que votre parcours spirituel est personnel et que vos données doivent le rester.',
+    privacy_data_title: 'Collecte de données',
+    privacy_data_body: 'Sajdah ne collecte, ne stocke ni ne transmet aucune donnée personnelle vers des serveurs externes. Toutes vos données sont stockées localement sur votre appareil.',
+    privacy_location_title: 'Données de localisation',
+    privacy_location_body: 'Sajdah demande l\'accès à la localisation uniquement pour calculer les horaires de prière et la direction de la Qibla. Votre position est traitée sur l\'appareil.',
+    privacy_storage_title: 'Stockage local',
+    privacy_storage_body: 'Toutes les données sont stockées sur votre appareil. Si vous désinstallez l\'application, toutes les données seront définitivement supprimées.',
+    privacy_analytics_title: 'Analyses et publicité',
+    privacy_analytics_body: 'Sajdah n\'utilise aucun service d\'analyse, de suivi ou de publicité. Il n\'y a pas de publicités dans l\'application.',
+    privacy_children_title: 'Confidentialité des enfants',
+    privacy_children_body: 'Sajdah est sûre pour les utilisateurs de tous âges. Comme nous ne collectons aucune donnée personnelle, il n\'y a aucune préoccupation particulière.',
+    privacy_changes_title: 'Modifications de cette politique',
+    privacy_changes_body: 'Si nous mettons à jour cette politique de confidentialité, les changements seront reflétés dans l\'application.',
+    privacy_contact_title: 'Contact',
+    privacy_contact_body: 'Si vous avez des questions, vous pouvez nous contacter via la page de l\'application sur l\'App Store.',
   },
 };

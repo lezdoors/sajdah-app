@@ -27,7 +27,7 @@ import {
 } from '../constants/theme';
 import { NAMES_OF_ALLAH } from '../data/names';
 
-const HERO_HEIGHT = 160;
+const HERO_HEIGHT = 220;
 const SECTION_COUNT = 3; // hero, search, list
 
 // Enable LayoutAnimation on Android
@@ -256,23 +256,6 @@ export default function NamesScreen() {
               </Text>
             </View>
 
-            {/* Number badge top-right */}
-            <View
-              style={[
-                styles.cornerBadge,
-                { backgroundColor: isExpanded ? colors.accent : colors.surfaceBorder },
-                isRTL && styles.cornerBadgeRTL,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.cornerBadgeText,
-                  { color: isExpanded ? '#FFFFFF' : colors.textTertiary },
-                ]}
-              >
-                #{item.number}
-              </Text>
-            </View>
           </View>
 
           {/* Expanded content */}
@@ -434,10 +417,12 @@ const styles = StyleSheet.create({
   },
   heroBackButton: {
     position: 'absolute',
-    top: 4,
+    top: 48,
     left: Spacing.sm,
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0,0,0,0.35)',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
@@ -568,28 +553,6 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 
-  // Corner badge (top-right number)
-  cornerBadge: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderBottomLeftRadius: BorderRadius.sm,
-    borderTopRightRadius: BorderRadius.md - 1,
-  },
-  cornerBadgeRTL: {
-    right: undefined,
-    left: 0,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: BorderRadius.sm,
-    borderTopRightRadius: 0,
-    borderTopLeftRadius: BorderRadius.md - 1,
-  },
-  cornerBadgeText: {
-    fontSize: FontSize.caption,
-    fontWeight: FontWeight.semibold,
-  },
 
   // Expanded section
   expandedSection: {

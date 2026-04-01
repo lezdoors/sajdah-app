@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
+import * as Haptics from 'expo-haptics';
 import { Magnetometer } from 'expo-sensors';
 import { MapPin, Navigation, RotateCcw, ChevronLeft } from 'lucide-react-native';
 
@@ -16,6 +17,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const COMPASS_SIZE = Math.min(SCREEN_WIDTH - 80, 280);
 const KAABA_LAT = 21.4225;
 const KAABA_LNG = 39.8262;
+const ALIGNED_THRESHOLD = 5; // degrees tolerance for "aligned"
 
 function calculateQiblaDirection(lat, lng) {
   const latRad = (lat * Math.PI) / 180;
@@ -51,10 +53,14 @@ export default function QiblaScreen() {
   const [distance, setDistance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [sensorAvailable, setSensorAvailable] = useState(true);
+  const [isAligned, setIsAligned] = useState(false);
 
   const animatedRotation = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const glowAnim = useRef(new Animated.Value(0)).current;
   const subscriptionRef = useRef(null);
+  const lastHapticRef = useRef(0);
+  const wasAlignedRef = useRef(false);
 
   // Pulse animation for compass glow
   useEffect(() => {
@@ -65,6 +71,15 @@ export default function QiblaScreen() {
       ])
     ).start();
   }, []);
+
+  // Glow animation when aligned
+  useEffect(() => {
+    Animated.timing(glowAnim, {
+      toValue: isAligned ? 1 : 0,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+  }, [isAligned]);
 
   useEffect(() => {
     let mounted = true;
@@ -101,6 +116,22 @@ export default function QiblaScreen() {
         angle = (angle + 360) % 360;
         const h = Platform.OS === 'ios' ? (360 - angle) % 360 : angle;
         const needleAngle = qiblaDirection - h;
+
+        // Check if aligned (needle pointing up = 0 degrees = facing qibla)
+        const normalizedAngle = ((needleAngle % 360) + 360) % 360;
+        const aligned = normalizedAngle < ALIGNED_THRESHOLD || normalizedAngle > (360 - ALIGNED_THRESHOLD);
+        setIsAligned(aligned);
+
+        // Haptic feedback when entering aligned state
+        if (aligned && !wasAlignedRef.current) {
+          const now = Date.now();
+          if (now - lastHapticRef.current > 500) {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            lastHapticRef.current = now;
+          }
+        }
+        wasAlignedRef.current = aligned;
+
         Animated.spring(animatedRotation, {
           toValue: needleAngle, useNativeDriver: true, tension: 40, friction: 8,
         }).start();
@@ -111,6 +142,19 @@ export default function QiblaScreen() {
   }, [loading, location, qiblaDirection]);
 
   const rotation = animatedRotation.interpolate({ inputRange: [-360, 360], outputRange: ['-360deg', '360deg'] });
+
+  const compassBorderColor = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)', isDark ? '#4ECBA0' : '#1A7A5E'],
+  });
+
+  const compassGlowColor = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [
+      isDark ? 'rgba(107, 145, 122, 0.08)' : 'rgba(45, 74, 62, 0.04)',
+      isDark ? 'rgba(78, 203, 160, 0.25)' : 'rgba(26, 122, 94, 0.12)',
+    ],
+  });
 
   if (loading) {
     return (
@@ -132,7 +176,7 @@ export default function QiblaScreen() {
 
   return (
     <ImageBackground source={Images.mosqueNight} style={[styles.container]} resizeMode="cover">
-      <LinearGradient colors={isDark ? ['rgba(0,0,0,0.85)', 'rgba(0,0,0,0.95)'] : ['rgba(250,248,243,0.92)', 'rgba(250,248,243,0.98)']} style={styles.overlay}>
+      <LinearGradient colors={isDark ? ['rgba(0,0,0,0.85)', 'rgba(0,0,0,0.95)'] : ['rgba(246,246,248,0.92)', 'rgba(246,246,248,0.98)']} style={styles.overlay}>
         <SafeAreaView edges={['top']} style={{ flex: 1 }}>
           <View style={styles.header}>
             <TouchableOpacity
@@ -155,33 +199,51 @@ export default function QiblaScreen() {
             <Text style={[styles.cityName, { color: colors.textPrimary }]}>{cityName}</Text>
           </View>
 
+          {/* Aligned Banner */}
+          {isAligned && (
+            <View style={[styles.alignedBanner, { backgroundColor: colors.accent }]}>
+              <Text style={styles.alignedText}>{t('facing_qibla') || 'Facing Qibla'}</Text>
+            </View>
+          )}
+
           {/* Compass */}
           <View style={styles.compassContainer}>
             <Animated.View style={[styles.compassGlow, {
-              backgroundColor: isDark ? 'rgba(107, 145, 122, 0.08)' : 'rgba(45, 74, 62, 0.04)',
+              backgroundColor: compassGlowColor,
               transform: [{ scale: pulseAnim }],
             }]} />
 
-            <View style={[styles.compassOuter, { borderColor: colors.surface }, shadows.depth3d]}>
+            <Animated.View style={[styles.compassOuter, { borderColor: compassBorderColor }, shadows.depth3d]}>
               <View style={styles.cardinalN}><Text style={[styles.cardinalText, { color: colors.textTertiary }]}>N</Text></View>
               <View style={styles.cardinalS}><Text style={[styles.cardinalText, { color: colors.textTertiary }]}>S</Text></View>
               <View style={styles.cardinalE}><Text style={[styles.cardinalText, { color: colors.textTertiary }]}>E</Text></View>
               <View style={styles.cardinalW}><Text style={[styles.cardinalText, { color: colors.textTertiary }]}>W</Text></View>
 
               <View style={[styles.compassInner, { backgroundColor: colors.surface, borderColor: colors.divider }]}>
+                {/* Qibla direction marker at the top of compass */}
+                <View style={styles.qiblaMarkerTop}>
+                  <View style={[styles.qiblaArrow, { backgroundColor: isAligned ? colors.accent : colors.sage }]} />
+                </View>
+
                 <Animated.View style={[styles.needleContainer, { transform: [{ rotate: rotation }] }]}>
                   <View style={[styles.needle, { backgroundColor: colors.sage }]} />
-                  <View style={[styles.needleTip, { backgroundColor: colors.sage }]} />
                   <View style={styles.kaabaIcon}><Text style={styles.kaabaEmoji}>🕋</Text></View>
                 </Animated.View>
 
                 <View style={styles.centerDisplay}>
-                  <Text style={[styles.degreesText, { color: colors.textPrimary }]}>{Math.round(qiblaDirection)}°</Text>
-                  <Text style={[styles.directionText, { color: colors.gold }]}>{getCardinalDirection(qiblaDirection)}</Text>
+                  <Text style={[styles.degreesText, { color: isAligned ? colors.accent : colors.textPrimary }]}>{Math.round(qiblaDirection)}°</Text>
+                  <Text style={[styles.directionText, { color: isAligned ? colors.accent : colors.gold }]}>{getCardinalDirection(qiblaDirection)}</Text>
                 </View>
               </View>
-            </View>
+            </Animated.View>
           </View>
+
+          {/* Instruction text */}
+          <Text style={[styles.instructionText, { color: colors.textTertiary }]}>
+            {isAligned
+              ? (t('qibla_aligned_hint') || 'You are facing the Qibla')
+              : (t('qibla_rotate_hint') || 'Rotate your phone until the Kaaba points up')}
+          </Text>
 
           {/* Info Cards */}
           <View style={styles.infoCards}>
@@ -224,25 +286,63 @@ const styles = StyleSheet.create({
   backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { fontSize: FontSize.h3, fontWeight: FontWeight.bold, letterSpacing: -0.3 },
 
-  locationInfo: { alignItems: 'center', marginBottom: Spacing.sm },
+  locationInfo: { alignItems: 'center', marginBottom: Spacing.xs },
   locationBadge: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   locationLabel: { fontSize: FontSize.caption, fontWeight: FontWeight.semibold, letterSpacing: 2 },
   cityName: { fontSize: FontSize.h2, fontWeight: FontWeight.bold, marginTop: 4 },
 
-  compassContainer: { alignItems: 'center', justifyContent: 'center', marginVertical: Spacing.md },
-  compassGlow: { position: 'absolute', width: COMPASS_SIZE + 50, height: COMPASS_SIZE + 50, borderRadius: (COMPASS_SIZE + 50) / 2 },
-  compassOuter: { width: COMPASS_SIZE, height: COMPASS_SIZE, borderRadius: COMPASS_SIZE / 2, borderWidth: 8, alignItems: 'center', justifyContent: 'center' },
-  compassInner: { width: COMPASS_SIZE - 36, height: COMPASS_SIZE - 36, borderRadius: (COMPASS_SIZE - 36) / 2, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
+  // Aligned banner
+  alignedBanner: {
+    alignSelf: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.full,
+    marginBottom: Spacing.xs,
+  },
+  alignedText: {
+    color: '#FFFFFF',
+    fontSize: FontSize.bodySmall,
+    fontWeight: FontWeight.bold,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
 
-  cardinalN: { position: 'absolute', top: 14, alignSelf: 'center' },
-  cardinalS: { position: 'absolute', bottom: 14, alignSelf: 'center' },
-  cardinalE: { position: 'absolute', right: 14, alignSelf: 'center' },
-  cardinalW: { position: 'absolute', left: 14, alignSelf: 'center' },
+  // Instruction
+  instructionText: {
+    textAlign: 'center',
+    fontSize: FontSize.bodySmall,
+    fontWeight: FontWeight.medium,
+    marginTop: Spacing.sm,
+    paddingHorizontal: Spacing.xl,
+  },
+
+  compassContainer: { alignItems: 'center', justifyContent: 'center', marginVertical: Spacing.sm },
+  compassGlow: { position: 'absolute', width: COMPASS_SIZE + 50, height: COMPASS_SIZE + 50, borderRadius: (COMPASS_SIZE + 50) / 2 },
+  compassOuter: { width: COMPASS_SIZE, height: COMPASS_SIZE, borderRadius: COMPASS_SIZE / 2, borderWidth: 6, alignItems: 'center', justifyContent: 'center' },
+  compassInner: { width: COMPASS_SIZE - 32, height: COMPASS_SIZE - 32, borderRadius: (COMPASS_SIZE - 32) / 2, alignItems: 'center', justifyContent: 'center', borderWidth: 1 },
+
+  cardinalN: { position: 'absolute', top: 12, alignSelf: 'center' },
+  cardinalS: { position: 'absolute', bottom: 12, alignSelf: 'center' },
+  cardinalE: { position: 'absolute', right: 12, alignSelf: 'center' },
+  cardinalW: { position: 'absolute', left: 12, alignSelf: 'center' },
   cardinalText: { fontSize: 10, fontWeight: FontWeight.bold },
+
+  // Qibla direction marker at top
+  qiblaMarkerTop: {
+    position: 'absolute',
+    top: -2,
+    alignSelf: 'center',
+    zIndex: 20,
+  },
+  qiblaArrow: {
+    width: 12,
+    height: 12,
+    borderRadius: 2,
+    transform: [{ rotate: '45deg' }],
+  },
 
   needleContainer: { position: 'absolute', width: '100%', height: '100%', alignItems: 'center' },
   needle: { width: 3, height: '42%', borderRadius: 2, position: 'absolute', top: 8 },
-  needleTip: { width: 14, height: 14, borderRadius: 7, position: 'absolute', top: -2, alignSelf: 'center' },
   kaabaIcon: { position: 'absolute', top: -4, alignSelf: 'center' },
   kaabaEmoji: { fontSize: 22 },
 
@@ -250,7 +350,7 @@ const styles = StyleSheet.create({
   degreesText: { fontSize: 36, fontWeight: FontWeight.bold, letterSpacing: -1 },
   directionText: { fontSize: FontSize.bodySmall, fontWeight: FontWeight.bold, letterSpacing: 1.5, textTransform: 'uppercase' },
 
-  infoCards: { flexDirection: 'row', gap: Spacing.sm, paddingHorizontal: Spacing.md, marginTop: Spacing.sm },
+  infoCards: { flexDirection: 'row', gap: Spacing.sm, paddingHorizontal: Spacing.md, marginTop: Spacing.md },
   infoCard: { flex: 1, padding: Spacing.md, borderRadius: BorderRadius.xl, alignItems: 'center', borderWidth: 1 },
   infoIconCircle: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.xs },
   infoLabel: { fontSize: 10, fontWeight: FontWeight.medium, letterSpacing: 1.5 },

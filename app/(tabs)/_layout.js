@@ -1,28 +1,11 @@
 import { Tabs } from 'expo-router';
 import { View, Text, StyleSheet, Platform } from 'react-native';
-import { Home, BookOpen, Heart, Search, User } from 'lucide-react-native';
+import { BlurView } from 'expo-blur';
+import { Home, BookOpen, Heart, Compass, User } from 'lucide-react-native';
 import { useApp } from '../../constants/AppContext';
 import { FontWeight, BorderRadius } from '../../constants/theme';
 
-function TabIcon({ IconComponent, focused, label, isCenter, colors }) {
-  if (isCenter) {
-    return (
-      <View style={styles.centerTab}>
-        <View style={[
-          styles.centerPill,
-          { backgroundColor: focused ? colors.accent : 'transparent' },
-        ]}>
-          <IconComponent size={20} color={focused ? '#FFFFFF' : colors.tabInactive} strokeWidth={focused ? 2 : 1.5} />
-        </View>
-        <Text style={[
-          styles.tabLabel,
-          { color: focused ? colors.accent : colors.tabInactive },
-          focused && { fontWeight: FontWeight.semibold },
-        ]}>{label}</Text>
-      </View>
-    );
-  }
-
+function TabIcon({ IconComponent, focused, label, colors }) {
   return (
     <View style={styles.tabItem}>
       <View style={[
@@ -30,9 +13,9 @@ function TabIcon({ IconComponent, focused, label, isCenter, colors }) {
         focused && { backgroundColor: colors.accentLight },
       ]}>
         <IconComponent
-          size={20}
+          size={21}
           color={focused ? colors.accent : colors.tabInactive}
-          strokeWidth={focused ? 2 : 1.5}
+          strokeWidth={focused ? 2.2 : 1.5}
         />
       </View>
       <Text style={[
@@ -44,17 +27,32 @@ function TabIcon({ IconComponent, focused, label, isCenter, colors }) {
   );
 }
 
+function FloatingTabBar({ isDark }) {
+  return (
+    <BlurView
+      intensity={80}
+      tint={isDark ? 'dark' : 'light'}
+      style={styles.blurWrap}
+    >
+      <View style={[
+        styles.blurInner,
+        { backgroundColor: isDark ? 'rgba(28,28,30,0.65)' : 'rgba(255,255,255,0.72)' },
+      ]} />
+    </BlurView>
+  );
+}
+
 export default function TabLayout() {
-  const { colors, t } = useApp();
+  const { colors, isDark, t } = useApp();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: [styles.tabBar, {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.divider,
+          borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
         }],
+        tabBarBackground: () => <FloatingTabBar isDark={isDark} />,
         tabBarShowLabel: false,
         tabBarActiveTintColor: colors.tabActive,
         tabBarInactiveTintColor: colors.tabInactive,
@@ -80,7 +78,7 @@ export default function TabLayout() {
         name="duas"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon IconComponent={Heart} focused={focused} label={t('tab_duas')} isCenter colors={colors} />
+            <TabIcon IconComponent={Heart} focused={focused} label={t('tab_duas')} colors={colors} />
           ),
         }}
       />
@@ -88,7 +86,7 @@ export default function TabLayout() {
         name="discover"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon IconComponent={Search} focused={focused} label={t('tab_discover')} colors={colors} />
+            <TabIcon IconComponent={Compass} focused={focused} label={t('tab_discover')} colors={colors} />
           ),
         }}
       />
@@ -96,7 +94,18 @@ export default function TabLayout() {
         name="you"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon IconComponent={User} focused={focused} label={t('tab_you')} colors={colors} />
+            <View style={styles.youTabItem}>
+              <View style={[
+                styles.youIconCircle,
+                { backgroundColor: focused ? colors.accent : (isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)') },
+              ]}>
+                <User
+                  size={18}
+                  color={focused ? '#FFFFFF' : colors.tabInactive}
+                  strokeWidth={focused ? 2.2 : 1.5}
+                />
+              </View>
+            </View>
           ),
         }}
       />
@@ -106,15 +115,30 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    borderTopWidth: 0.5,
-    height: Platform.OS === 'ios' ? 88 : 72,
-    paddingTop: 6,
-    paddingBottom: Platform.OS === 'ios' ? 28 : 8,
+    position: 'absolute',
+    bottom: 24,
+    left: 20,
+    right: 20,
+    height: 64,
+    borderRadius: 22,
+    borderTopWidth: 0,
+    borderWidth: 1,
+    paddingTop: 4,
+    paddingBottom: 4,
     elevation: 0,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    overflow: 'hidden',
+  },
+  blurWrap: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 22,
+    overflow: 'hidden',
+  },
+  blurInner: {
+    ...StyleSheet.absoluteFillObject,
   },
   tabItem: {
     alignItems: 'center',
@@ -127,18 +151,19 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
   },
   tabLabel: {
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: FontWeight.medium,
-    letterSpacing: 0.3,
+    letterSpacing: 0.2,
   },
-  centerTab: {
+  // "You" tab — distinct circle style
+  youTabItem: {
     alignItems: 'center',
-    gap: 3,
+    justifyContent: 'center',
   },
-  centerPill: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  youIconCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
   },

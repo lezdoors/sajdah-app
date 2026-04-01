@@ -26,7 +26,7 @@ import {
   getHijriMonthName,
 } from '../utils/hijri';
 
-const HERO_HEIGHT = 160;
+const HERO_HEIGHT = 220;
 const SECTION_COUNT = 3; // hero, today card, notable dates
 
 const NOTABLE_DATES = [
@@ -429,10 +429,12 @@ const styles = StyleSheet.create({
   },
   heroBackButton: {
     position: 'absolute',
-    top: 4,
+    top: 48,
     left: Spacing.sm,
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(0,0,0,0.35)',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
