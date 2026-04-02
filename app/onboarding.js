@@ -50,7 +50,7 @@ export default function OnboardingScreen() {
       title: t('location_title'),
       titleAccent: t('location_accent'),
       description: t('location_desc'),
-      button: t('allow_location'),
+      button: t('continue_button'),
       action: async () => {
         try {
           // expo-location permissions are not supported the same way on web
