@@ -18,6 +18,7 @@ import { Spacing, FontSize, FontWeight, BorderRadius, HeroGradients, Images } fr
 import { useApp } from '../../constants/AppContext';
 import { getAvailableMethods } from '../../utils/prayer';
 import { getStreak, getDailyGoals, toggleGoal, getBookmarks, getPrayerStats } from '../../utils/storage';
+import { refreshNotificationSounds } from '../../utils/notifications';
 
 const CALC_METHOD_KEY = 'sajdah_calc_method';
 const NOTIF_KEY = 'sajdah_notifications';
@@ -195,6 +196,12 @@ export default function YouScreen() {
   async function handleAdhanChange(soundId) {
     setAdhanSound(soundId);
     await AsyncStorage.setItem(ADHAN_SOUND_KEY, soundId);
+    // Re-schedule notifications with the new sound
+    try {
+      const loc = await import('expo-location');
+      const pos = await loc.getCurrentPositionAsync({ accuracy: loc.Accuracy?.High || 4 });
+      await refreshNotificationSounds(pos.coords.latitude, pos.coords.longitude);
+    } catch {}
   }
 
   async function handlePreview(soundId) {

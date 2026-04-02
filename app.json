@@ -3,7 +3,7 @@
     "name": "Sajdah",
     "slug": "sajdah",
     "version": "1.0.0",
-    "description": "Your spiritual companion \u2014 prayer times, Quran, Qibla compass, and daily inspiration. From the heart.",
+    "description": "Your spiritual companion — prayer times, Quran, Qibla compass, and daily inspiration. From the heart.",
     "scheme": "sajdah",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,7 +22,8 @@
         "NSMotionUsageDescription": "Sajdah uses the compass sensor to determine the Qibla direction.",
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": [
-          "remote-notification"
+          "remote-notification",
+          "audio"
         ]
       },
       "config": {
@@ -56,7 +57,17 @@
       [
         "expo-notifications",
         {
-          "sounds": []
+          "sounds": [
+            "./assets/audio/notif/adhan-default-notif.mp3",
+            "./assets/audio/notif/adhan-makkah-notif.mp3",
+            "./assets/audio/notif/adhan-madinah-notif.mp3",
+            "./assets/audio/notif/adhan-alaqsa-notif.mp3",
+            "./assets/audio/notif/adhan-alafasy-notif.mp3",
+            "./assets/audio/notif/adhan-alafasy2-notif.mp3",
+            "./assets/audio/notif/adhan-turkish-notif.mp3",
+            "./assets/audio/notif/adhan-nafees-notif.mp3",
+            "./assets/audio/notif/adhan-zahrani-notif.mp3"
+          ]
         }
       ],
       "expo-av"
@@ -67,6 +78,12 @@
         "projectId": "196afaeb-405e-491c-814f-b2a5818a77ce"
       }
     },
-    "owner": "lezdoors"
+    "owner": "lezdoors",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/196afaeb-405e-491c-814f-b2a5818a77ce"
+    }
   }
 }
