@@ -3,7 +3,7 @@
     "name": "Sajdah",
     "slug": "sajdah",
     "version": "1.0.0",
-    "description": "Your spiritual companion — prayer times, Quran, Qibla compass, and daily inspiration. From the heart.",
+    "description": "Your spiritual companion \u2014 prayer times, Quran, Qibla compass, and daily inspiration. From the heart.",
     "scheme": "sajdah",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.lezdoors.sajdah",
+      "bundleIdentifier": "com.menanadigital.sajdah",
       "buildNumber": "1",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Sajdah needs your location to calculate accurate prayer times and Qibla direction.",
