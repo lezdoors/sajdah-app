@@ -8,7 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Flame, Target, Bookmark, Calculator, MapPin, Bell, Moon, Sun,
-  Smartphone, Globe, Star, Shield, Info, ChevronRight, Check, Share2, Volume2, Play,
+  Smartphone, Globe, Star, Shield, Info, ChevronRight, Check, Share2, Volume2, Play, Square, VolumeX,
 } from 'lucide-react-native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
@@ -28,6 +28,11 @@ const ADHAN_SOUNDS = [
   { id: 'makkah', labelKey: 'adhan_makkah', file: require('../../assets/audio/adhan-makkah.mp3') },
   { id: 'madinah', labelKey: 'adhan_madinah', file: require('../../assets/audio/adhan-madinah.mp3') },
   { id: 'alaqsa', labelKey: 'adhan_alaqsa', file: require('../../assets/audio/adhan-alaqsa.mp3') },
+  { id: 'alafasy', labelKey: 'adhan_alafasy', file: require('../../assets/audio/adhan-alafasy.mp3') },
+  { id: 'alafasy2', labelKey: 'adhan_alafasy2', file: require('../../assets/audio/adhan-alafasy2.mp3') },
+  { id: 'turkish', labelKey: 'adhan_turkish', file: require('../../assets/audio/adhan-turkish.mp3') },
+  { id: 'nafees', labelKey: 'adhan_nafees', file: require('../../assets/audio/adhan-nafees.mp3') },
+  { id: 'zahrani', labelKey: 'adhan_zahrani', file: require('../../assets/audio/adhan-zahrani.mp3') },
   { id: 'silent', labelKey: 'adhan_silent', file: null },
 ];
 
@@ -60,6 +65,7 @@ export default function YouScreen() {
   const [showMethodPicker, setShowMethodPicker] = useState(false);
   const [adhanSound, setAdhanSound] = useState('default');
   const [showAdhanPicker, setShowAdhanPicker] = useState(false);
+  const [previewingId, setPreviewingId] = useState(null);
   const previewSoundRef = useRef(null);
   const methods = getAvailableMethods();
 
@@ -187,26 +193,41 @@ export default function YouScreen() {
   }
 
   async function handleAdhanChange(soundId) {
-    // Stop any playing preview
-    if (previewSoundRef.current) {
-      await previewSoundRef.current.unloadAsync();
-      previewSoundRef.current = null;
-    }
     setAdhanSound(soundId);
     await AsyncStorage.setItem(ADHAN_SOUND_KEY, soundId);
-    setShowAdhanPicker(false);
-    // Auto-preview the selected sound (short clip)
-    const selected = ADHAN_SOUNDS.find((s) => s.id === soundId);
-    if (selected?.file) {
-      const { sound } = await Audio.Sound.createAsync(selected.file);
-      previewSoundRef.current = sound;
-      await sound.playAsync();
-      // Stop after 5 seconds
-      setTimeout(async () => {
-        try { await sound.stopAsync(); await sound.unloadAsync(); } catch {}
-        if (previewSoundRef.current === sound) previewSoundRef.current = null;
-      }, 5000);
+  }
+
+  async function handlePreview(soundId) {
+    // Stop any playing preview
+    if (previewSoundRef.current) {
+      try { await previewSoundRef.current.stopAsync(); await previewSoundRef.current.unloadAsync(); } catch {}
+      previewSoundRef.current = null;
     }
+    // If tapping same sound that's previewing, just stop
+    if (previewingId === soundId) {
+      setPreviewingId(null);
+      return;
+    }
+    const selected = ADHAN_SOUNDS.find((s) => s.id === soundId);
+    if (!selected?.file) return;
+    setPreviewingId(soundId);
+    const { sound } = await Audio.Sound.createAsync(selected.file);
+    previewSoundRef.current = sound;
+    await sound.playAsync();
+    // Stop after 8 seconds
+    setTimeout(async () => {
+      try { await sound.stopAsync(); await sound.unloadAsync(); } catch {}
+      if (previewSoundRef.current === sound) previewSoundRef.current = null;
+      setPreviewingId((curr) => curr === soundId ? null : curr);
+    }, 8000);
+    // Also stop when playback finishes naturally
+    sound.setOnPlaybackStatusUpdate((status) => {
+      if (status.didJustFinish) {
+        setPreviewingId((curr) => curr === soundId ? null : curr);
+        sound.unloadAsync().catch(() => {});
+        if (previewSoundRef.current === sound) previewSoundRef.current = null;
+      }
+    });
   }
 
   // Cleanup preview sound on unmount
@@ -539,35 +560,50 @@ export default function YouScreen() {
         {showAdhanPicker && (
           <View style={[styles.methodPicker, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }, shadows.card]}>
             {ADHAN_SOUNDS.map((sound) => (
-              <Pressable
+              <View
                 key={sound.id}
                 style={[
                   styles.methodOption,
                   { borderBottomColor: colors.divider },
                   adhanSound === sound.id && { backgroundColor: colors.accentLight },
                 ]}
-                onPress={() => handleAdhanChange(sound.id)}
               >
-                <View style={[styles.adhanOptionRow, { flexDirection: rowDir }]}>
+                <Pressable
+                  style={[styles.adhanOptionRow, { flexDirection: rowDir, flex: 1 }]}
+                  onPress={() => handleAdhanChange(sound.id)}
+                >
                   {sound.file ? (
-                    <Play size={14} color={adhanSound === sound.id ? colors.accent : colors.textTertiary} strokeWidth={2} />
+                    <Volume2 size={14} color={adhanSound === sound.id ? colors.accent : colors.textTertiary} strokeWidth={2} />
                   ) : (
-                    <Volume2 size={14} color={colors.textTertiary} strokeWidth={2} />
+                    <VolumeX size={14} color={colors.textTertiary} strokeWidth={2} />
                   )}
                   <Text style={[
                     styles.methodOptionText,
-                    { color: colors.textPrimary },
+                    { color: colors.textPrimary, flex: 1 },
                     adhanSound === sound.id && { color: colors.accent, fontWeight: FontWeight.semibold },
                   ]}>
                     {t(sound.labelKey)}
                   </Text>
-                </View>
-                {adhanSound === sound.id && (
-                  <View style={[styles.methodCheck, { backgroundColor: colors.accent }]}>
-                    <Check size={12} color="#FFFFFF" strokeWidth={3} />
-                  </View>
+                  {adhanSound === sound.id && (
+                    <View style={[styles.methodCheck, { backgroundColor: colors.accent }]}>
+                      <Check size={12} color="#FFFFFF" strokeWidth={3} />
+                    </View>
+                  )}
+                </Pressable>
+                {sound.file && (
+                  <Pressable
+                    style={[styles.previewBtn, { backgroundColor: previewingId === sound.id ? colors.accent : colors.overlay }]}
+                    onPress={() => handlePreview(sound.id)}
+                    hitSlop={8}
+                  >
+                    {previewingId === sound.id ? (
+                      <Square size={12} color="#FFFFFF" fill="#FFFFFF" strokeWidth={0} />
+                    ) : (
+                      <Play size={12} color={colors.accent} fill={colors.accent} strokeWidth={0} />
+                    )}
+                  </Pressable>
                 )}
-              </Pressable>
+              </View>
             ))}
           </View>
         )}
@@ -964,6 +1000,14 @@ const styles = StyleSheet.create({
   adhanOptionRow: {
     alignItems: 'center',
     gap: 8,
+  },
+  previewBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
   },
   methodCheckText: {
     color: '#FFFFFF',

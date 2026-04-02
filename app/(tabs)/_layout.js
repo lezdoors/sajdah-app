@@ -1,7 +1,8 @@
 import { Tabs } from 'expo-router';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { Home, BookOpen, Heart, Compass, User } from 'lucide-react-native';
+import { User } from 'lucide-react-native';
+import { MosqueIcon, MushafIcon, DuaHandsIcon, IslamicStarIcon } from '../../components/TabIcons';
 import { useApp } from '../../constants/AppContext';
 import { FontWeight, BorderRadius } from '../../constants/theme';
 
@@ -62,7 +63,7 @@ export default function TabLayout() {
         name="index"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon IconComponent={Home} focused={focused} label={t('tab_home')} colors={colors} />
+            <TabIcon IconComponent={MosqueIcon} focused={focused} label={t('tab_home')} colors={colors} />
           ),
         }}
       />
@@ -70,7 +71,7 @@ export default function TabLayout() {
         name="quran"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon IconComponent={BookOpen} focused={focused} label={t('tab_quran')} colors={colors} />
+            <TabIcon IconComponent={MushafIcon} focused={focused} label={t('tab_quran')} colors={colors} />
           ),
         }}
       />
@@ -78,7 +79,7 @@ export default function TabLayout() {
         name="duas"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon IconComponent={Heart} focused={focused} label={t('tab_duas')} colors={colors} />
+            <TabIcon IconComponent={DuaHandsIcon} focused={focused} label={t('tab_duas')} colors={colors} />
           ),
         }}
       />
@@ -86,7 +87,7 @@ export default function TabLayout() {
         name="discover"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon IconComponent={Compass} focused={focused} label={t('tab_discover')} colors={colors} />
+            <TabIcon IconComponent={IslamicStarIcon} focused={focused} label={t('tab_discover')} colors={colors} />
           ),
         }}
       />

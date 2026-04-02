@@ -16,7 +16,7 @@ import {
   Sun, Sunset, Moon, CloudSun, CloudMoon, MapPin,
 } from 'lucide-react-native';
 
-import { Spacing, FontSize, FontWeight, BorderRadius, FeatureGradients, HeroGradients } from '../../constants/theme';
+import { Spacing, FontSize, FontWeight, BorderRadius, HeroGradients } from '../../constants/theme';
 import { useApp } from '../../constants/AppContext';
 import { getPrayerTimes, getNextPrayer, getCurrentPrayer, formatTime, getCountdown } from '../../utils/prayer';
 import { formatHijriDate } from '../../utils/hijri';
@@ -30,7 +30,6 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const PRAYER_ICONS = { Fajr: Sun, Sunrise: CloudSun, Dhuhr: Sun, Asr: Sunset, Maghrib: CloudMoon, Isha: Moon };
-const SERVICE_CARD_W = (SCREEN_WIDTH - Spacing.md * 2 - Spacing.sm) / 2;
 const PRAYER_GRID_GAP = 10;
 const PRAYER_CARD_W = (SCREEN_WIDTH - Spacing.md * 2 - PRAYER_GRID_GAP * 2) / 3;
 
@@ -260,11 +259,12 @@ export default function HomeScreen() {
 
   const lastReadSurah = lastRead ? SURAHS.find(s => s.number === lastRead.surahNumber) : null;
 
-  const services = [
-    { title: t('feature_names'), icon: Star, route: '/names', gradient: FeatureGradients.names.colors },
-    { title: t('feature_tasbih'), icon: CircleDot, route: '/tasbih', gradient: FeatureGradients.tasbih.colors },
-    { title: t('feature_qibla'), icon: CompassIcon, route: '/qibla', gradient: FeatureGradients.qibla.colors },
-    { title: t('feature_calendar'), icon: CalendarDays, route: '/calendar', gradient: FeatureGradients.calendar.colors },
+  const quickAccess = [
+    { title: t('feature_tasbih'), icon: CircleDot, route: '/tasbih', iconColor: '#B08D1A', bg: 'rgba(201, 162, 39, 0.10)' },
+    { title: t('feature_names'), icon: Star, route: '/names', iconColor: colors.accent, bg: colors.accentLight },
+    { title: t('feature_qibla'), icon: CompassIcon, route: '/qibla', iconColor: '#3D3DA6', bg: 'rgba(61, 61, 166, 0.08)' },
+    { title: t('feature_quran'), icon: BookOpen, route: '/(tabs)/quran', iconColor: '#2D6A4F', bg: 'rgba(45, 106, 79, 0.08)' },
+    { title: t('feature_calendar'), icon: CalendarDays, route: '/calendar', iconColor: '#8B3A7A', bg: 'rgba(139, 58, 122, 0.08)' },
   ];
 
   const completedGoals = Object.values(goals).filter(Boolean).length;
@@ -293,6 +293,20 @@ export default function HomeScreen() {
                 </Pressable>
               </View>
             </View>
+          </Animated.View>
+
+          {/* ── Quick Access Icons ── */}
+          <Animated.View style={prayerRowStyle}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickAccessRow}>
+              {quickAccess.map((item, i) => (
+                <Pressable key={i} style={styles.quickAccessItem} onPress={() => router.push(item.route)}>
+                  <View style={[styles.quickAccessIcon, { backgroundColor: item.bg }]}>
+                    <item.icon size={24} color={item.iconColor} strokeWidth={1.5} />
+                  </View>
+                  <Text style={[styles.quickAccessLabel, { color: colors.textSecondary }]} numberOfLines={1}>{item.title}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
           </Animated.View>
 
           {/* ── No Location Empty State ── */}
@@ -429,30 +443,6 @@ export default function HomeScreen() {
                 </View>
               </LinearGradient>
             </Pressable>
-          </Animated.View>
-
-          {/* ── Services Grid ── */}
-          <Animated.View style={servicesStyle}>
-            <View style={styles.section}>
-              <View style={[styles.sectionHeader, { flexDirection: rowDir }]}>
-                <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>{t('services')}</Text>
-                <Pressable style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }} onPress={() => router.push('/(tabs)/discover')}>
-                  <Text style={[styles.viewAll, { color: colors.textTertiary }]}>{t('view_all')}</Text>
-                </Pressable>
-              </View>
-              <View style={styles.servicesGrid}>
-                {services.map((svc, i) => (
-                  <Pressable key={i} onPress={() => router.push(svc.route)} style={({ pressed }) => [styles.serviceCard, { opacity: pressed ? 0.85 : 1 }]}>
-                    <LinearGradient colors={svc.gradient} style={styles.serviceCardBg} start={{x:0,y:0}} end={{x:1,y:1}}>
-                      <View style={styles.serviceCardOverlay}>
-                        <svc.icon size={20} color="#FFFFFF" strokeWidth={1.5} />
-                        <Text style={styles.serviceCardTitle}>{svc.title}</Text>
-                      </View>
-                    </LinearGradient>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
           </Animated.View>
 
           {/* ── Daily Goals ── */}
@@ -706,12 +696,17 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 17, fontWeight: FontWeight.bold, letterSpacing: 0.5, textTransform: 'uppercase' },
   viewAll: { fontSize: FontSize.caption, fontWeight: FontWeight.medium },
 
-  // Services Grid
-  servicesGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 14 },
-  serviceCard: { width: SERVICE_CARD_W, height: 100, borderRadius: BorderRadius.lg, overflow: 'hidden', shadowColor: '#000', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.2, shadowRadius: 14, elevation: 8 },
-  serviceCardBg: { flex: 1, borderRadius: BorderRadius.md },
-  serviceCardOverlay: { flex: 1, justifyContent: 'space-between', padding: 14 },
-  serviceCardTitle: { fontSize: FontSize.body, fontWeight: FontWeight.bold, color: '#FFFFFF' },
+  // Quick Access Icons
+  quickAccessRow: { paddingHorizontal: Spacing.md, gap: 20, paddingVertical: 4 },
+  quickAccessItem: { alignItems: 'center', width: 62 },
+  quickAccessIcon: {
+    width: 54,
+    height: 54,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickAccessLabel: { fontSize: 11, fontWeight: FontWeight.medium, marginTop: 8, textAlign: 'center' },
 
   // Goals
   goalsScroll: { gap: 8 },

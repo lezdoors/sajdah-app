@@ -215,6 +215,7 @@ export const translations = {
     feature_names: '99 Names',
     feature_tasbih: 'Tasbih',
     feature_qibla: 'Qibla',
+    feature_quran: 'Quran',
     feature_calendar: 'Calendar',
 
     // Prayer Tracking
@@ -271,6 +272,11 @@ export const translations = {
     adhan_makkah: 'Makkah',
     adhan_madinah: 'Madinah',
     adhan_alaqsa: 'Al-Aqsa',
+    adhan_alafasy: 'Mishary Alafasy',
+    adhan_alafasy2: 'Alafasy (Classic)',
+    adhan_turkish: 'Turkish Style',
+    adhan_nafees: 'Ahmad Al-Nafees',
+    adhan_zahrani: 'Mansour Al-Zahrani',
     adhan_silent: 'Silent',
     adhan_preview: 'Tap to preview',
 
@@ -516,6 +522,7 @@ export const translations = {
     feature_names: 'الأسماء',
     feature_tasbih: 'التسبيح',
     feature_qibla: 'القبلة',
+    feature_quran: 'القرآن',
     feature_calendar: 'التقويم',
 
     // Prayer Tracking
@@ -572,6 +579,11 @@ export const translations = {
     adhan_makkah: 'مكة',
     adhan_madinah: 'المدينة',
     adhan_alaqsa: 'الأقصى',
+    adhan_alafasy: 'مشاري العفاسي',
+    adhan_alafasy2: 'العفاسي (كلاسيك)',
+    adhan_turkish: 'الأذان التركي',
+    adhan_nafees: 'أحمد النفيس',
+    adhan_zahrani: 'منصور الزهراني',
     adhan_silent: 'صامت',
     adhan_preview: 'اضغط للاستماع',
 
@@ -820,6 +832,7 @@ export const translations = {
     feature_names: '99 Noms',
     feature_tasbih: 'Tasbih',
     feature_qibla: 'Qibla',
+    feature_quran: 'Coran',
     feature_calendar: 'Calendrier',
 
     // Prayer Tracking
@@ -876,6 +889,11 @@ export const translations = {
     adhan_makkah: 'La Mecque',
     adhan_madinah: 'Médine',
     adhan_alaqsa: 'Al-Aqsa',
+    adhan_alafasy: 'Mishary Alafasy',
+    adhan_alafasy2: 'Alafasy (Classique)',
+    adhan_turkish: 'Style Turc',
+    adhan_nafees: 'Ahmad Al-Nafees',
+    adhan_zahrani: 'Mansour Al-Zahrani',
     adhan_silent: 'Silencieux',
     adhan_preview: 'Appuyez pour écouter',
 
