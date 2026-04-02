@@ -114,11 +114,13 @@ export default function HomeScreen() {
           if (mounted) { setLocationDenied(true); setHijriDate(formatHijriDate()); setLoading(false); }
           return;
         }
-        const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
         if (!mounted) return;
         const { latitude, longitude } = pos.coords;
+        console.log('[PRAYER] coords:', latitude.toFixed(4), longitude.toFixed(4));
         setLocation({ latitude, longitude });
         const times = getPrayerTimes(latitude, longitude);
+        console.log('[PRAYER] Fajr:', times.fajr?.toLocaleTimeString(), 'Maghrib:', times.maghrib?.toLocaleTimeString());
         if (!mounted) return;
         setPrayerTimes(times);
         const next = getNextPrayer(times);
