@@ -22,8 +22,7 @@
         "NSMotionUsageDescription": "Sajdah uses the compass sensor to determine the Qibla direction.",
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": [
-          "remote-notification",
-          "audio"
+          "remote-notification"
         ]
       },
       "config": {
