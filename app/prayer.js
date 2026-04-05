@@ -235,7 +235,7 @@ export default function PrayerScreen() {
                     styles.gridCard,
                     {
                       backgroundColor: colors.surface,
-                      borderColor: flashedPrayer === name ? '#22C55E' : isCurrent ? colors.accent : colors.surfaceBorder,
+                      borderColor: flashedPrayer === name ? '#FF0083' : isCurrent ? colors.accent : colors.surfaceBorder,
                       borderWidth: flashedPrayer === name ? 2 : isCurrent ? 2 : 1,
                       opacity: pressed ? 0.85 : 1,
                       transform: [{ scale: pressed ? 0.97 : 1 }],
@@ -290,7 +290,7 @@ export default function PrayerScreen() {
           <View style={[styles.progressBarBg, { backgroundColor: colors.surfaceBorder }]}>
             <View style={[styles.progressBarFill, {
               width: `${(Object.values(prayerLog).filter(Boolean).length / 5) * 100}%`,
-              backgroundColor: Object.values(prayerLog).filter(Boolean).length === 5 ? '#22C55E' : colors.accent,
+              backgroundColor: Object.values(prayerLog).filter(Boolean).length === 5 ? '#FF0083' : colors.accent,
             }]} />
           </View>
           <Text style={[styles.completionText, { color: colors.textTertiary }]}>
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: '#22C55E',
+    backgroundColor: '#FF0083',
     alignItems: 'center',
     justifyContent: 'center',
   },

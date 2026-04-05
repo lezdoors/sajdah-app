@@ -262,11 +262,11 @@ export default function HomeScreen() {
   const lastReadSurah = lastRead ? SURAHS.find(s => s.number === lastRead.surahNumber) : null;
 
   const quickAccess = [
-    { title: t('feature_tasbih'), icon: TasbihIcon, route: '/tasbih', iconColor: '#A06B42', bg: 'rgba(181, 120, 77, 0.10)' },
-    { title: t('feature_names'), icon: CrescentIcon, route: '/names', iconColor: colors.accent, bg: colors.accentLight },
-    { title: t('feature_qibla'), icon: QiblaIcon, route: '/qibla', iconColor: '#3D3DA6', bg: 'rgba(61, 61, 166, 0.08)' },
-    { title: t('feature_quran'), icon: QuranIcon, route: '/(tabs)/quran', iconColor: '#2D6A4F', bg: 'rgba(45, 106, 79, 0.08)' },
-    { title: t('feature_calendar'), icon: CalendarDays, route: '/calendar', iconColor: '#8B3A7A', bg: 'rgba(139, 58, 122, 0.08)' },
+    { title: t('feature_tasbih'), icon: TasbihIcon, route: '/tasbih', iconColor: colors.accent, bg: colors.accentLight },
+    { title: t('feature_names'), icon: CrescentIcon, route: '/names', iconColor: colors.textPrimary, bg: colors.backgroundSecondary },
+    { title: t('feature_qibla'), icon: QiblaIcon, route: '/qibla', iconColor: colors.accent, bg: colors.accentLight },
+    { title: t('feature_quran'), icon: QuranIcon, route: '/(tabs)/quran', iconColor: colors.textPrimary, bg: colors.backgroundSecondary },
+    { title: t('feature_calendar'), icon: CalendarDays, route: '/calendar', iconColor: colors.textPrimary, bg: colors.backgroundSecondary },
   ];
 
   const completedGoals = Object.values(goals).filter(Boolean).length;

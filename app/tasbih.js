@@ -175,7 +175,7 @@ export default function TasbihScreen() {
   // Interpolate ring stroke color for gold flash celebration
   const ringStrokeColor = ringColorAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['#D4B76E', '#FFD700'],
+    outputRange: ['#FF0083', '#FF4DAB'],
   });
 
   const activePreset = DHIKR_PRESETS.find((d) => d.key === activeDhikr);
@@ -506,8 +506,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   presetButtonActive: {
-    backgroundColor: 'rgba(212, 183, 110, 0.2)',
-    borderColor: '#D4B76E',
+    backgroundColor: 'rgba(255, 0, 131, 0.15)',
+    borderColor: '#FF0083',
   },
   presetText: {
     fontSize: FontSize.bodySmall,
@@ -515,7 +515,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.6)',
   },
   presetTextActive: {
-    color: '#D4B76E',
+    color: '#FF0083',
     fontWeight: FontWeight.semibold,
   },
 
@@ -534,8 +534,8 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   targetPillActive: {
-    backgroundColor: 'rgba(212, 183, 110, 0.2)',
-    borderColor: '#D4B76E',
+    backgroundColor: 'rgba(255, 0, 131, 0.15)',
+    borderColor: '#FF0083',
   },
   targetPillText: {
     fontSize: FontSize.bodySmall,
@@ -543,7 +543,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.6)',
   },
   targetPillTextActive: {
-    color: '#D4B76E',
+    color: '#FF0083',
     fontWeight: FontWeight.semibold,
   },
 

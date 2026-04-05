@@ -156,7 +156,7 @@ export default function DuasScreen() {
         ]}
       >
         <View style={styles.cardContent}>
-          <View style={[styles.cardIconCircle, { backgroundColor: isDark ? 'rgba(78, 203, 160, 0.18)' : '#D2EDE3' }]}>
+          <View style={[styles.cardIconCircle, { backgroundColor: colors.accentLight }]}>
             <IconComp size={18} color={colors.accent} strokeWidth={2} />
           </View>
 

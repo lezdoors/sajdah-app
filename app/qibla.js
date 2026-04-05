@@ -160,14 +160,14 @@ export default function QiblaScreen() {
 
   const compassBorderColor = glowAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)', isDark ? '#4ECBA0' : '#1A7A5E'],
+    outputRange: [isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)', isDark ? '#FF4DAB' : '#FF0083'],
   });
 
   const compassGlowColor = glowAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [
-      isDark ? 'rgba(107, 145, 122, 0.08)' : 'rgba(45, 74, 62, 0.04)',
-      isDark ? 'rgba(78, 203, 160, 0.25)' : 'rgba(26, 122, 94, 0.12)',
+      isDark ? 'rgba(255, 0, 131, 0.06)' : 'rgba(255, 0, 131, 0.03)',
+      isDark ? 'rgba(255, 0, 131, 0.20)' : 'rgba(255, 0, 131, 0.10)',
     ],
   });
 

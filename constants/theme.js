@@ -1,31 +1,31 @@
-// Sajdah Design System v3 — Bible App Grade
-// Clean, high-contrast, warm ivory light / true black dark
-// Accent: teal-green that pops. Gold for spiritual highlights.
+// Sajdah Design System v4 — Lemonade-grade
+// Bold pink accent, pure black + white core, premium minimalism
+// Pink used as strategic punctuation — not everywhere
 
 // ── Shared Palette ──────────────────────────────────────
 export const Palette = {
-  teal900: '#0D3B2E',
-  teal800: '#145C47',
-  teal700: '#1A7A5E',
-  teal600: '#1F9A76',
-  teal500: '#2AB78D',
-  teal400: '#4ECBA0',
-  teal300: '#7EDDB8',
-  teal200: '#B5ECD5',
-  teal100: '#E0F7ED',
-  teal50: '#F0FBF6',
+  pink900: '#990050',
+  pink800: '#CC0069',
+  pink700: '#E60076',
+  pink600: '#FF0083',  // PRIMARY — Lemonade signature
+  pink500: '#FF1A93',
+  pink400: '#FF4DAB',
+  pink300: '#FF80C3',
+  pink200: '#FFB3DA',
+  pink100: '#FFE0F0',
+  pink50:  '#FFF5FA',
 
-  gold700: '#8A5D3B',
-  gold600: '#A06B42',
-  gold500: '#B5784D',
-  gold400: '#C8895A',
-  gold300: '#D9A57A',
-  gold200: '#E8C4A0',
-  gold100: '#F5E0CC',
+  rose700: '#9E4B6C',
+  rose600: '#B85A7E',
+  rose500: '#D16B90',
+  rose400: '#E07FA2',
+  rose300: '#ECA3BC',
+  rose200: '#F5CADB',
+  rose100: '#FBE8F0',
 
   neutral950: '#0C0C0C',
-  neutral900: '#1C1C1E',
-  neutral800: '#2C2C2E',
+  neutral900: '#161616',
+  neutral800: '#1C1C1E',
   neutral700: '#3A3A3C',
   neutral600: '#636366',
   neutral500: '#8E8E93',
@@ -38,53 +38,53 @@ export const Palette = {
 
 // ── Light Theme ─────────────────────────────────────────
 export const LightColors = {
-  background: '#F6F6F8',
-  backgroundSecondary: '#EDEDF0',
+  background: '#FFFFFF',
+  backgroundSecondary: '#F7F7F7',
   surface: '#FFFFFF',
   surfaceElevated: '#FFFFFF',
   surfaceBorder: 'rgba(0, 0, 0, 0.06)',
   cardBorder: 'rgba(0, 0, 0, 0.06)',
 
-  accent: '#1A7A5E',
-  accentMedium: '#1F9A76',
-  accentLight: '#E0F7ED',
-  accentDark: '#0D3B2E',
+  accent: '#FF0083',
+  accentMedium: '#FF1A93',
+  accentLight: '#FFF0F7',
+  accentDark: '#CC0069',
 
-  sage: '#1F9A76',
-  sageMuted: '#4ECBA0',
-  sageLight: 'rgba(26, 122, 94, 0.06)',
-  sageBright: '#2AB78D',
+  sage: '#FF4DAB',
+  sageMuted: '#FF80C3',
+  sageLight: 'rgba(255, 0, 131, 0.05)',
+  sageBright: '#FF1A93',
 
-  gold: '#B5784D',
-  goldMuted: '#A06B42',
-  goldLight: 'rgba(181, 120, 77, 0.08)',
-  goldBright: '#C8895A',
+  gold: '#D16B90',
+  goldMuted: '#B85A7E',
+  goldLight: 'rgba(209, 107, 144, 0.08)',
+  goldBright: '#E07FA2',
 
-  textPrimary: '#000000',
-  textSecondary: '#636366',
+  textPrimary: '#161616',
+  textSecondary: '#4A4A4A',
   textTertiary: '#8E8E93',
   textOnDark: '#FFFFFF',
   textOnDarkSecondary: 'rgba(255, 255, 255, 0.80)',
   textOnDarkTertiary: 'rgba(255, 255, 255, 0.50)',
 
-  divider: '#E5E5EA',
+  divider: '#EFEFEF',
   overlay: 'rgba(0, 0, 0, 0.03)',
   overlayDark: 'rgba(0, 0, 0, 0.5)',
 
   danger: '#FF3B30',
   success: '#34C759',
 
-  tabActive: '#1A7A5E',
-  tabInactive: '#8E8E93',
+  tabActive: '#FF0083',
+  tabInactive: '#AEAEB2',
 
   cardShadow: '#000000',
   switchTrack: '#E5E5EA',
-  switchTrackActive: '#34C759',
+  switchTrackActive: '#FF0083',
 
   // Page gradient background
   gradientTop: '#FFFFFF',
-  gradientMid: '#F8F8FA',
-  gradientBottom: '#F2F2F5',
+  gradientMid: '#FAFAFA',
+  gradientBottom: '#F7F7F7',
   // Glassmorphic cards
   cardGlass: '#FFFFFF',
   cardGlassBorder: 'rgba(0, 0, 0, 0.06)',
@@ -93,26 +93,26 @@ export const LightColors = {
 // ── Dark Theme ──────────────────────────────────────────
 export const DarkColors = {
   background: '#000000',
-  backgroundSecondary: '#1C1C1E',
-  surface: '#1C1C1E',
-  surfaceElevated: '#2C2C2E',
+  backgroundSecondary: '#161616',
+  surface: '#161616',
+  surfaceElevated: '#1C1C1E',
   surfaceBorder: 'rgba(255, 255, 255, 0.08)',
   cardBorder: 'rgba(255, 255, 255, 0.06)',
 
-  accent: '#4ECBA0',
-  accentMedium: '#2AB78D',
-  accentLight: 'rgba(78, 203, 160, 0.12)',
-  accentDark: '#7EDDB8',
+  accent: '#FF4DAB',
+  accentMedium: '#FF1A93',
+  accentLight: 'rgba(255, 0, 131, 0.12)',
+  accentDark: '#FF80C3',
 
-  sage: '#4ECBA0',
-  sageMuted: '#2AB78D',
-  sageLight: 'rgba(78, 203, 160, 0.10)',
-  sageBright: '#7EDDB8',
+  sage: '#FF4DAB',
+  sageMuted: '#FF1A93',
+  sageLight: 'rgba(255, 0, 131, 0.10)',
+  sageBright: '#FF80C3',
 
-  gold: '#C8895A',
-  goldMuted: '#B5784D',
-  goldLight: 'rgba(200, 137, 90, 0.12)',
-  goldBright: '#D9A57A',
+  gold: '#E07FA2',
+  goldMuted: '#D16B90',
+  goldLight: 'rgba(224, 127, 162, 0.12)',
+  goldBright: '#ECA3BC',
 
   textPrimary: '#FFFFFF',
   textSecondary: '#AEAEB2',
@@ -121,26 +121,26 @@ export const DarkColors = {
   textOnDarkSecondary: 'rgba(255, 255, 255, 0.80)',
   textOnDarkTertiary: 'rgba(255, 255, 255, 0.50)',
 
-  divider: '#3A3A3C',
+  divider: '#2C2C2E',
   overlay: 'rgba(255, 255, 255, 0.05)',
   overlayDark: 'rgba(0, 0, 0, 0.7)',
 
   danger: '#FF453A',
   success: '#30D158',
 
-  tabActive: '#4ECBA0',
+  tabActive: '#FF4DAB',
   tabInactive: '#636366',
 
   cardShadow: '#000000',
   switchTrack: '#3A3A3C',
-  switchTrackActive: '#30D158',
+  switchTrackActive: '#FF4DAB',
 
   // Page gradient background
-  gradientTop: '#0A1A14',
-  gradientMid: '#060E0A',
+  gradientTop: '#0C0C0C',
+  gradientMid: '#060606',
   gradientBottom: '#000000',
   // Glassmorphic cards
-  cardGlass: 'rgba(28, 28, 30, 0.75)',
+  cardGlass: 'rgba(22, 22, 22, 0.85)',
   cardGlassBorder: 'rgba(255, 255, 255, 0.08)',
 };
 
@@ -227,15 +227,23 @@ export const Shadows = {
     shadowRadius: 32,
     elevation: 16,
   },
-  oliveGlow: {
-    shadowColor: '#1A7A5E',
+  pinkGlow: {
+    shadowColor: '#FF0083',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.30,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  // Keep old name as alias for backward compat
+  oliveGlow: {
+    shadowColor: '#FF0083',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.30,
     shadowRadius: 16,
     elevation: 8,
   },
   goldGlow: {
-    shadowColor: '#C9A227',
+    shadowColor: '#FF0083',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.22,
     shadowRadius: 16,
@@ -256,65 +264,66 @@ export const Glass = {
   light: { backgroundColor: 'rgba(255, 255, 255, 0.88)', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.3)' },
   medium: { backgroundColor: 'rgba(255, 255, 255, 0.65)', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.2)' },
   dark: { backgroundColor: 'rgba(0, 0, 0, 0.35)', borderWidth: 1, borderColor: 'rgba(255, 255, 255, 0.12)' },
-  frosted: { backgroundColor: 'rgba(250, 248, 243, 0.92)', borderWidth: 1, borderColor: 'rgba(229, 224, 214, 0.5)' },
+  frosted: { backgroundColor: 'rgba(247, 247, 247, 0.92)', borderWidth: 1, borderColor: 'rgba(0, 0, 0, 0.06)' },
 };
 
 // ── Gradients ───────────────────────────────────────────
 export const Gradients = {
-  prayerCard: ['#0D3B2E', '#145C47'],
+  prayerCard: ['#161616', '#2C2C2E'],
   prayerCardDark: ['#1C1C1E', '#2C2C2E'],
   heroMask: ['transparent', 'rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.8)', '#FFFFFF'],
   heroMaskDark: ['transparent', 'rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.7)', '#000000'],
   heroMaskBlack: ['transparent', 'rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.7)', '#000000'],
-  splash: ['#0D3B2E', '#145C47'],
-  goldSubtle: ['rgba(201, 162, 39, 0.06)', 'rgba(201, 162, 39, 0.0)'],
-  oliveSubtle: ['rgba(26, 122, 94, 0.04)', 'rgba(26, 122, 94, 0.0)'],
-  duasCard: ['#1A7A5E', '#0D3B2E'],
-  duasCardDark: ['#2C2C2E', '#1C1C1E'],
-  discoverCard: ['#1F9A76', '#0D3B2E'],
-  discoverCardDark: ['#2C2C2E', '#1C1C1E'],
+  splash: ['#161616', '#000000'],
+  pinkSubtle: ['rgba(255, 0, 131, 0.04)', 'rgba(255, 0, 131, 0.0)'],
+  goldSubtle: ['rgba(255, 0, 131, 0.04)', 'rgba(255, 0, 131, 0.0)'],
+  oliveSubtle: ['rgba(255, 0, 131, 0.04)', 'rgba(255, 0, 131, 0.0)'],
+  duasCard: ['#161616', '#000000'],
+  duasCardDark: ['#1C1C1E', '#000000'],
+  discoverCard: ['#161616', '#000000'],
+  discoverCardDark: ['#1C1C1E', '#000000'],
 };
 
 // ── Feature Gradients (replace card photos) ─────────────
 export const FeatureGradients = {
-  names:    { colors: ['#0A3D5C', '#1A7A8A'], icon: 'Star' },
-  tasbih:   { colors: ['#5C3A0A', '#B8860B'], icon: 'CircleDot' },
-  qibla:    { colors: ['#1A1A4E', '#3D3DA6'], icon: 'Compass' },
-  calendar: { colors: ['#4A1942', '#8B3A7A'], icon: 'Calendar' },
+  names:    { colors: ['#161616', '#2C2C2E'], icon: 'Star' },
+  tasbih:   { colors: ['#1C1C1E', '#3A3A3C'], icon: 'CircleDot' },
+  qibla:    { colors: ['#0C0C0C', '#1C1C1E'], icon: 'Compass' },
+  calendar: { colors: ['#2C2C2E', '#161616'], icon: 'Calendar' },
 };
 
 export const HeroGradients = {
-  discover: ['#0D3B2E', '#1A7A5E', '#0D3B2E'],
-  duas:     ['#0A1628', '#1A3A5C', '#0D2240'],
-  you:      ['#1A2A1A', '#2D4A2D'],
-  prayer:   ['#1A1A2E', '#2D2D5C', '#0D0D1E'],
+  discover: ['#161616', '#000000'],
+  duas:     ['#161616', '#0C0C0C'],
+  you:      ['#161616', '#000000'],
+  prayer:   ['#161616', '#0C0C0C'],
 };
 
-// ── Topic Colors (vibrant, Bible App style) ─────────────
+// ── Topic Colors (monochrome with pink accents) ──────────
 export const TopicColors = {
-  prayer: { bg: '#1A7A5E', text: '#FFFFFF' },
-  faith: { bg: '#5856D6', text: '#FFFFFF' },
-  manners: { bg: '#007AFF', text: '#FFFFFF' },
-  charity: { bg: '#FF9500', text: '#FFFFFF' },
-  patience: { bg: '#00838F', text: '#FFFFFF' },
-  forgiveness: { bg: '#AF52DE', text: '#FFFFFF' },
-  knowledge: { bg: '#34C759', text: '#FFFFFF' },
-  remembrance: { bg: '#FF2D55', text: '#FFFFFF' },
-  sincerity: { bg: '#FF6B35', text: '#FFFFFF' },
-  family: { bg: '#5AC8FA', text: '#FFFFFF' },
+  prayer:      { bg: '#FF0083', text: '#FFFFFF' },
+  faith:       { bg: '#161616', text: '#FFFFFF' },
+  manners:     { bg: '#4A4A4A', text: '#FFFFFF' },
+  charity:     { bg: '#FF4DAB', text: '#FFFFFF' },
+  patience:    { bg: '#2C2C2E', text: '#FFFFFF' },
+  forgiveness: { bg: '#CC0069', text: '#FFFFFF' },
+  knowledge:   { bg: '#3A3A3C', text: '#FFFFFF' },
+  remembrance: { bg: '#FF0083', text: '#FFFFFF' },
+  sincerity:   { bg: '#636366', text: '#FFFFFF' },
+  family:      { bg: '#FF80C3', text: '#FFFFFF' },
 };
 
 export const TopicColorsDark = {
-  prayer:      { bg: '#2AB78D', text: '#FFFFFF' },
-  faith:       { bg: '#7B79E8', text: '#FFFFFF' },
-  manners:     { bg: '#4DA3FF', text: '#FFFFFF' },
-  charity:     { bg: '#FFB340', text: '#FFFFFF' },
-  patience:    { bg: '#26A5B3', text: '#FFFFFF' },
-  forgiveness: { bg: '#C77AE8', text: '#FFFFFF' },
-  knowledge:   { bg: '#5DD87A', text: '#FFFFFF' },
-  remembrance: { bg: '#FF5C7A', text: '#FFFFFF' },
-  sincerity:   { bg: '#FF8F5C', text: '#FFFFFF' },
-  family:      { bg: '#7AD6FA', text: '#FFFFFF' },
+  prayer:      { bg: '#FF0083', text: '#FFFFFF' },
+  faith:       { bg: '#2C2C2E', text: '#FFFFFF' },
+  manners:     { bg: '#3A3A3C', text: '#FFFFFF' },
+  charity:     { bg: '#FF4DAB', text: '#FFFFFF' },
+  patience:    { bg: '#4A4A4A', text: '#FFFFFF' },
+  forgiveness: { bg: '#CC0069', text: '#FFFFFF' },
+  knowledge:   { bg: '#636366', text: '#FFFFFF' },
+  remembrance: { bg: '#FF1A93', text: '#FFFFFF' },
+  sincerity:   { bg: '#4A4A4A', text: '#FFFFFF' },
+  family:      { bg: '#FF80C3', text: '#FFFFFF' },
 };
 
 // ── Image References ────────────────────────────────────

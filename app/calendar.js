@@ -272,13 +272,13 @@ export default function CalendarScreen() {
                     {
                       backgroundColor: isCurrentMonth
                         ? isDark
-                          ? 'rgba(212, 183, 110, 0.08)'
-                          : 'rgba(196, 163, 90, 0.06)'
+                          ? 'rgba(255, 0, 131, 0.06)'
+                          : 'rgba(255, 0, 131, 0.04)'
                         : colors.surface,
                       borderColor: isCurrentMonth
                         ? isDark
-                          ? 'rgba(212, 183, 110, 0.25)'
-                          : 'rgba(196, 163, 90, 0.3)'
+                          ? 'rgba(255, 0, 131, 0.20)'
+                          : 'rgba(255, 0, 131, 0.25)'
                         : colors.surfaceBorder,
                     },
                   ]}
@@ -296,8 +296,8 @@ export default function CalendarScreen() {
                         {
                           borderColor: isCurrentMonth
                             ? isDark
-                              ? '#D4B76E'
-                              : '#C4A35A'
+                              ? '#FF4DAB'
+                              : '#FF0083'
                             : colors.surfaceBorder,
                         },
                       ]}
@@ -308,8 +308,8 @@ export default function CalendarScreen() {
                           {
                             color: isCurrentMonth
                               ? isDark
-                                ? '#D4B76E'
-                                : '#C4A35A'
+                                ? '#FF4DAB'
+                                : '#FF0083'
                               : colors.textSecondary,
                           },
                         ]}
@@ -322,8 +322,8 @@ export default function CalendarScreen() {
                           {
                             color: isCurrentMonth
                               ? isDark
-                                ? '#D4B76E'
-                                : '#A68330'
+                                ? '#FF4DAB'
+                                : '#CC0069'
                               : colors.textTertiary,
                           },
                         ]}
@@ -357,7 +357,7 @@ export default function CalendarScreen() {
                         </Text>
                       )}
                       {isCurrentMonth && (
-                        <Text style={[styles.eventDaysUntil, { color: isDark ? '#D4B76E' : '#C4A35A' }, isRTL && styles.textRTL]}>
+                        <Text style={[styles.eventDaysUntil, { color: isDark ? '#FF4DAB' : '#FF0083' }, isRTL && styles.textRTL]}>
                           {t('this_month')}
                         </Text>
                       )}
@@ -386,8 +386,8 @@ export default function CalendarScreen() {
                           styles.currentDot,
                           {
                             backgroundColor: isDark
-                              ? '#D4B76E'
-                              : '#C4A35A',
+                              ? '#FF4DAB'
+                              : '#FF0083',
                           },
                         ]}
                       />

@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
   },
   arabic: {
     fontSize: 26,
-    color: Palette.gold400,
+    color: Palette.pink400,
     marginTop: 8,
   },
   tagline: {

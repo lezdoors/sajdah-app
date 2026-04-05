@@ -2,7 +2,7 @@
   "expo": {
     "name": "Sajdah",
     "slug": "sajdah",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Your spiritual companion — prayer times, Quran, Qibla compass, and daily inspiration. From the heart.",
     "scheme": "sajdah",
     "orientation": "portrait",
@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/images/mosque-night.png",
       "resizeMode": "cover",
-      "backgroundColor": "#0A1A14"
+      "backgroundColor": "#000000"
     },
     "ios": {
       "supportsTablet": true,
@@ -31,7 +31,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0A1628",
+        "backgroundColor": "#000000",
         "foregroundImage": "./assets/icon.png"
       },
       "package": "com.lezdoors.sajdah",
