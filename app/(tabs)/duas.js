@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Video, ResizeMode } from 'expo-av';
 import {
   Search, X, Sunrise, Sunset, Moon, Sun, Heart,
   UtensilsCrossed, Plane, Building2, Droplets,
@@ -204,19 +205,25 @@ export default function DuasScreen() {
                   { opacity: heroAnim, transform: [{ translateY: heroSlide }] },
                 ]}
               >
-                <LinearGradient
-                  colors={HeroGradients.duas}
-                  style={styles.heroBanner}
-                  start={{x:0,y:0}}
-                  end={{x:1,y:1}}
-                >
-                  <View style={styles.heroGradient}>
+                <View style={styles.heroBanner}>
+                  <Video
+                    source={require('../../assets/videos/hero-discover.mp4')}
+                    style={StyleSheet.absoluteFill}
+                    resizeMode={ResizeMode.COVER}
+                    shouldPlay
+                    isLooping
+                    isMuted
+                  />
+                  <LinearGradient
+                    colors={['transparent', 'rgba(0,0,0,0.55)']}
+                    style={styles.heroGradient}
+                  >
                     <Text style={styles.heroTitle}>{t('duas_title')}</Text>
                     <Text style={styles.heroSubtitle}>
                       {totalDuas} {t('duas_count')}
                     </Text>
-                  </View>
-                </LinearGradient>
+                  </LinearGradient>
+                </View>
               </Animated.View>
 
               {/* Daily Dua Card */}

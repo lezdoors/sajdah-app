@@ -2,7 +2,7 @@
   "expo": {
     "name": "Sajdah",
     "slug": "sajdah",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Your spiritual companion — prayer times, Quran, Qibla compass, and daily inspiration. From the heart.",
     "scheme": "sajdah",
     "orientation": "portrait",
@@ -57,15 +57,12 @@
         "expo-notifications",
         {
           "sounds": [
-            "./assets/audio/notif/adhan-default-notif.mp3",
-            "./assets/audio/notif/adhan-makkah-notif.mp3",
-            "./assets/audio/notif/adhan-madinah-notif.mp3",
-            "./assets/audio/notif/adhan-alaqsa-notif.mp3",
-            "./assets/audio/notif/adhan-alafasy-notif.mp3",
-            "./assets/audio/notif/adhan-alafasy2-notif.mp3",
-            "./assets/audio/notif/adhan-turkish-notif.mp3",
-            "./assets/audio/notif/adhan-nafees-notif.mp3",
-            "./assets/audio/notif/adhan-zahrani-notif.mp3"
+            "./assets/audio/notif/adhan-default-notif.caf",
+            "./assets/audio/notif/adhan-makkah-notif.caf",
+            "./assets/audio/notif/adhan-madinah-notif.caf",
+            "./assets/audio/notif/adhan-alaqsa-notif.caf",
+            "./assets/audio/notif/adhan-alafasy-notif.caf",
+            "./assets/audio/notif/adhan-alafasy2-notif.caf"
           ]
         }
       ],

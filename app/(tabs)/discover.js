@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { Video, ResizeMode } from 'expo-av';
 import { Star, Circle, Compass, CalendarDays } from 'lucide-react-native';
 import { useApp } from '../../constants/AppContext';
 import {
@@ -130,11 +131,15 @@ export default function DiscoverScreen() {
         >
           {/* ── Hero Banner ── */}
           <Animated.View style={[styles.heroWrapper, getAnimStyle(0)]}>
-            <ImageBackground
-              source={Images.hassan2Night}
-              style={styles.heroBanner}
-              resizeMode="cover"
-            >
+            <View style={styles.heroBanner}>
+              <Video
+                source={require('../../assets/videos/hero-discover.mp4')}
+                style={StyleSheet.absoluteFill}
+                resizeMode={ResizeMode.COVER}
+                shouldPlay
+                isLooping
+                isMuted
+              />
               <MoroccanPattern color="#FFFFFF" opacity={0.07} />
               <LinearGradient
                 colors={['transparent', 'rgba(0,0,0,0.55)']}
@@ -148,7 +153,7 @@ export default function DiscoverScreen() {
                   </Text>
                 </View>
               </LinearGradient>
-            </ImageBackground>
+            </View>
           </Animated.View>
 
           {/* ── Featured Hadith ── */}

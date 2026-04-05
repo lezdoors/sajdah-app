@@ -9,40 +9,28 @@ const ADHAN_SOUND_KEY = 'sajdah_adhan_sound';
 // Map adhan IDs to notification sound filenames and full audio files
 const ADHAN_SOUND_MAP = {
   default: {
-    notif: 'adhan-default-notif.mp3',
+    notif: 'adhan-default-notif.caf',
     full: require('../assets/audio/adhan-default.mp3'),
   },
   makkah: {
-    notif: 'adhan-makkah-notif.mp3',
+    notif: 'adhan-makkah-notif.caf',
     full: require('../assets/audio/adhan-makkah.mp3'),
   },
   madinah: {
-    notif: 'adhan-madinah-notif.mp3',
+    notif: 'adhan-madinah-notif.caf',
     full: require('../assets/audio/adhan-madinah.mp3'),
   },
   alaqsa: {
-    notif: 'adhan-alaqsa-notif.mp3',
+    notif: 'adhan-alaqsa-notif.caf',
     full: require('../assets/audio/adhan-alaqsa.mp3'),
   },
   alafasy: {
-    notif: 'adhan-alafasy-notif.mp3',
+    notif: 'adhan-alafasy-notif.caf',
     full: require('../assets/audio/adhan-alafasy.mp3'),
   },
   alafasy2: {
-    notif: 'adhan-alafasy2-notif.mp3',
+    notif: 'adhan-alafasy2-notif.caf',
     full: require('../assets/audio/adhan-alafasy2.mp3'),
-  },
-  turkish: {
-    notif: 'adhan-turkish-notif.mp3',
-    full: require('../assets/audio/adhan-turkish.mp3'),
-  },
-  nafees: {
-    notif: 'adhan-nafees-notif.mp3',
-    full: require('../assets/audio/adhan-nafees.mp3'),
-  },
-  zahrani: {
-    notif: 'adhan-zahrani-notif.mp3',
-    full: require('../assets/audio/adhan-zahrani.mp3'),
   },
   silent: { notif: null, full: null },
 };
@@ -137,6 +125,9 @@ export async function requestNotificationPermission() {
 export async function scheduleAllPrayerNotifications(latitude, longitude) {
   // Cancel all existing prayer notifications first
   await cancelAllPrayerNotifications();
+
+  // Also schedule special reminders (qiyam, friday kahf)
+  scheduleSpecialReminders(latitude, longitude).catch(() => {});
 
   const settings = await getNotificationSettings();
   const soundName = await getNotifSoundName();
@@ -267,7 +258,92 @@ export async function cancelSinglePrayer(prayerKey) {
   }
 }
 
+// ── Special Reminders (Qiyam + Friday Kahf) ─────────────
+
+export async function scheduleSpecialReminders(latitude, longitude) {
+  // Cancel existing special reminders
+  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+  for (const notif of scheduled) {
+    if (notif.identifier.startsWith('special_')) {
+      await Notifications.cancelScheduledNotificationAsync(notif.identifier);
+    }
+  }
+
+  const settings = await getNotificationSettings();
+  const now = new Date();
+
+  // ── Qiyam: ~2 hours before Fajr (last third of night) ──
+  if (settings.qiyam) {
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const todayTimes = getPrayerTimes(latitude, longitude, today);
+    const tomorrowTimes = getPrayerTimes(latitude, longitude, tomorrow);
+
+    // Calculate qiyam time: 2 hours before Fajr
+    const scheduleQiyam = (fajrTime, dayLabel) => {
+      if (!fajrTime) return;
+      const qiyamTime = new Date(fajrTime.getTime() - 2 * 60 * 60 * 1000);
+      if (qiyamTime > now) {
+        Notifications.scheduleNotificationAsync({
+          content: {
+            title: 'Qiyam al-Layl',
+            body: 'The last third of the night — a blessed time for prayer and dua.',
+            data: { type: 'qiyam' },
+          },
+          trigger: { type: 'date', date: qiyamTime },
+          identifier: `special_qiyam_${dayLabel}`,
+        }).catch(() => {});
+      }
+    };
+
+    scheduleQiyam(todayTimes.fajr, 'today');
+    scheduleQiyam(tomorrowTimes.fajr, 'tomorrow');
+  }
+
+  // ── Friday Kahf: Friday morning at 9:00 AM local ──
+  if (settings.friday_kahf) {
+    // Find the next Friday
+    const nextFriday = new Date();
+    const dayOfWeek = nextFriday.getDay();
+    const daysUntilFriday = dayOfWeek <= 5 ? 5 - dayOfWeek : 5 + 7 - dayOfWeek;
+
+    if (daysUntilFriday === 0 && now.getHours() < 9) {
+      // It's Friday and before 9 AM — schedule for today
+      nextFriday.setHours(9, 0, 0, 0);
+    } else if (daysUntilFriday === 0) {
+      // It's Friday but after 9 AM — schedule for next week
+      nextFriday.setDate(nextFriday.getDate() + 7);
+      nextFriday.setHours(9, 0, 0, 0);
+    } else {
+      nextFriday.setDate(nextFriday.getDate() + daysUntilFriday);
+      nextFriday.setHours(9, 0, 0, 0);
+    }
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Jumu\'ah Mubarak',
+        body: 'It\'s Friday — read Surah Al-Kahf for light between two Fridays.',
+        data: { type: 'friday_kahf' },
+      },
+      trigger: { type: 'date', date: nextFriday },
+      identifier: 'special_friday_kahf',
+    }).catch(() => {});
+  }
+}
+
+export async function cancelSpecialReminders() {
+  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+  for (const notif of scheduled) {
+    if (notif.identifier.startsWith('special_')) {
+      await Notifications.cancelScheduledNotificationAsync(notif.identifier);
+    }
+  }
+}
+
 // Re-schedule notifications when adhan sound changes
 export async function refreshNotificationSounds(latitude, longitude) {
   await scheduleAllPrayerNotifications(latitude, longitude);
+  await scheduleSpecialReminders(latitude, longitude);
 }

@@ -84,11 +84,16 @@ export async function setCalcMethod(method) {
 export async function getNotificationSettings() {
   try {
     const data = await AsyncStorage.getItem(KEYS.NOTIFICATIONS);
-    return data ? JSON.parse(data) : {
-      fajr: true, sunrise: false, dhuhr: true, asr: true, maghrib: true, isha: true, qiyam: false,
+    const defaults = {
+      fajr: true, sunrise: false, dhuhr: true, asr: true, maghrib: true, isha: true,
+      qiyam: false, friday_kahf: false,
     };
+    return data ? { ...defaults, ...JSON.parse(data) } : defaults;
   } catch {
-    return { fajr: true, sunrise: false, dhuhr: true, asr: true, maghrib: true, isha: true, qiyam: false };
+    return {
+      fajr: true, sunrise: false, dhuhr: true, asr: true, maghrib: true, isha: true,
+      qiyam: false, friday_kahf: false,
+    };
   }
 }
 

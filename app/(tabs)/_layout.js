@@ -1,8 +1,7 @@
 import { Tabs } from 'expo-router';
 import { View, Text, StyleSheet, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { User } from 'lucide-react-native';
-import { MosqueIcon, MushafIcon, DuaHandsIcon, IslamicStarIcon } from '../../components/TabIcons';
+import { MosqueIcon, QuranOpenIcon, DuasIcon, CrescentIcon, ProfileIcon } from '../../components/IslamicIcons';
 import { useApp } from '../../constants/AppContext';
 import { FontWeight, BorderRadius } from '../../constants/theme';
 
@@ -71,7 +70,7 @@ export default function TabLayout() {
         name="quran"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon IconComponent={MushafIcon} focused={focused} label={t('tab_quran')} colors={colors} />
+            <TabIcon IconComponent={QuranOpenIcon} focused={focused} label={t('tab_quran')} colors={colors} />
           ),
         }}
       />
@@ -79,7 +78,7 @@ export default function TabLayout() {
         name="duas"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon IconComponent={DuaHandsIcon} focused={focused} label={t('tab_duas')} colors={colors} />
+            <TabIcon IconComponent={DuasIcon} focused={focused} label={t('tab_duas')} colors={colors} />
           ),
         }}
       />
@@ -87,7 +86,7 @@ export default function TabLayout() {
         name="discover"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon IconComponent={IslamicStarIcon} focused={focused} label={t('tab_discover')} colors={colors} />
+            <TabIcon IconComponent={CrescentIcon} focused={focused} label={t('tab_discover')} colors={colors} />
           ),
         }}
       />
@@ -100,10 +99,9 @@ export default function TabLayout() {
                 styles.youIconCircle,
                 { backgroundColor: focused ? colors.accent : (isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)') },
               ]}>
-                <User
+                <ProfileIcon
                   size={18}
                   color={focused ? '#FFFFFF' : colors.tabInactive}
-                  strokeWidth={focused ? 2.2 : 1.5}
                 />
               </View>
             </View>

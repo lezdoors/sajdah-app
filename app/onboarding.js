@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, Dimensions, Image, Animated, Platform } from 'react-native';
+import { Video, ResizeMode } from 'expo-av';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Compass, Bell, MapPin, Sparkles, ArrowRight } from 'lucide-react-native';
@@ -37,7 +38,7 @@ export default function OnboardingScreen() {
     {
       type: 'welcome',
       Icon: Compass,
-      image: Images.mosque,
+      video: require('../assets/videos/onboarding-welcome.mp4'),
       title: t('welcome_title'),
       titleAccent: t('welcome_accent'),
       description: t('welcome_desc'),
@@ -46,7 +47,7 @@ export default function OnboardingScreen() {
     {
       type: 'permissions',
       Icon: MapPin,
-      image: Images.mosqueSilhouette,
+      video: require('../assets/videos/onboarding-setup.mp4'),
       title: t('location_title'),
       titleAccent: t('location_accent'),
       description: t('location_desc'),
@@ -65,7 +66,7 @@ export default function OnboardingScreen() {
     {
       type: 'setup',
       Icon: Sparkles,
-      image: Images.mosqueNight,
+      video: require('../assets/videos/onboarding-welcome.mp4'),
       title: t('setup_title'),
       titleAccent: '',
       description: t('setup_desc'),
@@ -105,9 +106,16 @@ export default function OnboardingScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-        {/* Hero Image Area */}
+        {/* Hero Video Area */}
         <View style={styles.heroArea}>
-          <Image source={current.image} style={styles.heroImage} resizeMode="cover" />
+          <Video
+            source={current.video}
+            style={styles.heroImage}
+            resizeMode={ResizeMode.COVER}
+            shouldPlay
+            isLooping
+            isMuted
+          />
           <LinearGradient colors={['transparent', colors.background]} style={styles.heroGradient} />
           <View style={[styles.iconFloat, { backgroundColor: colors.accentLight }, shadows.card]}>
             <current.Icon size={28} color={colors.accent} strokeWidth={2} />

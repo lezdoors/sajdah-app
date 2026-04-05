@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   View, Text, FlatList, SectionList, ScrollView, StyleSheet, Dimensions,
-  ActivityIndicator, Pressable, TextInput, ImageBackground, StatusBar, Animated,
+  ActivityIndicator, Pressable, TextInput, StatusBar, Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Video, ResizeMode } from 'expo-av';
 
 import {
   Search, X, ChevronLeft, Play, Pause, User, Check, CloudOff,
@@ -121,7 +122,15 @@ function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, o
     <>
       {/* Collapsible Hero Header */}
       <Animated.View style={{ height: heroHeight, opacity: heroOpacity, overflow: 'hidden' }}>
-        <ImageBackground source={Images.quranMadinah} style={styles.heroHeader} resizeMode="cover">
+        <View style={styles.heroHeader}>
+          <Video
+            source={require('../../assets/videos/onboarding-setup.mp4')}
+            style={StyleSheet.absoluteFill}
+            resizeMode={ResizeMode.COVER}
+            shouldPlay
+            isLooping
+            isMuted
+          />
           <LinearGradient colors={Gradients.heroMaskDark} style={styles.heroGradient}>
             <SafeAreaView edges={['top']} style={styles.heroInner}>
               <View style={styles.heroTextBlock}>
@@ -130,7 +139,7 @@ function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, o
               </View>
             </SafeAreaView>
           </LinearGradient>
-        </ImageBackground>
+        </View>
       </Animated.View>
 
       {/* Search Bar */}

@@ -15,13 +15,13 @@ export const Palette = {
   teal100: '#E0F7ED',
   teal50: '#F0FBF6',
 
-  gold700: '#92710C',
-  gold600: '#B08D1A',
-  gold500: '#C9A227',
-  gold400: '#D4B44A',
-  gold300: '#E0C86E',
-  gold200: '#EDD9A0',
-  gold100: '#F7EDCC',
+  gold700: '#8A5D3B',
+  gold600: '#A06B42',
+  gold500: '#B5784D',
+  gold400: '#C8895A',
+  gold300: '#D9A57A',
+  gold200: '#E8C4A0',
+  gold100: '#F5E0CC',
 
   neutral950: '#0C0C0C',
   neutral900: '#1C1C1E',
@@ -55,10 +55,10 @@ export const LightColors = {
   sageLight: 'rgba(26, 122, 94, 0.06)',
   sageBright: '#2AB78D',
 
-  gold: '#C9A227',
-  goldMuted: '#B08D1A',
-  goldLight: 'rgba(201, 162, 39, 0.08)',
-  goldBright: '#D4B44A',
+  gold: '#B5784D',
+  goldMuted: '#A06B42',
+  goldLight: 'rgba(181, 120, 77, 0.08)',
+  goldBright: '#C8895A',
 
   textPrimary: '#000000',
   textSecondary: '#636366',
@@ -80,6 +80,14 @@ export const LightColors = {
   cardShadow: '#000000',
   switchTrack: '#E5E5EA',
   switchTrackActive: '#34C759',
+
+  // Page gradient background
+  gradientTop: '#FFFFFF',
+  gradientMid: '#F8F8FA',
+  gradientBottom: '#F2F2F5',
+  // Glassmorphic cards
+  cardGlass: '#FFFFFF',
+  cardGlassBorder: 'rgba(0, 0, 0, 0.06)',
 };
 
 // ── Dark Theme ──────────────────────────────────────────
@@ -101,10 +109,10 @@ export const DarkColors = {
   sageLight: 'rgba(78, 203, 160, 0.10)',
   sageBright: '#7EDDB8',
 
-  gold: '#D4B44A',
-  goldMuted: '#C9A227',
-  goldLight: 'rgba(212, 180, 74, 0.12)',
-  goldBright: '#E0C86E',
+  gold: '#C8895A',
+  goldMuted: '#B5784D',
+  goldLight: 'rgba(200, 137, 90, 0.12)',
+  goldBright: '#D9A57A',
 
   textPrimary: '#FFFFFF',
   textSecondary: '#AEAEB2',
@@ -126,6 +134,14 @@ export const DarkColors = {
   cardShadow: '#000000',
   switchTrack: '#3A3A3C',
   switchTrackActive: '#30D158',
+
+  // Page gradient background
+  gradientTop: '#0A1A14',
+  gradientMid: '#060E0A',
+  gradientBottom: '#000000',
+  // Glassmorphic cards
+  cardGlass: 'rgba(28, 28, 30, 0.75)',
+  cardGlassBorder: 'rgba(255, 255, 255, 0.08)',
 };
 
 // Static export for backward compatibility (light mode default)

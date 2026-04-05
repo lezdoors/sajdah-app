@@ -10,11 +10,13 @@ import * as Location from 'expo-location';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import Svg, { Circle } from 'react-native-svg';
+import { Video, ResizeMode } from 'expo-av';
 import {
   Bell, Clock, BookOpen, ChevronRight, Heart, Check, Bookmark, Share2,
-  Flame, Star, CircleDot, Compass as CompassIcon, CalendarDays,
+  Flame, CalendarDays,
   Sun, Sunset, Moon, CloudSun, CloudMoon, MapPin,
 } from 'lucide-react-native';
+import { TasbihIcon, CrescentIcon, QiblaIcon, QuranIcon, PrayerMatIcon } from '../../components/IslamicIcons';
 
 import { Spacing, FontSize, FontWeight, BorderRadius, HeroGradients } from '../../constants/theme';
 import { useApp } from '../../constants/AppContext';
@@ -224,7 +226,7 @@ export default function HomeScreen() {
   }
 
   if (loading) {
-    return <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}><ActivityIndicator size="large" color={colors.accent} /></View>;
+    return <LinearGradient colors={[colors.gradientTop, colors.gradientMid, colors.gradientBottom]} style={styles.loadingContainer}><ActivityIndicator size="large" color={colors.accent} /></LinearGradient>;
   }
 
   const today = new Date();
@@ -260,17 +262,17 @@ export default function HomeScreen() {
   const lastReadSurah = lastRead ? SURAHS.find(s => s.number === lastRead.surahNumber) : null;
 
   const quickAccess = [
-    { title: t('feature_tasbih'), icon: CircleDot, route: '/tasbih', iconColor: '#B08D1A', bg: 'rgba(201, 162, 39, 0.10)' },
-    { title: t('feature_names'), icon: Star, route: '/names', iconColor: colors.accent, bg: colors.accentLight },
-    { title: t('feature_qibla'), icon: CompassIcon, route: '/qibla', iconColor: '#3D3DA6', bg: 'rgba(61, 61, 166, 0.08)' },
-    { title: t('feature_quran'), icon: BookOpen, route: '/(tabs)/quran', iconColor: '#2D6A4F', bg: 'rgba(45, 106, 79, 0.08)' },
+    { title: t('feature_tasbih'), icon: TasbihIcon, route: '/tasbih', iconColor: '#A06B42', bg: 'rgba(181, 120, 77, 0.10)' },
+    { title: t('feature_names'), icon: CrescentIcon, route: '/names', iconColor: colors.accent, bg: colors.accentLight },
+    { title: t('feature_qibla'), icon: QiblaIcon, route: '/qibla', iconColor: '#3D3DA6', bg: 'rgba(61, 61, 166, 0.08)' },
+    { title: t('feature_quran'), icon: QuranIcon, route: '/(tabs)/quran', iconColor: '#2D6A4F', bg: 'rgba(45, 106, 79, 0.08)' },
     { title: t('feature_calendar'), icon: CalendarDays, route: '/calendar', iconColor: '#8B3A7A', bg: 'rgba(139, 58, 122, 0.08)' },
   ];
 
   const completedGoals = Object.values(goals).filter(Boolean).length;
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <LinearGradient colors={[colors.gradientTop, colors.gradientMid, colors.gradientBottom]} style={styles.container}>
       <SafeAreaView edges={['top']} style={{ flex: 1 }}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
@@ -288,7 +290,7 @@ export default function HomeScreen() {
                     <Text style={[styles.streakBadgeText, { color: colors.gold }]}>{streak.count}</Text>
                   </View>
                 )}
-                <Pressable style={[styles.bellBtn, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]} onPress={() => router.push('/(tabs)/you')}>
+                <Pressable style={[styles.bellBtn, { backgroundColor: colors.cardGlass, borderColor: colors.cardGlassBorder }]} onPress={() => router.push('/(tabs)/you')}>
                   <Bell size={20} color={colors.textPrimary} strokeWidth={1.5} />
                 </Pressable>
               </View>
@@ -297,7 +299,7 @@ export default function HomeScreen() {
 
           {/* ── Quick Access Icons ── */}
           <Animated.View style={prayerRowStyle}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickAccessRow}>
+            <View style={styles.quickAccessRow}>
               {quickAccess.map((item, i) => (
                 <Pressable key={i} style={styles.quickAccessItem} onPress={() => router.push(item.route)}>
                   <View style={[styles.quickAccessIcon, { backgroundColor: item.bg }]}>
@@ -306,13 +308,13 @@ export default function HomeScreen() {
                   <Text style={[styles.quickAccessLabel, { color: colors.textSecondary }]} numberOfLines={1}>{item.title}</Text>
                 </Pressable>
               ))}
-            </ScrollView>
+            </View>
           </Animated.View>
 
           {/* ── No Location Empty State ── */}
           {locationDenied && !prayerTimes && (
             <Animated.View style={prayerRowStyle}>
-              <View style={[styles.noLocationCard, { backgroundColor: colors.surfaceElevated }]}>
+              <View style={[styles.noLocationCard, { backgroundColor: colors.cardGlass, borderColor: colors.cardGlassBorder }]}>
                 <MapPin size={20} color={colors.textTertiary} strokeWidth={1.5} />
                 <Text style={[styles.noLocationText, { color: colors.textSecondary }]}>
                   {t('enable_location')}
@@ -331,7 +333,7 @@ export default function HomeScreen() {
           {nextPrayer && (
             <Animated.View style={prayerRowStyle}>
               <Pressable
-                style={[styles.countdownRingCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]}
+                style={[styles.countdownRingCard, { backgroundColor: colors.cardGlass, borderColor: colors.cardGlassBorder }]}
                 onPress={() => router.push('/prayer')}
               >
                 <View style={styles.countdownRingWrapper}>
@@ -391,8 +393,8 @@ export default function HomeScreen() {
                       style={[
                         styles.prayerCard,
                         {
-                          backgroundColor: colors.surface,
-                          borderColor: p.active ? colors.accent : colors.surfaceBorder,
+                          backgroundColor: colors.cardGlass,
+                          borderColor: p.active ? colors.accent : colors.cardGlassBorder,
                           borderWidth: p.active ? 2 : 1,
                         },
                       ]}
@@ -436,12 +438,23 @@ export default function HomeScreen() {
           {/* ── Hero Banner ── */}
           <Animated.View style={servicesStyle}>
             <Pressable style={styles.heroPadding} onPress={() => router.push('/prayer')}>
-              <LinearGradient colors={HeroGradients.prayer} style={styles.heroBanner} start={{x:0,y:0}} end={{x:1,y:1}}>
-                <View style={styles.heroOverlay}>
+              <View style={styles.heroBanner}>
+                <Video
+                  source={require('../../assets/videos/hero-home.mp4')}
+                  style={StyleSheet.absoluteFill}
+                  resizeMode={ResizeMode.COVER}
+                  shouldPlay
+                  isLooping
+                  isMuted
+                />
+                <LinearGradient
+                  colors={['transparent', 'rgba(0,0,0,0.6)']}
+                  style={styles.heroOverlay}
+                >
                   <Text style={styles.heroTitle}>{currentPrayer?.name || t('prayer_times')}</Text>
                   <Text style={styles.heroSubtitle}>{t('tap_to_view_prayers')}</Text>
-                </View>
-              </LinearGradient>
+                </LinearGradient>
+              </View>
             </Pressable>
           </Animated.View>
 
@@ -461,7 +474,7 @@ export default function HomeScreen() {
                 ].map((g) => {
                   const done = !!goals[g.id];
                   return (
-                    <Pressable key={g.id} style={[styles.goalChip, { backgroundColor: done ? colors.accent : colors.surfaceElevated, borderColor: done ? colors.accent : colors.cardBorder }]} onPress={() => handleToggleGoal(g.id)}>
+                    <Pressable key={g.id} style={[styles.goalChip, { backgroundColor: done ? colors.accent : colors.cardGlass, borderColor: done ? colors.accent : colors.cardGlassBorder }]} onPress={() => handleToggleGoal(g.id)}>
                       <Text style={[styles.goalChipText, { color: done ? '#FFFFFF' : colors.textSecondary }]}>{g.label}</Text>
                     </Pressable>
                   );
@@ -474,7 +487,7 @@ export default function HomeScreen() {
           {lastRead && lastReadSurah && (
             <Animated.View style={contentStyle}>
               <View style={styles.section}>
-                <Pressable style={[styles.continueCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]} onPress={() => router.push('/(tabs)/quran')}>
+                <Pressable style={[styles.continueCard, { backgroundColor: colors.cardGlass, borderColor: colors.cardGlassBorder }]} onPress={() => router.push('/(tabs)/quran')}>
                   <View style={[styles.continueRow, { flexDirection: rowDir }]}>
                     <BookOpen size={18} color={colors.accent} strokeWidth={1.5} />
                     <View style={{ flex: 1 }}>
@@ -503,7 +516,7 @@ export default function HomeScreen() {
                     </Pressable>
                   </View>
                 </View>
-                <View style={[styles.contentCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]}>
+                <View style={[styles.contentCard, { backgroundColor: colors.cardGlass, borderColor: colors.cardGlassBorder }]}>
                   <Text style={[styles.arabicText, { color: colors.textPrimary }]}>{dailyAyah.arabic}</Text>
                   <Text style={[styles.translationText, { color: colors.textSecondary }]}>{dailyAyah.english}</Text>
                   <Text style={[styles.sourceText, { color: colors.accent }]}>
@@ -529,7 +542,7 @@ export default function HomeScreen() {
                     </Pressable>
                   </View>
                 </View>
-                <View style={[styles.contentCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]}>
+                <View style={[styles.contentCard, { backgroundColor: colors.cardGlass, borderColor: colors.cardGlassBorder }]}>
                   <Text style={[styles.arabicTextSmall, { color: colors.textPrimary }]}>{dailyHadith.arabic}</Text>
                   <Text style={[styles.translationText, { color: colors.textSecondary }]}>{dailyHadith.english}</Text>
                   <Text style={[styles.sourceText, { color: colors.textTertiary }]}>{dailyHadith.narrator} -- {dailyHadith.source}</Text>
@@ -548,7 +561,7 @@ export default function HomeScreen() {
                     <Text style={[styles.viewAll, { color: colors.textTertiary }]}>{t('view_all')}</Text>
                   </Pressable>
                 </View>
-                <View style={[styles.contentCard, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]}>
+                <View style={[styles.contentCard, { backgroundColor: colors.cardGlass, borderColor: colors.cardGlassBorder }]}>
                   <Text style={[styles.arabicTextSmall, { color: colors.textPrimary }]}>{dailyDua.arabic}</Text>
                   <Text style={[styles.translationText, { color: colors.textSecondary }]}>{dailyDua.english}</Text>
                   <Text style={[styles.sourceText, { color: colors.accent }]}>{dailyDua.categoryName}</Text>
@@ -560,7 +573,7 @@ export default function HomeScreen() {
           <View style={{ height: 32 }} />
         </ScrollView>
       </SafeAreaView>
-    </View>
+    </LinearGradient>
   );
 }
 
@@ -665,6 +678,7 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     alignItems: 'center',
     gap: Spacing.xs,
+    borderWidth: 1,
   },
   noLocationText: {
     fontSize: FontSize.bodySmall,
@@ -697,8 +711,8 @@ const styles = StyleSheet.create({
   viewAll: { fontSize: FontSize.caption, fontWeight: FontWeight.medium },
 
   // Quick Access Icons
-  quickAccessRow: { paddingHorizontal: Spacing.md, gap: 20, paddingVertical: 4 },
-  quickAccessItem: { alignItems: 'center', width: 62 },
+  quickAccessRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: Spacing.md, paddingVertical: 4 },
+  quickAccessItem: { alignItems: 'center', flex: 1 },
   quickAccessIcon: {
     width: 54,
     height: 54,

@@ -7,18 +7,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
-  Flame, Target, Bookmark, Calculator, MapPin, Bell, Moon, Sun,
+  Flame, Target, Bookmark, Calculator, MapPin, Bell, Moon, Sun, BookOpen,
   Smartphone, Globe, Star, Shield, Info, ChevronRight, Check, Share2, Volume2, Play, Square, VolumeX,
 } from 'lucide-react-native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
-import { Audio } from 'expo-av';
+import { Audio, Video, ResizeMode } from 'expo-av';
 
 import { Spacing, FontSize, FontWeight, BorderRadius, HeroGradients, Images } from '../../constants/theme';
 import { useApp } from '../../constants/AppContext';
 import { getAvailableMethods } from '../../utils/prayer';
 import { getStreak, getDailyGoals, toggleGoal, getBookmarks, getPrayerStats } from '../../utils/storage';
-import { refreshNotificationSounds } from '../../utils/notifications';
+import { refreshNotificationSounds, scheduleSpecialReminders, cancelSpecialReminders } from '../../utils/notifications';
+import { getNotificationSettings, setNotificationSettings } from '../../utils/storage';
 
 const CALC_METHOD_KEY = 'sajdah_calc_method';
 const NOTIF_KEY = 'sajdah_notifications';
@@ -31,9 +32,6 @@ const ADHAN_SOUNDS = [
   { id: 'alaqsa', labelKey: 'adhan_alaqsa', file: require('../../assets/audio/adhan-alaqsa.mp3') },
   { id: 'alafasy', labelKey: 'adhan_alafasy', file: require('../../assets/audio/adhan-alafasy.mp3') },
   { id: 'alafasy2', labelKey: 'adhan_alafasy2', file: require('../../assets/audio/adhan-alafasy2.mp3') },
-  { id: 'turkish', labelKey: 'adhan_turkish', file: require('../../assets/audio/adhan-turkish.mp3') },
-  { id: 'nafees', labelKey: 'adhan_nafees', file: require('../../assets/audio/adhan-nafees.mp3') },
-  { id: 'zahrani', labelKey: 'adhan_zahrani', file: require('../../assets/audio/adhan-zahrani.mp3') },
   { id: 'silent', labelKey: 'adhan_silent', file: null },
 ];
 
@@ -66,6 +64,8 @@ export default function YouScreen() {
   const [showMethodPicker, setShowMethodPicker] = useState(false);
   const [adhanSound, setAdhanSound] = useState('default');
   const [showAdhanPicker, setShowAdhanPicker] = useState(false);
+  const [qiyamReminder, setQiyamReminder] = useState(false);
+  const [fridayKahfReminder, setFridayKahfReminder] = useState(false);
   const [previewingId, setPreviewingId] = useState(null);
   const previewSoundRef = useRef(null);
   const methods = getAvailableMethods();
@@ -74,6 +74,7 @@ export default function YouScreen() {
   const textAlign = isRTL ? 'right' : 'left';
 
   const getMethodLabel = (method) => t(`calc_method_${method.toLowerCase()}`) || method;
+  const getMethodLongLabel = (method) => t(`calc_method_long_${method.toLowerCase()}`) || getMethodLabel(method);
 
   // Staggered entrance animations
   const sectionAnims = useRef(
@@ -132,6 +133,10 @@ export default function YouScreen() {
 
     const savedAdhan = await AsyncStorage.getItem(ADHAN_SOUND_KEY);
     if (savedAdhan) setAdhanSound(savedAdhan);
+
+    const notifSettings = await getNotificationSettings();
+    setQiyamReminder(!!notifSettings.qiyam);
+    setFridayKahfReminder(!!notifSettings.friday_kahf);
   }
 
   // Animate active dots after streak loads
@@ -201,6 +206,27 @@ export default function YouScreen() {
       const loc = await import('expo-location');
       const pos = await loc.getCurrentPositionAsync({ accuracy: loc.Accuracy?.High || 4 });
       await refreshNotificationSounds(pos.coords.latitude, pos.coords.longitude);
+    } catch {}
+  }
+
+  async function handleReminderToggle(key, value) {
+    const settings = await getNotificationSettings();
+    settings[key] = value;
+    await setNotificationSettings(settings);
+
+    if (key === 'qiyam') setQiyamReminder(value);
+    if (key === 'friday_kahf') setFridayKahfReminder(value);
+
+    try {
+      const loc = await import('expo-location');
+      const pos = await loc.getCurrentPositionAsync({ accuracy: loc.Accuracy?.High || 4 });
+      if (value) {
+        await scheduleSpecialReminders(pos.coords.latitude, pos.coords.longitude);
+      } else {
+        await cancelSpecialReminders();
+        // Re-schedule only active ones
+        await scheduleSpecialReminders(pos.coords.latitude, pos.coords.longitude);
+      }
     } catch {}
   }
 
@@ -328,14 +354,18 @@ export default function YouScreen() {
           opacity: heroAnim,
           transform: [{ translateY: heroAnim.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
         }}>
-          <ImageBackground
-            source={Images.hassanTower}
-            style={styles.heroHeader}
-            resizeMode="cover"
-          >
+          <View style={styles.heroHeader}>
+            <Video
+              source={require('../../assets/videos/hero-settings.mp4')}
+              style={StyleSheet.absoluteFill}
+              resizeMode={ResizeMode.COVER}
+              shouldPlay
+              isLooping
+              isMuted
+            />
             <LinearGradient
-              colors={['transparent', 'rgba(0,0,0,0.55)', colors.background]}
-              locations={[0.1, 0.6, 1]}
+              colors={['transparent', colors.background]}
+              locations={[0.4, 1]}
               style={styles.heroGradientOverlay}
             >
               <SafeAreaView edges={['top']} style={styles.heroSafeArea}>
@@ -347,7 +377,7 @@ export default function YouScreen() {
                 </View>
               </SafeAreaView>
             </LinearGradient>
-          </ImageBackground>
+          </View>
         </Animated.View>
 
         {/* -- 2. Streak Stats Card -- */}
@@ -518,7 +548,7 @@ export default function YouScreen() {
                   { color: colors.textPrimary },
                   calcMethod === method && { color: colors.accent, fontWeight: FontWeight.semibold },
                 ]}>
-                  {getMethodLabel(method)}
+                  {getMethodLongLabel(method)}
                 </Text>
                 {calcMethod === method && (
                   <View style={[styles.methodCheck, { backgroundColor: colors.accent }]}>
@@ -550,7 +580,45 @@ export default function YouScreen() {
           </View>
         </AnimatedSection>
 
-        {/* 5b2. Adhan Sound */}
+        {/* 5b2. Special Reminders */}
+        <AnimatedSection index={4} style={styles.settingsGroupSpacing}>
+          <Text style={[styles.settingsGroupLabel, { color: colors.textTertiary, textAlign }]}>{t('reminders_section')}</Text>
+          <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }, shadows.card]}>
+            <View style={[styles.settingsRow, { flexDirection: rowDir }]}>
+              <View style={[styles.settingsRowLeft, { flexDirection: rowDir }]}>
+                <Moon size={18} color={colors.textSecondary} strokeWidth={1.5} />
+                <View>
+                  <Text style={[styles.settingsRowLabel, { color: colors.textPrimary, textAlign }]}>{t('qiyam_reminder')}</Text>
+                  <Text style={[styles.reminderDesc, { color: colors.textTertiary, textAlign }]}>{t('qiyam_reminder_desc')}</Text>
+                </View>
+              </View>
+              <Switch
+                value={qiyamReminder}
+                onValueChange={(v) => handleReminderToggle('qiyam', v)}
+                trackColor={{ false: colors.switchTrack, true: colors.switchTrackActive }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+            <View style={[styles.settingsDivider, { backgroundColor: colors.divider }]} />
+            <View style={[styles.settingsRow, { flexDirection: rowDir }]}>
+              <View style={[styles.settingsRowLeft, { flexDirection: rowDir }]}>
+                <BookOpen size={18} color={colors.textSecondary} strokeWidth={1.5} />
+                <View>
+                  <Text style={[styles.settingsRowLabel, { color: colors.textPrimary, textAlign }]}>{t('friday_kahf_reminder')}</Text>
+                  <Text style={[styles.reminderDesc, { color: colors.textTertiary, textAlign }]}>{t('friday_kahf_reminder_desc')}</Text>
+                </View>
+              </View>
+              <Switch
+                value={fridayKahfReminder}
+                onValueChange={(v) => handleReminderToggle('friday_kahf', v)}
+                trackColor={{ false: colors.switchTrack, true: colors.switchTrackActive }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+          </View>
+        </AnimatedSection>
+
+        {/* 5b3. Adhan Sound */}
         <AnimatedSection index={4} style={styles.settingsGroupSpacing}>
           <Text style={[styles.settingsGroupLabel, { color: colors.textTertiary, textAlign }]}>{t('adhan_section')}</Text>
           <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }, shadows.card]}>
@@ -740,8 +808,9 @@ const styles = StyleSheet.create({
 
   // -- Hero Header --
   heroHeader: {
-    height: 200,
+    height: 220,
     width: '100%',
+    overflow: 'hidden',
   },
   heroGradientOverlay: {
     flex: 1,
@@ -972,6 +1041,10 @@ const styles = StyleSheet.create({
     fontSize: FontSize.caption,
     textAlign: 'right',
     flexShrink: 1,
+  },
+  reminderDesc: {
+    fontSize: FontSize.caption,
+    marginTop: 1,
   },
   settingsDivider: {
     height: 1,
