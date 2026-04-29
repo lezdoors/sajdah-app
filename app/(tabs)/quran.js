@@ -9,7 +9,7 @@ import { Video, ResizeMode } from 'expo-av';
 import { useLocalSearchParams } from 'expo-router';
 
 import {
-  Search, X, ChevronLeft, Play, Pause, User, Check, CloudOff,
+  Search, X, ChevronLeft, Play, Pause, User, Check, CloudOff, Bookmark,
 } from 'lucide-react-native';
 
 import {
@@ -18,7 +18,7 @@ import {
 import { useApp } from '../../constants/AppContext';
 import { SURAHS } from '../../data/surahs';
 import { loadSurahAyahs } from '../../utils/quranLoader';
-import { setLastRead, getQuranFontSize, setQuranFontSize } from '../../utils/storage';
+import { setLastRead, getQuranFontSize, setQuranFontSize, toggleBookmark, isBookmarked } from '../../utils/storage';
 import {
   getReciters, getSelectedReciter, setSelectedReciter,
   playSurah, togglePlayPause, stopPlayback,
@@ -252,6 +252,7 @@ function ReadingView({ surahNumber, onBack }) {
   const [showReciterPicker, setShowReciterPicker] = useState(false);
   const [fontSize, setFontSize] = useState('medium');
   const [showFontSizePicker, setShowFontSizePicker] = useState(false);
+  const [bookmarkedAyahs, setBookmarkedAyahs] = useState({});
 
   const rowDir = isRTL ? 'row-reverse' : 'row';
 
@@ -266,12 +267,20 @@ function ReadingView({ surahNumber, onBack }) {
   useEffect(() => {
     let mounted = true;
     loadSurahAyahs(surahNumber)
-      .then(({ ayahs: data }) => {
+      .then(async ({ ayahs: data }) => {
         if (mounted) {
           setAyahs(data);
           setLoading(false);
           // Track reading progress for "Continue Reading" on home screen
           setLastRead(surahNumber, 1);
+
+          // Load bookmark status for all ayahs
+          const bookmarkStatus = {};
+          for (const ayah of data) {
+            const ayahId = `ayah-${surahNumber}-${ayah.number}`;
+            bookmarkStatus[ayah.number] = await isBookmarked(ayahId, 'quran');
+          }
+          if (mounted) setBookmarkedAyahs(bookmarkStatus);
         }
       })
       .catch(() => { if (mounted) { setError(t('load_error')); setLoading(false); } });
@@ -334,6 +343,20 @@ function ReadingView({ surahNumber, onBack }) {
     setShowFontSizePicker(false);
   }
 
+  async function handleToggleBookmark(ayahNumber, ayahText) {
+    const ayahId = `ayah-${surahNumber}-${ayahNumber}`;
+    const surahName = surah?.name || `Surah ${surahNumber}`;
+    await toggleBookmark({
+      id: ayahId,
+      type: 'quran',
+      title: `${surahName} ${surahNumber}:${ayahNumber}`,
+      text: ayahText,
+      surahNumber,
+      ayahNumber,
+    });
+    setBookmarkedAyahs(prev => ({ ...prev, [ayahNumber]: !prev[ayahNumber] }));
+  }
+
   function formatDuration(millis) {
     if (!millis) return '0:00';
     const totalSec = Math.floor(millis / 1000);
@@ -394,8 +417,18 @@ function ReadingView({ surahNumber, onBack }) {
           {ayahs.map((ayah) => (
             <View key={ayah.number} style={styles.ayahBlock}>
               <Text style={[styles.ayahArabic, { color: colors.textPrimary, fontSize: fontSizes[fontSize].arabic }]}>{ayah.arabic}</Text>
-              <View style={[styles.ayahNumberBadge, { backgroundColor: colors.gold }]}>
-                <Text style={styles.ayahNumberText}>{ayah.number}</Text>
+              <View style={styles.ayahFooter}>
+                <View style={[styles.ayahNumberBadge, { backgroundColor: colors.gold }]}>
+                  <Text style={styles.ayahNumberText}>{ayah.number}</Text>
+                </View>
+                <Pressable onPress={() => handleToggleBookmark(ayah.number, ayah.english)} hitSlop={8}>
+                  <Bookmark
+                    size={16}
+                    color={bookmarkedAyahs[ayah.number] ? colors.gold : colors.textTertiary}
+                    fill={bookmarkedAyahs[ayah.number] ? colors.gold : 'transparent'}
+                    strokeWidth={1.5}
+                  />
+                </Pressable>
               </View>
               <Text style={[styles.ayahEnglish, { color: colors.textSecondary, fontSize: fontSizes[fontSize].english }]}>{ayah.english}</Text>
               <View style={[styles.ayahDivider, { backgroundColor: colors.divider }]} />
@@ -568,7 +601,8 @@ const styles = StyleSheet.create({
   // Ayah
   ayahBlock: { alignItems: 'center', marginBottom: Spacing.md },
   ayahArabic: { fontSize: 24, textAlign: 'center', lineHeight: 48, marginBottom: Spacing.xs },
-  ayahNumberBadge: { width: 24, height: 24, borderRadius: BorderRadius.full, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.xs },
+  ayahFooter: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: Spacing.xs },
+  ayahNumberBadge: { width: 24, height: 24, borderRadius: BorderRadius.full, alignItems: 'center', justifyContent: 'center' },
   ayahNumberText: { fontSize: FontSize.nav, fontWeight: FontWeight.bold, color: '#FFFFFF' },
   ayahEnglish: { fontSize: FontSize.bodySmall, textAlign: 'center', lineHeight: 22, paddingHorizontal: Spacing.sm },
   ayahDivider: { width: Spacing.xl, height: 0.5, marginTop: Spacing.sm },
