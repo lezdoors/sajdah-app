@@ -6,6 +6,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Video, ResizeMode } from 'expo-av';
+import { useLocalSearchParams } from 'expo-router';
 
 import {
   Search, X, ChevronLeft, Play, Pause, User, Check, CloudOff,
@@ -437,9 +438,20 @@ function ReadingView({ surahNumber, onBack }) {
 // -- Main Screen --
 
 export default function QuranScreen() {
+  const params = useLocalSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSurah, setSelectedSurah] = useState(null);
   const [activeTab, setActiveTab] = useState('surah');
+
+  // Handle direct navigation to specific surah (e.g., from Friday Al-Kahf card)
+  useEffect(() => {
+    if (params.surah) {
+      const surahNum = parseInt(params.surah, 10);
+      if (surahNum >= 1 && surahNum <= 114) {
+        setSelectedSurah(surahNum);
+      }
+    }
+  }, [params.surah]);
 
   if (selectedSurah !== null) {
     return <ReadingView surahNumber={selectedSurah} onBack={() => setSelectedSurah(null)} />;

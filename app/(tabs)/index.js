@@ -447,6 +447,34 @@ export default function HomeScreen() {
             </View>
           </Animated.View>
 
+          {/* ── Friday Al-Kahf Special ── */}
+          {today.getDay() === 5 && (
+            <Animated.View style={heroStyle}>
+              <View style={styles.section}>
+                <Pressable
+                  style={[styles.fridayKahfCard, { backgroundColor: colors.accent, borderColor: colors.accent }, shadows.card]}
+                  onPress={() => {
+                    router.push({ pathname: '/(tabs)/quran', params: { surah: 18 } });
+                  }}
+                >
+                  <View style={styles.fridayKahfContent}>
+                    <View style={styles.fridayKahfIcon}>
+                      <BookOpen size={32} color="#FFFFFF" strokeWidth={1.5} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.fridayKahfTitle}>Jumu'ah Mubarak! 🌙</Text>
+                      <Text style={styles.fridayKahfSubtitle}>Read Surah Al-Kahf today</Text>
+                      <Text style={styles.fridayKahfDescription}>
+                        "Whoever reads Al-Kahf on Friday will have light between two Fridays"
+                      </Text>
+                    </View>
+                    <ChevronRight size={24} color="rgba(255,255,255,0.8)" strokeWidth={1.5} />
+                  </View>
+                </Pressable>
+              </View>
+            </Animated.View>
+          )}
+
           {/* ── Hero Banner ── */}
           <Animated.View style={servicesStyle}>
             <Pressable style={styles.heroPadding} onPress={() => router.push('/prayer')}>
@@ -751,4 +779,42 @@ const styles = StyleSheet.create({
   arabicTextSmall: { fontSize: 20, textAlign: 'right', lineHeight: 36, marginBottom: 14 },
   translationText: { fontSize: FontSize.body, lineHeight: 24, marginBottom: 10 },
   sourceText: { fontSize: FontSize.caption, fontWeight: FontWeight.semibold, marginTop: 10 },
+
+  // Friday Al-Kahf Special Card
+  fridayKahfCard: {
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    borderWidth: 2,
+    marginBottom: Spacing.sm,
+  },
+  fridayKahfContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  fridayKahfIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fridayKahfTitle: {
+    fontSize: FontSize.h3,
+    fontWeight: FontWeight.bold,
+    color: '#FFFFFF',
+    marginBottom: 2,
+  },
+  fridayKahfSubtitle: {
+    fontSize: FontSize.body,
+    fontWeight: FontWeight.semibold,
+    color: 'rgba(255,255,255,0.9)',
+    marginBottom: 4,
+  },
+  fridayKahfDescription: {
+    fontSize: FontSize.bodySmall,
+    color: 'rgba(255,255,255,0.7)',
+    lineHeight: 18,
+  },
 });
