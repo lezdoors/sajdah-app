@@ -7,32 +7,39 @@ import { getNotificationSettings } from './storage';
 const ADHAN_SOUND_KEY = 'sajdah_adhan_sound';
 
 // Map adhan IDs to notification sound filenames and full audio files
+// NOTE: Removed duplicates (nafees=default, zahrani=madinah, turkish=alaqsa)
 const ADHAN_SOUND_MAP = {
   default: {
     notif: 'adhan-default-notif.caf',
     full: require('../assets/audio/adhan-default.mp3'),
+    label: 'Default',
   },
   makkah: {
     notif: 'adhan-makkah-notif.caf',
     full: require('../assets/audio/adhan-makkah.mp3'),
+    label: 'Makkah',
   },
   madinah: {
     notif: 'adhan-madinah-notif.caf',
     full: require('../assets/audio/adhan-madinah.mp3'),
+    label: 'Madinah',
   },
   alaqsa: {
     notif: 'adhan-alaqsa-notif.caf',
     full: require('../assets/audio/adhan-alaqsa.mp3'),
+    label: 'Al-Aqsa',
   },
   alafasy: {
     notif: 'adhan-alafasy-notif.caf',
     full: require('../assets/audio/adhan-alafasy.mp3'),
+    label: 'Alafasy',
   },
   alafasy2: {
     notif: 'adhan-alafasy2-notif.caf',
     full: require('../assets/audio/adhan-alafasy2.mp3'),
+    label: 'Alafasy 2',
   },
-  silent: { notif: null, full: null },
+  silent: { notif: null, full: null, label: 'Silent' },
 };
 
 let currentAdhanSound = null;

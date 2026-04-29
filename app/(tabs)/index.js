@@ -27,6 +27,7 @@ import { getDailyHadith } from '../../data/hadith';
 import { DUA_CATEGORIES, getDailyDua } from '../../data/duas';
 import { getDailyGoals, toggleGoal, getStreak, recordDay, getLastRead, getPrayerLog, togglePrayerCompleted, toggleBookmark, isBookmarked } from '../../utils/storage';
 import { SURAHS } from '../../data/surahs';
+import { scheduleAllPrayerNotifications } from '../../utils/notifications';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -130,6 +131,12 @@ export default function HomeScreen() {
         setCountdown(next ? getCountdown(next.time) : { text: '--:--' });
         setHijriDate(formatHijriDate());
         setLoading(false);
+
+        // 🔔 Schedule prayer notifications
+        console.log('[NOTIF] Scheduling all prayer notifications...');
+        scheduleAllPrayerNotifications(latitude, longitude).catch((e) => {
+          console.warn('[NOTIF] Failed to schedule:', e);
+        });
       } catch {
         if (mounted) { setHijriDate(formatHijriDate()); setLoading(false); }
       }
@@ -148,15 +155,20 @@ export default function HomeScreen() {
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active' && prayerTimes) {
+      if (state === 'active' && prayerTimes && location) {
         const next = getNextPrayer(prayerTimes);
         setNextPrayer(next);
         setCurrentPrayer(getCurrentPrayer(prayerTimes));
         if (next) setCountdown(getCountdown(next.time));
+
+        // 🔔 Re-schedule notifications when app becomes active (daily refresh)
+        scheduleAllPrayerNotifications(location.latitude, location.longitude).catch((e) => {
+          console.warn('[NOTIF] Failed to re-schedule:', e);
+        });
       }
     });
     return () => sub.remove();
-  }, [prayerTimes]);
+  }, [prayerTimes, location]);
 
   // Animate ring progress whenever prayer times change
   useEffect(() => {
