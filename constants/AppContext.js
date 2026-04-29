@@ -1,19 +1,22 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useColorScheme, I18nManager } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 import { LightColors, DarkColors, Shadows, ShadowsDark } from './theme';
 import { translations } from './i18n';
+import { getPrayerTimes } from '../utils/prayer';
 
-const THEME_KEY = 'sajdah_theme';   // 'light' | 'dark' | 'system'
+const THEME_KEY = 'sajdah_theme';   // 'light' | 'dark' | 'system' | 'prayer'
 const LOCALE_KEY = 'sajdah_locale'; // 'en' | 'ar'
 
 const AppContext = createContext(null);
 
 export function AppProvider({ children }) {
   const systemScheme = useColorScheme();
-  const [themeMode, setThemeMode] = useState('system'); // 'light' | 'dark' | 'system'
+  const [themeMode, setThemeMode] = useState('system'); // 'light' | 'dark' | 'system' | 'prayer'
   const [locale, setLocaleState] = useState('en');
   const [loaded, setLoaded] = useState(false);
+  const [prayerBasedDark, setPrayerBasedDark] = useState(false);
 
   // Load persisted preferences
   useEffect(() => {
@@ -29,9 +32,10 @@ export function AppProvider({ children }) {
 
   // Resolve actual dark/light
   const isDark = useMemo(() => {
+    if (themeMode === 'prayer') return prayerBasedDark;
     if (themeMode === 'system') return systemScheme === 'dark';
     return themeMode === 'dark';
-  }, [themeMode, systemScheme]);
+  }, [themeMode, systemScheme, prayerBasedDark]);
 
   const colors = isDark ? DarkColors : LightColors;
   const shadows = isDark ? ShadowsDark : Shadows;
@@ -59,6 +63,52 @@ export function AppProvider({ children }) {
       I18nManager.forceRTL(shouldBeRTL);
     }
   }, []);
+
+  // Prayer-based theme: Dark from Maghrib to Fajr
+  useEffect(() => {
+    if (themeMode !== 'prayer') return;
+
+    async function updatePrayerTheme() {
+      try {
+        const { status } = await Location.getForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          setPrayerBasedDark(false);
+          return;
+        }
+
+        const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        const { latitude, longitude } = pos.coords;
+        const times = getPrayerTimes(latitude, longitude);
+        const now = new Date();
+
+        // Dark mode: from Maghrib to Fajr (next day)
+        const maghrib = times.maghrib;
+        const fajr = times.fajr;
+
+        let shouldBeDark = false;
+        if (maghrib && fajr) {
+          if (maghrib < fajr) {
+            // Normal case: Maghrib is before Fajr on the same day
+            shouldBeDark = now >= maghrib || now < fajr;
+          } else {
+            // Maghrib and Fajr cross midnight
+            shouldBeDark = now >= maghrib && now < fajr;
+          }
+        }
+
+        setPrayerBasedDark(shouldBeDark);
+      } catch {
+        setPrayerBasedDark(false);
+      }
+    }
+
+    // Update immediately
+    updatePrayerTheme();
+
+    // Update every minute
+    const interval = setInterval(updatePrayerTheme, 60000);
+    return () => clearInterval(interval);
+  }, [themeMode]);
 
   const value = useMemo(() => ({
     colors,
