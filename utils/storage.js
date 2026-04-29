@@ -9,6 +9,7 @@ const KEYS = {
   CALC_METHOD: 'alathan_calc_method',
   TASBIH_COUNT: 'alathan_tasbih',
   DAILY_GOALS: 'alathan_daily_goals',
+  QURAN_FONT_SIZE: 'alathan_quran_font_size',
 };
 
 export async function getStreak() {
@@ -253,5 +254,25 @@ export async function getPrayerStats() {
     return { totalPrayed, daysTracked: days.length, completeDays };
   } catch {
     return { totalPrayed: 0, daysTracked: 0, completeDays: 0 };
+  }
+}
+
+
+// Quran font size preference
+export async function getQuranFontSize() {
+  try {
+    const size = await AsyncStorage.getItem(KEYS.QURAN_FONT_SIZE);
+    return size || "medium"; // small, medium, large, xlarge
+  } catch {
+    return "medium";
+  }
+}
+
+export async function setQuranFontSize(size) {
+  try {
+    await AsyncStorage.setItem(KEYS.QURAN_FONT_SIZE, size);
+    return size;
+  } catch {
+    return "medium";
   }
 }

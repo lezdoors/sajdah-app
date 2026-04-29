@@ -18,7 +18,7 @@ import {
 import { useApp } from '../../constants/AppContext';
 import { SURAHS } from '../../data/surahs';
 import { loadSurahAyahs } from '../../utils/quranLoader';
-import { setLastRead } from '../../utils/storage';
+import { setLastRead, getQuranFontSize, setQuranFontSize } from '../../utils/storage';
 import {
   getReciters, getSelectedReciter, setSelectedReciter,
   playSurah, togglePlayPause, stopPlayback,
@@ -250,8 +250,18 @@ function ReadingView({ surahNumber, onBack }) {
   const [audioPosition, setAudioPosition] = useState(0);
   const [selectedReciter, setReciter] = useState('ar.alafasy');
   const [showReciterPicker, setShowReciterPicker] = useState(false);
+  const [fontSize, setFontSize] = useState('medium');
+  const [showFontSizePicker, setShowFontSizePicker] = useState(false);
 
   const rowDir = isRTL ? 'row-reverse' : 'row';
+
+  // Font size mapping
+  const fontSizes = {
+    small: { arabic: 20, english: 13 },
+    medium: { arabic: 24, english: 14 },
+    large: { arabic: 28, english: 15 },
+    xlarge: { arabic: 32, english: 16 },
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -270,6 +280,7 @@ function ReadingView({ surahNumber, onBack }) {
 
   useEffect(() => {
     getSelectedReciter().then(setReciter);
+    getQuranFontSize().then(setFontSize);
     return () => { stopPlayback(); };
   }, []);
 
@@ -317,6 +328,12 @@ function ReadingView({ surahNumber, onBack }) {
     }
   }
 
+  async function handleFontSizeChange(size) {
+    setFontSize(size);
+    await setQuranFontSize(size);
+    setShowFontSizePicker(false);
+  }
+
   function formatDuration(millis) {
     if (!millis) return '0:00';
     const totalSec = Math.floor(millis / 1000);
@@ -338,7 +355,9 @@ function ReadingView({ surahNumber, onBack }) {
           <Text style={[styles.readingTitle, { color: colors.textPrimary }]}>{surah?.name}</Text>
           <Text style={[styles.readingSubtitle, { color: colors.textSecondary }]}>{surah?.ayahCount} {t('ayahs')}</Text>
         </View>
-        <View style={styles.backButton} />
+        <Pressable onPress={() => setShowFontSizePicker(!showFontSizePicker)} style={styles.backButton}>
+          <Text style={[styles.fontSizeButton, { color: colors.textPrimary }]}>A</Text>
+        </Pressable>
       </View>
 
       <View style={[styles.headerDivider, { backgroundColor: colors.divider }]} />
@@ -374,11 +393,11 @@ function ReadingView({ surahNumber, onBack }) {
 
           {ayahs.map((ayah) => (
             <View key={ayah.number} style={styles.ayahBlock}>
-              <Text style={[styles.ayahArabic, { color: colors.textPrimary }]}>{ayah.arabic}</Text>
+              <Text style={[styles.ayahArabic, { color: colors.textPrimary, fontSize: fontSizes[fontSize].arabic }]}>{ayah.arabic}</Text>
               <View style={[styles.ayahNumberBadge, { backgroundColor: colors.gold }]}>
                 <Text style={styles.ayahNumberText}>{ayah.number}</Text>
               </View>
-              <Text style={[styles.ayahEnglish, { color: colors.textSecondary }]}>{ayah.english}</Text>
+              <Text style={[styles.ayahEnglish, { color: colors.textSecondary, fontSize: fontSizes[fontSize].english }]}>{ayah.english}</Text>
               <View style={[styles.ayahDivider, { backgroundColor: colors.divider }]} />
             </View>
           ))}
@@ -427,6 +446,29 @@ function ReadingView({ surahNumber, onBack }) {
                 {r.name}
               </Text>
               {selectedReciter === r.id && <Check size={18} color={colors.accent} strokeWidth={2} />}
+            </Pressable>
+          ))}
+        </View>
+      )}
+
+      {/* Font Size Picker */}
+      {showFontSizePicker && (
+        <View style={[styles.fontSizePicker, { backgroundColor: colors.surface, borderColor: colors.surfaceBorder }, shadows.cardLifted]}>
+          {[
+            { id: 'small', label: 'Small' },
+            { id: 'medium', label: 'Medium' },
+            { id: 'large', label: 'Large' },
+            { id: 'xlarge', label: 'Extra Large' },
+          ].map((item) => (
+            <Pressable
+              key={item.id}
+              style={[styles.fontSizeOption, { borderBottomColor: colors.divider }, fontSize === item.id && { backgroundColor: colors.accentLight }]}
+              onPress={() => handleFontSizeChange(item.id)}
+            >
+              <Text style={[styles.fontSizeOptionText, { color: colors.textPrimary }, fontSize === item.id && { color: colors.accent, fontWeight: FontWeight.semibold }]}>
+                {item.label}
+              </Text>
+              {fontSize === item.id && <Check size={18} color={colors.accent} strokeWidth={2} />}
             </Pressable>
           ))}
         </View>
@@ -553,4 +595,10 @@ const styles = StyleSheet.create({
   reciterPicker: { position: 'absolute', bottom: 72, left: Spacing.md, right: Spacing.md, borderRadius: BorderRadius.lg, overflow: 'hidden', borderWidth: 1 },
   reciterOption: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderBottomWidth: 1 },
   reciterOptionText: { fontSize: FontSize.bodySmall },
+
+  // Font size picker
+  fontSizePicker: { position: 'absolute', top: 60, right: Spacing.md, borderRadius: BorderRadius.lg, overflow: 'hidden', borderWidth: 1, width: 160 },
+  fontSizeOption: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderBottomWidth: 1 },
+  fontSizeOptionText: { fontSize: FontSize.bodySmall },
+  fontSizeButton: { fontSize: 20, fontWeight: FontWeight.bold },
 });
