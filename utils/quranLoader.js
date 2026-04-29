@@ -1,11 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AYAHS } from '../data/ayahs';
+import { SURAHS } from '../data/surahs';
 
 const CACHE_KEY_PREFIX = 'quran_surah_';
 
 export async function loadSurahAyahs(surahNumber) {
-  // 1. Check local static data first
-  if (AYAHS[surahNumber] && AYAHS[surahNumber].length > 0) {
+  // 1. Check local static data first - but only if we have the COMPLETE surah
+  const surahMeta = SURAHS.find(s => s.number === surahNumber);
+  const expectedCount = surahMeta?.ayahCount || 0;
+
+  if (AYAHS[surahNumber] && AYAHS[surahNumber].length === expectedCount) {
     return { ayahs: AYAHS[surahNumber], source: 'local' };
   }
 

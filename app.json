@@ -2,7 +2,7 @@
   "expo": {
     "name": "Sajdah",
     "slug": "sajdah",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Your spiritual companion — prayer times, Quran, Qibla compass, and daily inspiration. From the heart.",
     "scheme": "sajdah",
     "orientation": "portrait",
@@ -16,7 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.menanadigital.sajdah",
-      "buildNumber": "1",
+      "buildNumber": "2",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Sajdah needs your location to calculate accurate prayer times and Qibla direction.",
         "NSMotionUsageDescription": "Sajdah uses the compass sensor to determine the Qibla direction.",
