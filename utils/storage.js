@@ -10,6 +10,7 @@ const KEYS = {
   TASBIH_COUNT: 'alathan_tasbih',
   DAILY_GOALS: 'alathan_daily_goals',
   QURAN_FONT_SIZE: 'alathan_quran_font_size',
+  PRAYER_ADHAN_SOUNDS: 'sajdah_prayer_adhan_sounds',
 };
 
 export async function getStreak() {
@@ -88,12 +89,18 @@ export async function getNotificationSettings() {
     const defaults = {
       fajr: true, sunrise: false, dhuhr: true, asr: true, maghrib: true, isha: true,
       qiyam: false, friday_kahf: false,
+      pre_reminder: true,
+      daily_hadith: true,
+      daily_reminders: true,
     };
     return data ? { ...defaults, ...JSON.parse(data) } : defaults;
   } catch {
     return {
       fajr: true, sunrise: false, dhuhr: true, asr: true, maghrib: true, isha: true,
       qiyam: false, friday_kahf: false,
+      pre_reminder: true,
+      daily_hadith: true,
+      daily_reminders: true,
     };
   }
 }
@@ -274,5 +281,36 @@ export async function setQuranFontSize(size) {
     return size;
   } catch {
     return "medium";
+  }
+}
+
+// Per-prayer athan sounds
+export async function getPrayerAdhanSounds() {
+  try {
+    const data = await AsyncStorage.getItem(KEYS.PRAYER_ADHAN_SOUNDS);
+    return data ? JSON.parse(data) : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function setPrayerAdhanSound(prayerKey, soundId) {
+  try {
+    const data = await AsyncStorage.getItem(KEYS.PRAYER_ADHAN_SOUNDS);
+    const current = data ? JSON.parse(data) : {};
+    if (soundId === null || soundId === 'global') {
+      delete current[prayerKey];
+    } else {
+      current[prayerKey] = soundId;
+    }
+    // If all removed, delete the key entirely
+    if (Object.keys(current).length === 0) {
+      await AsyncStorage.removeItem(KEYS.PRAYER_ADHAN_SOUNDS);
+      return null;
+    }
+    await AsyncStorage.setItem(KEYS.PRAYER_ADHAN_SOUNDS, JSON.stringify(current));
+    return current;
+  } catch {
+    return null;
   }
 }

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, RotateCcw } from 'lucide-react-native';
+import { ChevronLeft, RotateCcw, Star } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import Svg, { Circle } from 'react-native-svg';
 import { useApp } from '../constants/AppContext';
@@ -39,6 +39,12 @@ const DHIKR_PRESETS = [
 
 const TARGET_OPTIONS = [33, 99, Infinity];
 
+const FATIMAH_PHASES = [
+  { key: 'subhanallah', arabic: 'سبحان الله', target: 33 },
+  { key: 'alhamdulillah', arabic: 'الحمد لله', target: 33 },
+  { key: 'allahu_akbar', arabic: 'الله أكبر', target: 34 },
+];
+
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export default function TasbihScreen() {
@@ -49,6 +55,9 @@ export default function TasbihScreen() {
   const [totalCount, setTotalCount] = useState(0);
   const [activeDhikr, setActiveDhikr] = useState(DHIKR_PRESETS[0].key);
   const [target, setTarget] = useState(33);
+  const [isFatimahMode, setIsFatimahMode] = useState(false);
+  const [fatimahPhase, setFatimahPhase] = useState(0);
+  const fatimahAdvancing = useRef(false);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
   const ringColorAnim = useRef(new Animated.Value(0)).current;
@@ -107,14 +116,32 @@ export default function TasbihScreen() {
       }),
     ]).start();
 
-    // Auto-reset after 800ms
+    // Auto-reset after 800ms (or advance Fatimah phase)
     const timer = setTimeout(() => {
-      setSessionCount(0);
-      celebrationActive.current = false;
+      if (isFatimahMode && !fatimahAdvancing.current) {
+        fatimahAdvancing.current = true;
+        const nextPhase = fatimahPhase + 1;
+        if (nextPhase < FATIMAH_PHASES.length) {
+          // Advance to next phase
+          setFatimahPhase(nextPhase);
+          setSessionCount(0);
+          setTarget(FATIMAH_PHASES[nextPhase].target);
+        } else {
+          // All 3 phases complete
+          setSessionCount(0);
+          setFatimahPhase(0);
+          setTarget(FATIMAH_PHASES[0].target);
+        }
+        celebrationActive.current = false;
+        fatimahAdvancing.current = false;
+      } else if (!isFatimahMode) {
+        setSessionCount(0);
+        celebrationActive.current = false;
+      }
     }, 800);
 
     return () => clearTimeout(timer);
-  }, [sessionCount, target]);
+  }, [sessionCount, target, isFatimahMode, fatimahPhase]);
 
   const handleTap = useCallback(async () => {
     const nextCount = sessionCount + 1;
@@ -156,12 +183,34 @@ export default function TasbihScreen() {
 
   const handleDhikrSelect = useCallback((key) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setIsFatimahMode(false);
+    setFatimahPhase(0);
     setActiveDhikr(key);
     setSessionCount(0);
   }, []);
 
+  const handleFatimahToggle = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (isFatimahMode) {
+      // Deactivate
+      setIsFatimahMode(false);
+      setFatimahPhase(0);
+      setActiveDhikr(DHIKR_PRESETS[0].key);
+      setTarget(33);
+      setSessionCount(0);
+    } else {
+      // Activate
+      setIsFatimahMode(true);
+      setFatimahPhase(0);
+      setSessionCount(0);
+      setTarget(FATIMAH_PHASES[0].target);
+    }
+  }, [isFatimahMode]);
+
   const handleTargetSelect = useCallback((val) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setIsFatimahMode(false);
+    setFatimahPhase(0);
     setTarget(val);
     setSessionCount(0);
   }, []);
@@ -179,6 +228,8 @@ export default function TasbihScreen() {
   });
 
   const activePreset = DHIKR_PRESETS.find((d) => d.key === activeDhikr);
+  const currentFatimahPhase = isFatimahMode ? FATIMAH_PHASES[fatimahPhase] : null;
+  const displayArabic = isFatimahMode ? currentFatimahPhase.arabic : activePreset?.arabic;
   const isInfinity = target === Infinity;
 
   return (
@@ -213,7 +264,7 @@ export default function TasbihScreen() {
 
           {/* Active dhikr label */}
           <Text style={styles.dhikrArabic}>
-            {activePreset?.arabic}
+            {displayArabic}
           </Text>
 
           {/* Count ring */}
@@ -275,6 +326,25 @@ export default function TasbihScreen() {
             </Pressable>
           </View>
 
+          {/* Fatimah phase indicator */}
+          {isFatimahMode && (
+            <View style={styles.phaseIndicator}>
+              {FATIMAH_PHASES.map((phase, idx) => (
+                <View
+                  key={phase.key}
+                  style={[
+                    styles.phaseDot,
+                    idx === fatimahPhase && styles.phaseDotActive,
+                    idx < fatimahPhase && styles.phaseDotCompleted,
+                  ]}
+                />
+              ))}
+              <Text style={styles.phaseText}>
+                {fatimahPhase + 1}/3
+              </Text>
+            </View>
+          )}
+
           {/* Stats row */}
           <View style={[styles.statsRow, isRTL && styles.statsRowRTL]}>
             <View style={styles.statItem}>
@@ -295,6 +365,31 @@ export default function TasbihScreen() {
               </Text>
             </View>
           </View>
+
+          {/* Tasbih Fatimah button */}
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={handleFatimahToggle}
+            style={[
+              styles.fatimahButton,
+              isFatimahMode && styles.fatimahButtonActive,
+            ]}
+          >
+            <Star
+              size={14}
+              color={isFatimahMode ? '#FFF' : 'rgba(255, 191, 0, 0.9)'}
+              fill={isFatimahMode ? '#FFF' : 'rgba(255, 191, 0, 0.9)'}
+              strokeWidth={2}
+            />
+            <Text style={[
+              styles.fatimahText,
+              isFatimahMode && styles.fatimahTextActive,
+            ]}>
+              {isFatimahMode
+                ? `${fatimahPhase + 1}/3  ${currentFatimahPhase.arabic}`
+                : 'Tasbih Fatimah'}
+            </Text>
+          </TouchableOpacity>
 
           {/* Dhikr preset buttons */}
           <View style={styles.presetsContainer}>
@@ -323,33 +418,35 @@ export default function TasbihScreen() {
             })}
           </View>
 
-          {/* Target selector pills */}
-          <View style={styles.targetRow}>
-            {TARGET_OPTIONS.map((val) => {
-              const isActive = target === val;
-              const label = val === Infinity ? '\u221E' : String(val);
-              return (
-                <TouchableOpacity
-                  key={label}
-                  activeOpacity={0.7}
-                  onPress={() => handleTargetSelect(val)}
-                  style={[
-                    styles.targetPill,
-                    isActive && styles.targetPillActive,
-                  ]}
-                >
-                  <Text
+          {/* Target selector pills (hidden in Fatimah mode) */}
+          {!isFatimahMode && (
+            <View style={styles.targetRow}>
+              {TARGET_OPTIONS.map((val) => {
+                const isActive = target === val;
+                const label = val === Infinity ? '\u221E' : String(val);
+                return (
+                  <TouchableOpacity
+                    key={label}
+                    activeOpacity={0.7}
+                    onPress={() => handleTargetSelect(val)}
                     style={[
-                      styles.targetPillText,
-                      isActive && styles.targetPillTextActive,
+                      styles.targetPill,
+                      isActive && styles.targetPillActive,
                     ]}
                   >
-                    {label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+                    <Text
+                      style={[
+                        styles.targetPillText,
+                        isActive && styles.targetPillTextActive,
+                      ]}
+                    >
+                      {label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
 
           {/* Reset button */}
           <TouchableOpacity
@@ -545,6 +642,63 @@ const styles = StyleSheet.create({
   targetPillTextActive: {
     color: '#FF0083',
     fontWeight: FontWeight.semibold,
+  },
+
+  // Fatimah button
+  fatimahButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 191, 0, 0.4)',
+    backgroundColor: 'rgba(255, 191, 0, 0.08)',
+    marginBottom: Spacing.sm,
+    minWidth: 180,
+  },
+  fatimahButtonActive: {
+    backgroundColor: 'rgba(255, 191, 0, 0.25)',
+    borderColor: 'rgba(255, 191, 0, 0.7)',
+  },
+  fatimahText: {
+    fontSize: FontSize.bodySmall,
+    fontWeight: FontWeight.semibold,
+    color: 'rgba(255, 191, 0, 0.9)',
+  },
+  fatimahTextActive: {
+    color: '#FFFFFF',
+  },
+
+  // Phase indicator
+  phaseIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: Spacing.xs,
+  },
+  phaseDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  phaseDotActive: {
+    backgroundColor: 'rgba(255, 191, 0, 0.9)',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  phaseDotCompleted: {
+    backgroundColor: 'rgba(255, 191, 0, 0.5)',
+  },
+  phaseText: {
+    fontSize: FontSize.caption,
+    fontWeight: FontWeight.medium,
+    color: 'rgba(255, 255, 255, 0.5)',
+    marginLeft: 4,
   },
 
   // Reset

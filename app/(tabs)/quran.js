@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   View, Text, FlatList, SectionList, ScrollView, StyleSheet, Dimensions,
-  ActivityIndicator, Pressable, TextInput, StatusBar, Animated,
+  ActivityIndicator, Pressable, TextInput, StatusBar, Animated, Share,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,7 +9,7 @@ import { Video, ResizeMode } from 'expo-av';
 import { useLocalSearchParams } from 'expo-router';
 
 import {
-  Search, X, ChevronLeft, Play, Pause, User, Check, CloudOff, Bookmark,
+  Search, X, ChevronLeft, Play, Pause, User, Check, CloudOff, Bookmark, Share2,
 } from 'lucide-react-native';
 
 import {
@@ -17,6 +17,7 @@ import {
 } from '../../constants/theme';
 import { useApp } from '../../constants/AppContext';
 import { SURAHS } from '../../data/surahs';
+import { AYAHS } from '../../data/ayahs';
 import { loadSurahAyahs } from '../../utils/quranLoader';
 import { setLastRead, getQuranFontSize, setQuranFontSize, toggleBookmark, isBookmarked } from '../../utils/storage';
 import {
@@ -52,6 +53,53 @@ function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, o
   useEffect(() => {
     Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }).start();
   }, []);
+
+  // Ayah word search (debounced)
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const debounceTimer = useRef(null);
+
+  useEffect(() => {
+    if (activeTab !== 'search') return;
+    setIsSearching(true);
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+      setIsSearching(false);
+    }, 300);
+    return () => { if (debounceTimer.current) clearTimeout(debounceTimer.current); };
+  }, [searchQuery, activeTab]);
+
+  const ayahSearchResults = useMemo(() => {
+    if (activeTab !== 'search' || !debouncedQuery || debouncedQuery.length < 2) return [];
+    const q = debouncedQuery.toLowerCase();
+    const results = [];
+    const surahNumbers = Object.keys(AYAHS).map(Number);
+    for (const surahNum of surahNumbers) {
+      if (results.length >= 50) break;
+      const surah = SURAHS.find(s => s.number === surahNum);
+      const ayahs = AYAHS[surahNum];
+      if (!ayahs || !surah) continue;
+      for (const ayah of ayahs) {
+        if (results.length >= 50) break;
+        const matchArabic = ayah.arabic.includes(debouncedQuery);
+        const matchEnglish = ayah.english.toLowerCase().includes(q);
+        if (matchArabic || matchEnglish) {
+          results.push({
+            key: `${surahNum}-${ayah.number}`,
+            surahNumber: surahNum,
+            surahName: surah.name,
+            surahArabic: surah.arabic,
+            ayahNumber: ayah.number,
+            arabic: ayah.arabic,
+            english: ayah.english,
+            matchType: matchArabic ? 'arabic' : 'english',
+          });
+        }
+      }
+    }
+    return results;
+  }, [debouncedQuery, activeTab]);
 
   // Hero collapses as user scrolls
   const heroHeight = scrollY.interpolate({
@@ -149,7 +197,7 @@ function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, o
           <Search size={18} color={colors.textTertiary} strokeWidth={1.5} />
           <TextInput
             style={[styles.searchInput, { color: colors.textPrimary, textAlign: isRTL ? 'right' : 'left' }]}
-            placeholder={t('search_surahs')}
+            placeholder={activeTab === 'search' ? t('search_ayahs') : t('search_surahs')}
             placeholderTextColor={colors.textTertiary}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -176,6 +224,12 @@ function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, o
         >
           <Text style={[styles.tabText, { color: colors.textTertiary }, activeTab === 'juz' && { color: colors.accent, fontWeight: FontWeight.semibold }]}>{t('juz')}</Text>
         </Pressable>
+        <Pressable
+          style={[styles.tabButton, activeTab === 'search' && { borderBottomColor: colors.accent }]}
+          onPress={() => setActiveTab('search')}
+        >
+          <Text style={[styles.tabText, { color: colors.textTertiary }, activeTab === 'search' && { color: colors.accent, fontWeight: FontWeight.semibold }]}>{t('search_tab')}</Text>
+        </Pressable>
       </View>
     </>
   );
@@ -185,11 +239,68 @@ function SurahListView({ searchQuery, setSearchQuery, activeTab, setActiveTab, o
     { useNativeDriver: false }
   );
 
+  function renderSearchResultRow({ item }) {
+    const snippet = item.english.length > 120
+      ? item.english.substring(0, 120) + '...'
+      : item.english;
+    return (
+      <Pressable onPress={() => onSelectSurah(item.surahNumber)}>
+        <View style={[styles.surahRow, { flexDirection: rowDir, height: 'auto', minHeight: 80, paddingVertical: Spacing.sm }]}>
+          <View style={[styles.surahNumberCircle, { backgroundColor: colors.accent }]}>
+            <Text style={styles.surahNumberText}>{item.surahNumber}</Text>
+          </View>
+          <View style={[styles.surahInfo, isRTL ? { marginLeft: Spacing.sm } : { marginRight: Spacing.sm }]}>
+            <Text style={[styles.surahEnglish, { color: colors.textPrimary }]}>{item.surahName} : {item.ayahNumber}</Text>
+            <Text style={[styles.searchResultArabic, { color: colors.gold }]} numberOfLines={1}>{item.arabic}</Text>
+            <Text style={[styles.surahMetaText, { color: colors.textTertiary }]} numberOfLines={2}>{snippet}</Text>
+          </View>
+        </View>
+        <View style={[styles.divider, { backgroundColor: colors.divider }]} />
+      </Pressable>
+    );
+  }
+
+  function renderSearchContent() {
+    if (!searchQuery || searchQuery.length < 2) {
+      return (
+        <View style={styles.emptyState}>
+          <Search size={32} color={colors.textTertiary} strokeWidth={1.5} />
+          <Text style={[styles.emptyText, { color: colors.textTertiary, marginTop: Spacing.sm }]}>{t('search_ayahs')}</Text>
+        </View>
+      );
+    }
+    if (isSearching) {
+      return (
+        <View style={styles.emptyState}>
+          <ActivityIndicator size="small" color={colors.accent} />
+          <Text style={[styles.emptyText, { color: colors.textTertiary, marginTop: Spacing.sm }]}>{t('searching')}</Text>
+        </View>
+      );
+    }
+    return (
+      <View style={styles.emptyState}>
+        <Text style={[styles.emptyText, { color: colors.textTertiary }]}>{t('no_results')}</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <StatusBar barStyle="light-content" />
 
-      {activeTab === 'juz' ? (
+      {activeTab === 'search' ? (
+        <Animated.FlatList
+          data={ayahSearchResults}
+          renderItem={renderSearchResultRow}
+          keyExtractor={(item) => item.key}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={listHeader}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
+          ListEmptyComponent={renderSearchContent()}
+        />
+      ) : activeTab === 'juz' ? (
         <Animated.SectionList
           sections={filteredJuzSections}
           renderItem={renderSurahRow}
@@ -357,6 +468,14 @@ function ReadingView({ surahNumber, onBack }) {
     setBookmarkedAyahs(prev => ({ ...prev, [ayahNumber]: !prev[ayahNumber] }));
   }
 
+  async function handleShareAyah(ayahNumber, arabicText, englishText) {
+    const surahName = surah?.name || `Surah ${surahNumber}`;
+    const text = `${arabicText}\n\n${englishText}\n\n— ${surahName} (${surahNumber}:${ayahNumber})\n\nShared from Sajdah`;
+    try {
+      await Share.share({ message: text });
+    } catch {}
+  }
+
   function formatDuration(millis) {
     if (!millis) return '0:00';
     const totalSec = Math.floor(millis / 1000);
@@ -421,6 +540,9 @@ function ReadingView({ surahNumber, onBack }) {
                 <View style={[styles.ayahNumberBadge, { backgroundColor: colors.gold }]}>
                   <Text style={styles.ayahNumberText}>{ayah.number}</Text>
                 </View>
+                <Pressable onPress={() => handleShareAyah(ayah.number, ayah.arabic, ayah.english)} hitSlop={8}>
+                  <Share2 size={16} color={colors.textTertiary} strokeWidth={1.5} />
+                </Pressable>
                 <Pressable onPress={() => handleToggleBookmark(ayah.number, ayah.english)} hitSlop={8}>
                   <Bookmark
                     size={16}
@@ -575,6 +697,7 @@ const styles = StyleSheet.create({
   surahEnglish: { fontSize: FontSize.body, fontWeight: FontWeight.semibold, marginBottom: 4 },
   surahMetaText: { fontSize: FontSize.caption },
   surahArabic: { fontSize: FontSize.h3, fontWeight: FontWeight.bold, textAlign: 'right', letterSpacing: 1 },
+  searchResultArabic: { fontSize: FontSize.bodySmall, textAlign: 'right', marginVertical: 2 },
   divider: { height: 1, marginLeft: Spacing.md + 40 + Spacing.sm, marginRight: Spacing.md },
 
   // Juz section header

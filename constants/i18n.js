@@ -68,6 +68,10 @@ export const translations = {
     load_error: 'Unable to load surah. Please check your connection.',
     try_again: 'Try Again',
     no_surahs: 'No surahs found',
+    search_tab: 'Search',
+    search_ayahs: 'Search in ayahs...',
+    no_results: 'No results found',
+    searching: 'Searching...',
 
     // Settings
     settings_title: 'Settings',
@@ -389,6 +393,10 @@ export const translations = {
     load_error: 'تعذر تحميل السورة. تحقق من اتصالك.',
     try_again: 'حاول مجدداً',
     no_surahs: 'لم يتم العثور على سور',
+    search_tab: 'بحث',
+    search_ayahs: 'ابحث في الآيات...',
+    no_results: 'لا توجد نتائج',
+    searching: 'جارٍ البحث...',
 
     // Settings
     settings_title: 'الإعدادات',
@@ -710,6 +718,10 @@ export const translations = {
     load_error: 'Impossible de charger la sourate. Vérifiez votre connexion.',
     try_again: 'Réessayer',
     no_surahs: 'Aucune sourate trouvée',
+    search_tab: 'Recherche',
+    search_ayahs: 'Rechercher dans les versets...',
+    no_results: 'Aucun résultat',
+    searching: 'Recherche en cours...',
 
     // Settings
     settings_title: 'Paramètres',

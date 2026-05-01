@@ -78,12 +78,16 @@ export function formatTime(date) {
 export function getCountdown(targetDate) {
   const now = new Date();
   const diff = targetDate - now;
-  if (diff <= 0) return { hours: 0, minutes: 0, text: 'Now' };
+  if (diff <= 0) return { hours: 0, minutes: 0, seconds: 0, text: 'Now' };
 
   const hours = Math.floor(diff / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const text = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
-  return { hours, minutes, text };
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+  const sec = String(seconds).padStart(2, '0');
+  const text = hours > 0
+    ? `${hours}h ${minutes}m ${sec}s`
+    : `${minutes}m ${sec}s`;
+  return { hours, minutes, seconds, text };
 }
 
 export function getAvailableMethods() {

@@ -2,7 +2,7 @@ import * as Notifications from 'expo-notifications';
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getPrayerTimes, formatTime } from './prayer';
-import { getNotificationSettings } from './storage';
+import { getNotificationSettings, getPrayerAdhanSounds } from './storage';
 
 const ADHAN_SOUND_KEY = 'sajdah_adhan_sound';
 
@@ -56,11 +56,27 @@ async function getNotifSoundName() {
   return ADHAN_SOUND_MAP[id]?.notif || ADHAN_SOUND_MAP.default.notif;
 }
 
+// Get notification sound for a specific prayer (per-prayer override or global)
+async function getNotifSoundForPrayer(prayerKey) {
+  const perPrayer = await getPrayerAdhanSounds();
+  if (perPrayer && perPrayer[prayerKey]) {
+    return ADHAN_SOUND_MAP[perPrayer[prayerKey]]?.notif || ADHAN_SOUND_MAP.default.notif;
+  }
+  return getNotifSoundName();
+}
+
 // Play full adhan audio (for foreground notifications)
-export async function playFullAdhan() {
+export async function playFullAdhan(prayerKey) {
   try {
     await stopAdhan();
-    const id = await getSelectedAdhan();
+    // Check per-prayer sound first, fall back to global
+    let id;
+    if (prayerKey) {
+      const perPrayer = await getPrayerAdhanSounds();
+      id = (perPrayer && perPrayer[prayerKey]) || (await getSelectedAdhan());
+    } else {
+      id = await getSelectedAdhan();
+    }
     const entry = ADHAN_SOUND_MAP[id];
     if (!entry?.full) return;
 
@@ -100,13 +116,14 @@ try {
   Notifications.setNotificationHandler({
     handleNotification: async (notification) => {
       const data = notification.request.content.data;
-      // If it's a prayer notification and app is in foreground, play full adhan
-      if (data?.prayer) {
-        playFullAdhan();
+      const id = notification.request.identifier || '';
+      // Only play full athan for actual prayer-time notifications (not reminders or daily)
+      if (data?.prayer && !id.startsWith('reminder_') && !id.startsWith('daily_')) {
+        playFullAdhan(data.prayer);
       }
       return {
         shouldShowAlert: true,
-        shouldPlaySound: false, // We play our own sound in foreground
+        shouldPlaySound: false,
         shouldSetBadge: false,
         shouldShowBanner: true,
         shouldShowList: true,
@@ -136,8 +153,10 @@ export async function scheduleAllPrayerNotifications(latitude, longitude) {
   // Also schedule special reminders (qiyam, friday kahf)
   scheduleSpecialReminders(latitude, longitude).catch(() => {});
 
+  // Schedule daily hadith & gentle reminders
+  scheduleDailyReminders().catch(() => {});
+
   const settings = await getNotificationSettings();
-  const soundName = await getNotifSoundName();
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
@@ -159,6 +178,8 @@ export async function scheduleAllPrayerNotifications(latitude, longitude) {
   for (const prayer of prayers) {
     if (!settings[prayer.key]) continue;
 
+    // Use per-prayer sound if set, otherwise global
+    const soundName = await getNotifSoundForPrayer(prayer.key);
     const soundConfig = soundName ? soundName : true;
 
     // Schedule for today if time hasn't passed
@@ -177,6 +198,23 @@ export async function scheduleAllPrayerNotifications(latitude, longitude) {
         },
         identifier: `prayer_${prayer.key}_today`,
       });
+
+      // Pre-prayer reminder (15 min before)
+      if (settings.pre_reminder && prayer.key !== 'sunrise') {
+        const reminderTime = new Date(todayTime.getTime() - 15 * 60 * 1000);
+        if (reminderTime > now) {
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: `${prayer.label} in 15 minutes`,
+              body: `Prepare for ${prayer.label} prayer`,
+              sound: true,
+              data: { prayer: prayer.key, type: 'pre_reminder' },
+            },
+            trigger: { type: 'date', date: reminderTime },
+            identifier: `reminder_${prayer.key}_today`,
+          });
+        }
+      }
     }
 
     // Always schedule for tomorrow
@@ -195,6 +233,21 @@ export async function scheduleAllPrayerNotifications(latitude, longitude) {
         },
         identifier: `prayer_${prayer.key}_tomorrow`,
       });
+
+      // Pre-prayer reminder for tomorrow
+      if (settings.pre_reminder && prayer.key !== 'sunrise') {
+        const reminderTime = new Date(tomorrowTime.getTime() - 15 * 60 * 1000);
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: `${prayer.label} in 15 minutes`,
+            body: `Prepare for ${prayer.label} prayer`,
+            sound: true,
+            data: { prayer: prayer.key, type: 'pre_reminder' },
+          },
+          trigger: { type: 'date', date: reminderTime },
+          identifier: `reminder_${prayer.key}_tomorrow`,
+        });
+      }
     }
   }
 }
@@ -202,7 +255,7 @@ export async function scheduleAllPrayerNotifications(latitude, longitude) {
 export async function cancelAllPrayerNotifications() {
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
   for (const notif of scheduled) {
-    if (notif.identifier.startsWith('prayer_')) {
+    if (notif.identifier.startsWith('prayer_') || notif.identifier.startsWith('reminder_') || notif.identifier.startsWith('daily_')) {
       await Notifications.cancelScheduledNotificationAsync(notif.identifier);
     }
   }
@@ -261,6 +314,87 @@ export async function cancelSinglePrayer(prayerKey) {
   for (const notif of scheduled) {
     if (notif.identifier.startsWith(`prayer_${prayerKey}`)) {
       await Notifications.cancelScheduledNotificationAsync(notif.identifier);
+    }
+  }
+}
+
+// ── Daily Reminders (Hadith + Gentle Nudges) ─────────────
+
+const DAILY_REMINDERS = [
+  { hour: 7, minute: 30, title: 'Morning Reflection', bodyKey: 'hadith' },
+  { hour: 18, minute: 0, title: 'Evening Adhkar', body: 'Take a moment for evening remembrance — SubhanAllah, Alhamdulillah, Allahu Akbar.' },
+];
+
+const GENTLE_NUDGES = [
+  'A moment of dhikr brings peace to the heart.',
+  'The Prophet (PBUH) said: "The best of deeds are those done consistently, even if small."',
+  'Have you read Quran today? Even a few verses bring reward.',
+  'Sending salawat upon the Prophet (PBUH) is a form of worship.',
+  'Remember to make dua — Allah is the Most Generous.',
+  'Gratitude opens doors to more blessings. Say Alhamdulillah.',
+  'A kind word is charity. Spread goodness today.',
+];
+
+export async function scheduleDailyReminders() {
+  const settings = await getNotificationSettings();
+  const now = new Date();
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // Cancel existing daily notifications
+  const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+  for (const notif of scheduled) {
+    if (notif.identifier.startsWith('daily_')) {
+      await Notifications.cancelScheduledNotificationAsync(notif.identifier);
+    }
+  }
+
+  // Morning hadith notification
+  if (settings.daily_hadith) {
+    const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+
+    for (const day of [today, tomorrow]) {
+      const morningTime = new Date(day);
+      morningTime.setHours(7, 30, 0, 0);
+
+      if (morningTime > now) {
+        // Pick hadith based on day of year for variety
+        const hadithDay = Math.floor((day - new Date(day.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+        const nudge = GENTLE_NUDGES[hadithDay % GENTLE_NUDGES.length];
+
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: 'Morning Reflection',
+            body: nudge,
+            sound: true,
+            data: { type: 'daily_hadith' },
+          },
+          trigger: { type: 'date', date: morningTime },
+          identifier: `daily_hadith_${day.toISOString().split('T')[0]}`,
+        }).catch(() => {});
+      }
+    }
+  }
+
+  // Evening adhkar reminder
+  if (settings.daily_reminders) {
+    for (const day of [today, tomorrow]) {
+      const eveningTime = new Date(day);
+      eveningTime.setHours(18, 0, 0, 0);
+
+      if (eveningTime > now) {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: 'Evening Adhkar',
+            body: 'Take a moment for evening remembrance — SubhanAllah, Alhamdulillah, Allahu Akbar.',
+            sound: true,
+            data: { type: 'daily_reminder' },
+          },
+          trigger: { type: 'date', date: eveningTime },
+          identifier: `daily_evening_${day.toISOString().split('T')[0]}`,
+        }).catch(() => {});
+      }
     }
   }
 }

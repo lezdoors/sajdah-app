@@ -19,7 +19,8 @@ import { useApp } from '../../constants/AppContext';
 import { getAvailableMethods } from '../../utils/prayer';
 import { getStreak, getDailyGoals, toggleGoal, getBookmarks, getPrayerStats } from '../../utils/storage';
 import { refreshNotificationSounds, scheduleSpecialReminders, cancelSpecialReminders } from '../../utils/notifications';
-import { getNotificationSettings, setNotificationSettings } from '../../utils/storage';
+import { getNotificationSettings, setNotificationSettings, getPrayerAdhanSounds, setPrayerAdhanSound } from '../../utils/storage';
+import { scheduleDailyReminders } from '../../utils/notifications';
 
 const CALC_METHOD_KEY = 'sajdah_calc_method';
 const NOTIF_KEY = 'sajdah_notifications';
@@ -66,6 +67,12 @@ export default function YouScreen() {
   const [showAdhanPicker, setShowAdhanPicker] = useState(false);
   const [qiyamReminder, setQiyamReminder] = useState(false);
   const [fridayKahfReminder, setFridayKahfReminder] = useState(false);
+  const [preReminderEnabled, setPreReminderEnabled] = useState(true);
+  const [dailyHadithEnabled, setDailyHadithEnabled] = useState(true);
+  const [dailyRemindersEnabled, setDailyRemindersEnabled] = useState(true);
+  const [showPerPrayerSounds, setShowPerPrayerSounds] = useState(false);
+  const [perPrayerSounds, setPerPrayerSounds] = useState(null);
+  const [editingPrayerSound, setEditingPrayerSound] = useState(null);
   const [previewingId, setPreviewingId] = useState(null);
   const previewSoundRef = useRef(null);
   const methods = getAvailableMethods();
@@ -137,6 +144,12 @@ export default function YouScreen() {
     const notifSettings = await getNotificationSettings();
     setQiyamReminder(!!notifSettings.qiyam);
     setFridayKahfReminder(!!notifSettings.friday_kahf);
+    setPreReminderEnabled(notifSettings.pre_reminder !== false);
+    setDailyHadithEnabled(notifSettings.daily_hadith !== false);
+    setDailyRemindersEnabled(notifSettings.daily_reminders !== false);
+
+    const pps = await getPrayerAdhanSounds();
+    setPerPrayerSounds(pps);
   }
 
   // Animate active dots after streak loads
@@ -227,6 +240,18 @@ export default function YouScreen() {
         // Re-schedule only active ones
         await scheduleSpecialReminders(pos.coords.latitude, pos.coords.longitude);
       }
+    } catch {}
+  }
+
+  async function handlePerPrayerSoundChange(prayerKey, soundId) {
+    const updated = await setPrayerAdhanSound(prayerKey, soundId);
+    setPerPrayerSounds(updated);
+    setEditingPrayerSound(null);
+    // Re-schedule notifications with the new per-prayer sound
+    try {
+      const loc = await import('expo-location');
+      const pos = await loc.getCurrentPositionAsync({ accuracy: loc.Accuracy?.High || 4 });
+      await refreshNotificationSounds(pos.coords.latitude, pos.coords.longitude);
     } catch {}
   }
 
@@ -615,6 +640,54 @@ export default function YouScreen() {
                 thumbColor="#FFFFFF"
               />
             </View>
+            <View style={[styles.settingsDivider, { backgroundColor: colors.divider }]} />
+            <View style={[styles.settingsRow, { flexDirection: rowDir }]}>
+              <View style={[styles.settingsRowLeft, { flexDirection: rowDir }]}>
+                <Bell size={18} color={colors.textSecondary} strokeWidth={1.5} />
+                <View>
+                  <Text style={[styles.settingsRowLabel, { color: colors.textPrimary, textAlign }]}>15-min Pre-Reminder</Text>
+                  <Text style={[styles.reminderDesc, { color: colors.textTertiary, textAlign }]}>Gentle nudge before each prayer</Text>
+                </View>
+              </View>
+              <Switch
+                value={preReminderEnabled}
+                onValueChange={(v) => { setPreReminderEnabled(v); handleReminderToggle('pre_reminder', v); }}
+                trackColor={{ false: colors.switchTrack, true: colors.switchTrackActive }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+            <View style={[styles.settingsDivider, { backgroundColor: colors.divider }]} />
+            <View style={[styles.settingsRow, { flexDirection: rowDir }]}>
+              <View style={[styles.settingsRowLeft, { flexDirection: rowDir }]}>
+                <BookOpen size={18} color={colors.textSecondary} strokeWidth={1.5} />
+                <View>
+                  <Text style={[styles.settingsRowLabel, { color: colors.textPrimary, textAlign }]}>Morning Hadith</Text>
+                  <Text style={[styles.reminderDesc, { color: colors.textTertiary, textAlign }]}>Daily reflection at 7:30 AM</Text>
+                </View>
+              </View>
+              <Switch
+                value={dailyHadithEnabled}
+                onValueChange={(v) => { setDailyHadithEnabled(v); handleReminderToggle('daily_hadith', v); }}
+                trackColor={{ false: colors.switchTrack, true: colors.switchTrackActive }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+            <View style={[styles.settingsDivider, { backgroundColor: colors.divider }]} />
+            <View style={[styles.settingsRow, { flexDirection: rowDir }]}>
+              <View style={[styles.settingsRowLeft, { flexDirection: rowDir }]}>
+                <Moon size={18} color={colors.textSecondary} strokeWidth={1.5} />
+                <View>
+                  <Text style={[styles.settingsRowLabel, { color: colors.textPrimary, textAlign }]}>Evening Adhkar</Text>
+                  <Text style={[styles.reminderDesc, { color: colors.textTertiary, textAlign }]}>Dhikr reminder at 6:00 PM</Text>
+                </View>
+              </View>
+              <Switch
+                value={dailyRemindersEnabled}
+                onValueChange={(v) => { setDailyRemindersEnabled(v); handleReminderToggle('daily_reminders', v); }}
+                trackColor={{ false: colors.switchTrack, true: colors.switchTrackActive }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
           </View>
         </AnimatedSection>
 
@@ -680,6 +753,63 @@ export default function YouScreen() {
                 )}
               </View>
             ))}
+          </View>
+        )}
+
+        {/* Per-Prayer Sound Customization */}
+        <AnimatedSection index={4} style={styles.settingsGroupSpacing}>
+          <Pressable onPress={() => setShowPerPrayerSounds(!showPerPrayerSounds)}>
+            <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder, flexDirection: rowDir, alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm }, shadows.card]}>
+              <Text style={[styles.settingsRowLabel, { color: colors.textPrimary }]}>Customize Per Prayer</Text>
+              <ChevronRight size={18} color={colors.textTertiary} strokeWidth={1.5} style={{ transform: [{ rotate: showPerPrayerSounds ? '90deg' : '0deg' }] }} />
+            </View>
+          </Pressable>
+        </AnimatedSection>
+
+        {showPerPrayerSounds && (
+          <View style={[styles.card, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder, marginHorizontal: Spacing.md, marginTop: -Spacing.xs }, shadows.card]}>
+            {['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'].map((pKey, idx) => {
+              const currentSound = perPrayerSounds?.[pKey] || null;
+              const soundLabel = currentSound ? (ADHAN_SOUNDS.find(s => s.id === currentSound)?.labelKey || 'adhan_default') : 'Global';
+              const isEditing = editingPrayerSound === pKey;
+              return (
+                <View key={pKey}>
+                  {idx > 0 && <View style={[styles.settingsDivider, { backgroundColor: colors.divider }]} />}
+                  <Pressable
+                    style={[styles.settingsRow, { flexDirection: rowDir }]}
+                    onPress={() => setEditingPrayerSound(isEditing ? null : pKey)}
+                  >
+                    <Text style={[styles.settingsRowLabel, { color: colors.textPrimary, textAlign, flex: 1 }]}>{t(pKey)}</Text>
+                    <Text style={[styles.settingsRowValue, { color: currentSound ? colors.accent : colors.textTertiary }]}>
+                      {currentSound ? t(soundLabel) : 'Global'}
+                    </Text>
+                  </Pressable>
+                  {isEditing && (
+                    <View style={{ paddingHorizontal: Spacing.sm, paddingBottom: Spacing.sm }}>
+                      <Pressable
+                        style={[styles.perPrayerOption, !currentSound && { backgroundColor: colors.accentLight }]}
+                        onPress={() => handlePerPrayerSoundChange(pKey, 'global')}
+                      >
+                        <Text style={[styles.perPrayerOptionText, { color: !currentSound ? colors.accent : colors.textSecondary }]}>Use Global</Text>
+                        {!currentSound && <Check size={14} color={colors.accent} strokeWidth={2} />}
+                      </Pressable>
+                      {ADHAN_SOUNDS.map((sound) => (
+                        <Pressable
+                          key={sound.id}
+                          style={[styles.perPrayerOption, currentSound === sound.id && { backgroundColor: colors.accentLight }]}
+                          onPress={() => handlePerPrayerSoundChange(pKey, sound.id)}
+                        >
+                          <Text style={[styles.perPrayerOptionText, { color: currentSound === sound.id ? colors.accent : colors.textPrimary }]}>
+                            {t(sound.labelKey)}
+                          </Text>
+                          {currentSound === sound.id && <Check size={14} color={colors.accent} strokeWidth={2} />}
+                        </Pressable>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              );
+            })}
           </View>
         )}
 
@@ -1049,6 +1179,21 @@ const styles = StyleSheet.create({
   settingsDivider: {
     height: 1,
     marginHorizontal: Spacing.md,
+  },
+
+  // -- Per-Prayer Sound Options --
+  perPrayerOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    marginVertical: 1,
+  },
+  perPrayerOptionText: {
+    fontSize: FontSize.caption,
+    fontWeight: FontWeight.medium,
   },
 
   // -- Method Picker --

@@ -98,7 +98,7 @@ export default function PrayerScreen() {
         setCurrentPrayer(getCurrentPrayer(prayerTimes));
         if (next) setCountdown(getCountdown(next.time));
       }
-    }, 30000);
+    }, 1000);
     return () => { mounted = false; if (intervalRef.current) clearInterval(intervalRef.current); };
   }, []);
 
